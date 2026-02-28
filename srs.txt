@@ -1,0 +1,574 @@
+SOFTWARE REQUIREMENTS SPECIFICATION (SRS)
+1. INTRODUCTION
+1.1 Purpose
+
+This document defines the complete functional and non-functional requirements for the Hair Salon Appointment & Live Queue Management System, a cross-platform mobile application built using Expo (React Native) with backend services hosted on Railway.
+
+The system enables:
+
+Clients to book appointments and view real-time queue status.
+
+Admin to manage appointments, schedule availability, and live queue operations.
+
+1.2 Scope
+
+The application will:
+
+Support Android & iOS using Expo.
+
+Provide role-based access (Admin / Client).
+
+Allow appointment booking with dynamic time slot management.
+
+Maintain a real-time queue system.
+
+Provide daily session management (open/close).
+
+Allow drag-and-drop queue reordering.
+
+Provide telephonic quick-call integration.
+
+Be scalable to support multiple salons in future (Phase 2).
+
+1.3 Definitions
+Term	Description
+Slot	Fixed duration time interval for booking
+Session	A single operational day of the salon
+Queue	Ordered list of active appointments
+Active Day	A date marked open for booking
+Live Queue	Real-time ordered appointment list
+2. OVERALL DESCRIPTION
+2.1 Product Perspective
+
+The system consists of:
+
+Mobile App (Expo / React Native)
+
+Backend API (Node.js / FastAPI recommended)
+
+Database (PostgreSQL on Railway)
+
+Authentication Service (JWT-based)
+
+Cloud Hosting: Railway
+
+2.2 User Roles
+2.2.1 Admin
+
+Manage users
+
+Manage open/close days
+
+Set slot duration
+
+View/edit/delete appointments
+
+Drag-and-drop queue reorder
+
+Mark appointment completed
+
+Close daily session
+
+Directly call client
+
+2.2.2 Client
+
+Register / Login
+
+View available days
+
+View free slots
+
+Book appointment
+
+Cancel own appointment
+
+View live queue
+
+Update profile
+
+3. FUNCTIONAL REQUIREMENTS
+3.1 Authentication & Authorization
+FR-1: User Registration
+
+Username must be 10-digit phone number (unique).
+
+Password (minimum 8 characters).
+
+First name
+
+Last name
+
+Profile image (optional)
+
+Role (assigned by admin only)
+
+FR-2: Login
+
+JWT-based authentication
+
+Role-based route protection
+
+Token expiration + refresh mechanism
+
+FR-3: Profile Management
+
+Both roles can:
+
+Change first name
+
+Change last name
+
+Change password
+
+Change profile image
+
+Phone number (username) cannot be changed.
+
+3.2 Admin Functional Requirements
+FR-4: Manage Users
+
+Create users (Admin or Client)
+
+Delete users
+
+View list of users
+
+Deactivate user
+
+Constraints:
+
+Cannot delete self
+
+Cannot delete super-admin (if exists)
+
+FR-5: Manage Salon Schedule
+
+Admin can:
+
+Mark specific calendar dates as:
+
+Open
+
+Closed
+
+Holiday
+
+Define default working hours (e.g., 9AM–6PM)
+
+Override working hours for specific dates
+
+Define slot duration (e.g., 15 / 20 / 30 minutes)
+
+Changing slot duration:
+
+Only allowed if no future bookings exist
+
+Otherwise require confirmation
+
+FR-6: Appointment Management
+
+Admin can:
+
+View all appointments (calendar + list view)
+
+Filter by:
+
+Date
+
+Status (Booked / Completed / Cancelled / No-show)
+
+Edit appointment time
+
+Delete appointment
+
+Reassign appointment to new slot
+
+FR-7: Drag & Drop Queue Reordering
+
+Admin can:
+
+Touch-hold an appointment
+
+Drag up/down to reorder
+
+Save queue order
+
+System Behavior:
+
+Queue position auto-updates
+
+Order index stored in database
+
+Real-time update reflected to clients
+
+FR-8: Live Queue Management
+
+Admin can:
+
+Mark appointment as “In Service”
+
+Mark appointment as “Completed”
+
+Mark appointment as “No-show”
+
+Close today’s session (only if queue empty)
+
+When session closed:
+
+No new bookings allowed
+
+Today's session archived
+
+FR-9: Direct Call Feature
+
+Admin can:
+
+Tap appointment
+
+Press “Call Client”
+
+Device dialer opens with phone number
+
+3.3 Client Functional Requirements
+FR-10: View Available Days
+
+Client can:
+
+See open days
+
+See working hours
+
+See remaining slots
+
+Closed days not selectable.
+
+FR-11: Book Appointment
+
+Client:
+
+Select date
+
+Select available slot
+
+Confirm booking
+
+System:
+
+Lock slot
+
+Prevent double booking
+
+Assign queue position
+
+Send confirmation notification (optional Phase 2)
+
+FR-12: Cancel Appointment
+
+Client can:
+
+Cancel own future appointment
+
+Cannot cancel past or completed appointments
+
+Cancellation Policy:
+
+Optional: Prevent cancellation within X hours before slot
+
+FR-13: View Live Queue
+
+Client can:
+
+See:
+
+Current serving
+
+Their queue position
+
+Estimated waiting time
+
+Auto-refresh every X seconds
+
+Real-time via WebSocket (preferred)
+
+4. SYSTEM WORKFLOW
+4.1 Booking Flow
+
+Client → Select Date → View Slots → Confirm → Slot Reserved → Queue Assigned
+
+4.2 Queue Flow
+
+Booked → Waiting → In Service → Completed
+
+or
+
+Booked → Cancelled / No-show
+
+4.3 Daily Session Flow
+
+Admin Opens Day → Bookings Active → Manage Queue → Complete All → Close Session
+
+5. DATABASE DESIGN (PostgreSQL)
+5.1 Users Table
+Field	Type
+id	UUID
+phone_number	VARCHAR(10) UNIQUE
+password_hash	TEXT
+first_name	TEXT
+last_name	TEXT
+role	ENUM(admin, client)
+profile_image_url	TEXT
+is_active	BOOLEAN
+created_at	TIMESTAMP
+5.2 Schedule Table
+Field	Type
+id	UUID
+date	DATE
+is_open	BOOLEAN
+start_time	TIME
+end_time	TIME
+slot_duration	INTEGER
+5.3 Appointments Table
+Field	Type
+id	UUID
+user_id	FK
+date	DATE
+time_slot	TIME
+queue_position	INTEGER
+status	ENUM(booked, in_service, completed, cancelled, no_show)
+created_at	TIMESTAMP
+5.4 Sessions Table
+Field	Type
+id	UUID
+date	DATE
+is_closed	BOOLEAN
+closed_at	TIMESTAMP
+6. API SPECIFICATION
+
+Base URL:
+
+/api/v1
+Auth
+
+POST /auth/register
+POST /auth/login
+
+Users
+
+GET /users
+DELETE /users/{id}
+
+Schedule
+
+GET /schedule/{date}
+PUT /schedule/{date}
+
+Appointments
+
+POST /appointments
+GET /appointments?date=
+PUT /appointments/{id}
+DELETE /appointments/{id}
+
+Queue
+
+PUT /queue/reorder
+PUT /queue/complete/{id}
+
+7. NON-FUNCTIONAL REQUIREMENTS
+7.1 Performance
+
+Response time < 500ms
+
+Support 100 concurrent users
+
+Queue updates < 2 seconds latency
+
+7.2 Security
+
+JWT authentication
+
+Password hashing (bcrypt)
+
+Role-based access control
+
+Rate limiting
+
+HTTPS enforced
+
+Input validation
+
+SQL injection prevention
+
+7.3 Availability
+
+99% uptime
+
+Daily database backup
+
+7.4 Scalability
+
+Modular API
+
+Prepared for multi-salon architecture
+
+Future microservice upgrade
+
+8. UI / UX REQUIREMENTS
+8.1 Client UI
+
+Tabs:
+
+Book
+
+My Appointment
+
+Live Queue
+
+Profile
+
+Minimal, modern UI
+Color-coded statuses:
+
+Green – Available
+
+Red – Closed
+
+Blue – In service
+
+Gray – Completed
+
+8.2 Admin UI
+
+Tabs:
+
+Dashboard
+
+Appointments
+
+Calendar
+
+Queue
+
+Users
+
+Profile
+
+Drag-and-drop enabled queue list
+Real-time badge indicators
+
+9. REAL-TIME SYSTEM
+
+Use:
+
+WebSocket (Socket.IO recommended)
+
+Emit events:
+
+queue_update
+
+appointment_completed
+
+session_closed
+
+Clients auto-refresh queue.
+
+10. EDGE CASES
+
+Double booking prevention (DB unique constraint)
+
+Simultaneous booking race condition → use transaction lock
+
+Internet disconnect handling
+
+Admin closes session mid-day
+
+Admin changes slot duration with future bookings
+
+11. FUTURE IMPROVEMENTS (PHASE 2)
+
+SMS reminders
+
+Push notifications
+
+Payment integration
+
+Multiple branches
+
+Barber-specific booking
+
+Service type selection (Haircut, Beard trim, etc.)
+
+Analytics dashboard
+
+Customer loyalty system
+
+Review & rating system
+
+12. TECHNOLOGY STACK
+
+Frontend:
+
+Expo (React Native)
+
+Redux or Zustand
+
+React Navigation
+
+Backend:
+
+Node.js + Express OR FastAPI
+
+PostgreSQL (Railway)
+
+Redis (optional for queue caching)
+
+DevOps:
+
+Railway CI/CD
+
+Dockerized backend
+
+13. ACCEPTANCE CRITERIA
+
+System is considered complete when:
+
+Admin can fully manage schedule and queue
+
+Clients can book and see live queue
+
+No double booking possible
+
+Drag-and-drop queue works reliably
+
+Daily session can be closed only when empty
+
+All profile features functional
+
+Fully responsive on Android & iOS
+
+14. RISK ANALYSIS
+Risk	Mitigation
+Booking race condition	DB locking
+Server downtime	Railway scaling
+Poor UX	Usability testing
+Admin misuse	Role validation
+FINAL IMPROVEMENT SUMMARY
+
+Your original idea is strong. The improved system now includes:
+
+Real-time queue
+
+Session lifecycle management
+
+Slot configuration control
+
+Drag-and-drop ordering persistence
+
+Security hardening
+
+Future scalability design
+
+Structured backend architecture
+
+Edge-case handling

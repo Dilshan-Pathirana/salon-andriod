@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: salon_user
+      POSTGRES_PASSWORD: salon_password
+      POSTGRES_DB: salon_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U salon_user -d salon_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: "postgresql://salon_user:salon_password@db:5432/salon_db?schema=public"
+      JWT_ACCESS_SECRET: "super-secret-access-key-change-me-in-production"
+      JWT_REFRESH_SECRET: "super-secret-refresh-key-change-me-in-production"
+      JWT_ACCESS_EXPIRY: "15m"
+      JWT_REFRESH_EXPIRY: "7d"
+      PORT: "3000"
+      NODE_ENV: "production"
+      CORS_ORIGIN: "*"
+      RATE_LIMIT_WINDOW_MS: "900000"
+      RATE_LIMIT_MAX_REQUESTS: "100"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:

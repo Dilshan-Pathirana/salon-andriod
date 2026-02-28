@@ -1,0 +1,373 @@
+{
+  "info": {
+    "name": "Salon Queue API",
+    "description": "Hair Salon Appointment & Live Queue Management System API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000/api/v1" },
+    { "key": "accessToken", "value": "" },
+    { "key": "refreshToken", "value": "" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{accessToken}}" }]
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/register",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phoneNumber\": \"0501234567\",\n  \"password\": \"test1234\",\n  \"firstName\": \"Test\",\n  \"lastName\": \"User\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const res = pm.response.json();",
+                  "  pm.collectionVariables.set('accessToken', res.data.accessToken);",
+                  "  pm.collectionVariables.set('refreshToken', res.data.refreshToken);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login (Admin)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phoneNumber\": \"0712345678\",\n  \"password\": \"admin12345\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const res = pm.response.json();",
+                  "  pm.collectionVariables.set('accessToken', res.data.accessToken);",
+                  "  pm.collectionVariables.set('refreshToken', res.data.refreshToken);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login (Client)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phoneNumber\": \"0771234567\",\n  \"password\": \"client12345\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const res = pm.response.json();",
+                  "  pm.collectionVariables.set('accessToken', res.data.accessToken);",
+                  "  pm.collectionVariables.set('refreshToken', res.data.refreshToken);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/refresh",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const res = pm.response.json();",
+                  "  pm.collectionVariables.set('accessToken', res.data.accessToken);",
+                  "  pm.collectionVariables.set('refreshToken', res.data.refreshToken);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/logout",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Get My Profile",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/users/profile"
+          }
+        },
+        {
+          "name": "Update My Profile",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/users/profile",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Updated\",\n  \"lastName\": \"Name\"\n}"
+            }
+          }
+        },
+        {
+          "name": "[Admin] List All Users",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/users"
+          }
+        },
+        {
+          "name": "[Admin] Create User",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/users",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phoneNumber\": \"0509876543\",\n  \"password\": \"pass1234\",\n  \"firstName\": \"New\",\n  \"lastName\": \"User\",\n  \"role\": \"CLIENT\"\n}"
+            }
+          }
+        },
+        {
+          "name": "[Admin] Delete User",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/users/:id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Schedule",
+      "item": [
+        {
+          "name": "Get Schedule for Date",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/schedule/2025-01-20"
+          }
+        },
+        {
+          "name": "Get Schedule Range",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/schedule?startDate=2025-01-20&endDate=2025-02-20",
+              "host": ["{{baseUrl}}"],
+              "path": ["schedule"],
+              "query": [
+                { "key": "startDate", "value": "2025-01-20" },
+                { "key": "endDate", "value": "2025-02-20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Available Days",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/schedule/available?startDate=2025-01-20&endDate=2025-02-20",
+              "host": ["{{baseUrl}}"],
+              "path": ["schedule", "available"],
+              "query": [
+                { "key": "startDate", "value": "2025-01-20" },
+                { "key": "endDate", "value": "2025-02-20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "[Admin] Upsert Schedule",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/schedule",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"date\": \"2025-01-25\",\n  \"dayStatus\": \"OPEN\",\n  \"startTime\": \"09:00\",\n  \"endTime\": \"18:00\",\n  \"slotDurationMins\": 30\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Appointments",
+      "item": [
+        {
+          "name": "Book Appointment",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/appointments",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"date\": \"2025-01-25\",\n  \"timeSlot\": \"10:00\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get My Appointments",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/appointments/my"
+          }
+        },
+        {
+          "name": "[Admin] Get All Appointments",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/appointments?date=2025-01-25",
+              "host": ["{{baseUrl}}"],
+              "path": ["appointments"],
+              "query": [
+                { "key": "date", "value": "2025-01-25" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "[Admin] Mark In Service",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/appointments/:id/in-service"
+          }
+        },
+        {
+          "name": "[Admin] Complete Appointment",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/appointments/:id/complete"
+          }
+        },
+        {
+          "name": "[Admin] Mark No-Show",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/appointments/:id/no-show"
+          }
+        },
+        {
+          "name": "Cancel Appointment",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/appointments/:id/cancel"
+          }
+        },
+        {
+          "name": "[Admin] Delete Appointment",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/appointments/:id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Queue",
+      "item": [
+        {
+          "name": "Get Live Queue",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/queue/2025-01-25"
+          }
+        },
+        {
+          "name": "[Admin] Reorder Queue",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/queue/2025-01-25/reorder",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderedIds\": [\"id-1\", \"id-2\", \"id-3\"]\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Session",
+      "item": [
+        {
+          "name": "Get Session",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/session/2025-01-25"
+          }
+        },
+        {
+          "name": "[Admin] Open Session",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/session/2025-01-25/open"
+          }
+        },
+        {
+          "name": "[Admin] Close Session",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/session/2025-01-25/close"
+          }
+        },
+        {
+          "name": "[Admin] Dashboard Stats",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/session/2025-01-25/stats"
+          }
+        }
+      ]
+    }
+  ]
+}
