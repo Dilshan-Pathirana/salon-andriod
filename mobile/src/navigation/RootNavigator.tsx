@@ -1,5 +1,4 @@
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useAuthStore } from '../store';
 import { Loading } from '../components';
@@ -23,16 +22,14 @@ export function RootNavigator() {
   }
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {!isAuthenticated ? (
-          <Stack.Screen name="Auth" component={AuthNavigator} />
-        ) : user?.role === 'ADMIN' ? (
-          <Stack.Screen name="AdminTabs" component={AdminTabNavigator} />
-        ) : (
-          <Stack.Screen name="ClientTabs" component={ClientTabNavigator} />
-        )}
-      </Stack.Navigator>
-    </NavigationContainer>
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      {!isAuthenticated ? (
+        <Stack.Screen name="Auth" component={AuthNavigator} />
+      ) : user?.role === 'ADMIN' ? (
+        <Stack.Screen name="AdminTabs" component={AdminTabNavigator} />
+      ) : (
+        <Stack.Screen name="ClientTabs" component={ClientTabNavigator} />
+      )}
+    </Stack.Navigator>
   );
 }

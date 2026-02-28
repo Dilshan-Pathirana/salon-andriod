@@ -116,8 +116,14 @@ export function BookAppointmentScreen() {
           markedDates={markedDates}
           onDayPress={handleDayPress}
           theme={{
+            calendarBackground: COLORS.surface,
+            dayTextColor: COLORS.text,
+            monthTextColor: COLORS.text,
+            textSectionTitleColor: COLORS.textSecondary,
+            textDisabledColor: 'rgba(255,255,255,0.2)',
             todayTextColor: COLORS.primary,
             selectedDayBackgroundColor: COLORS.primary,
+            selectedDayTextColor: '#0F0F0F',
             arrowColor: COLORS.primary,
             dotColor: COLORS.statusAvailable,
           }}
@@ -218,6 +224,8 @@ const styles = StyleSheet.create({
     marginHorizontal: SPACING.lg,
     borderRadius: 12,
     overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.06)',
     elevation: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
@@ -264,7 +272,7 @@ const styles = StyleSheet.create({
     color: COLORS.textLight,
   },
   slotTextSelected: {
-    color: COLORS.textWhite,
+    color: '#0F0F0F',
   },
   bookButton: {
     marginHorizontal: SPACING.lg,

@@ -1,0 +1,1430 @@
+```App.tsx
+import React, { useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
+import { Navigation, TabType } from './components/Navigation'
+import { Home } from './pages/Home'
+import { Book } from './pages/Book'
+import { Queue } from './pages/Queue'
+import { Gallery } from './pages/Gallery'
+import { Profile } from './pages/Profile'
+import { Admin } from './pages/Admin'
+export function App() {
+  const [activeTab, setActiveTab] = useState<TabType>('home')
+  // Mock admin role detection
+  const isAdmin = true
+  const renderScreen = () => {
+    switch (activeTab) {
+      case 'home':
+        return <Home onNavigate={setActiveTab} />
+      case 'book':
+        return <Book />
+      case 'queue':
+        return <Queue />
+      case 'gallery':
+        return <Gallery />
+      case 'profile':
+        return <Profile />
+      case 'admin':
+        return <Admin />
+      default:
+        return <Home onNavigate={setActiveTab} />
+    }
+  }
+  return (
+    <div className="min-h-screen bg-luxury-black flex justify-center w-full font-body">
+      {/* Mobile container constraint for desktop viewing */}
+      <div className="w-full max-w-md bg-luxury-black min-h-screen relative shadow-2xl overflow-x-hidden">
+        {/* Main Content Area with Transitions */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            initial={{
+              opacity: 0,
+              y: 10,
+            }}
+            animate={{
+              opacity: 1,
+              y: 0,
+            }}
+            exit={{
+              opacity: 0,
+              y: -10,
+            }}
+            transition={{
+              duration: 0.2,
+            }}
+            className="min-h-full"
+          >
+            {renderScreen()}
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Bottom Navigation */}
+        <Navigation
+          activeTab={activeTab}
+          onChange={setActiveTab}
+          isAdmin={isAdmin}
+        />
+      </div>
+    </div>
+  )
+}
+
+```
+```components/Navigation.tsx
+import React from 'react'
+import {
+  Home,
+  Calendar,
+  Users,
+  Image as ImageIcon,
+  User,
+  Shield,
+} from 'lucide-react'
+import { motion } from 'framer-motion'
+export type TabType =
+  | 'home'
+  | 'book'
+  | 'queue'
+  | 'gallery'
+  | 'profile'
+  | 'admin'
+interface NavigationProps {
+  activeTab: TabType
+  onChange: (tab: TabType) => void
+  isAdmin?: boolean
+}
+export function Navigation({
+  activeTab,
+  onChange,
+  isAdmin = false,
+}: NavigationProps) {
+  const tabs = [
+    {
+      id: 'home',
+      icon: Home,
+      label: 'Home',
+    },
+    {
+      id: 'book',
+      icon: Calendar,
+      label: 'Book',
+    },
+    {
+      id: 'queue',
+      icon: Users,
+      label: 'Queue',
+    },
+    {
+      id: 'gallery',
+      icon: ImageIcon,
+      label: 'Gallery',
+    },
+    {
+      id: 'profile',
+      icon: User,
+      label: 'Profile',
+    },
+  ]
+  if (isAdmin) {
+    tabs.push({
+      id: 'admin',
+      icon: Shield,
+      label: 'Admin',
+    })
+  }
+  return (
+    <div className="fixed bottom-0 left-0 right-0 z-50 flex justify-center pb-safe">
+      <div className="w-full max-w-md glass-panel px-6 py-4 flex justify-between items-center rounded-t-3xl">
+        {tabs.map((tab) => {
+          const Icon = tab.icon
+          const isActive = activeTab === tab.id
+          return (
+            <button
+              key={tab.id}
+              onClick={() => onChange(tab.id as TabType)}
+              className="relative flex flex-col items-center justify-center w-12 h-12"
+              aria-label={tab.label}
+            >
+              <motion.div
+                animate={{
+                  y: isActive ? -4 : 0,
+                  color: isActive ? '#C8A24D' : '#A0A0A0',
+                }}
+                transition={{
+                  type: 'spring',
+                  stiffness: 300,
+                  damping: 20,
+                }}
+              >
+                <Icon className="w-6 h-6" strokeWidth={isActive ? 2.5 : 2} />
+              </motion.div>
+
+              {isActive && (
+                <motion.div
+                  layoutId="nav-indicator"
+                  className="absolute -bottom-2 w-1 h-1 rounded-full bg-luxury-gold"
+                  transition={{
+                    type: 'spring',
+                    stiffness: 300,
+                    damping: 20,
+                  }}
+                />
+              )}
+            </button>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+```
+```components/ui/Button.tsx
+import React from 'react'
+import { motion, HTMLMotionProps } from 'framer-motion'
+import { Loader2 } from 'lucide-react'
+interface ButtonProps extends Omit<HTMLMotionProps<'button'>, 'ref'> {
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost'
+  size?: 'sm' | 'md' | 'lg'
+  isLoading?: boolean
+  fullWidth?: boolean
+}
+export function Button({
+  children,
+  variant = 'primary',
+  size = 'md',
+  isLoading,
+  fullWidth,
+  className = '',
+  disabled,
+  ...props
+}: ButtonProps) {
+  const baseStyles =
+    'relative inline-flex items-center justify-center font-heading font-semibold rounded-xl transition-all duration-300 overflow-hidden'
+  const variants = {
+    primary:
+      'bg-gold-gradient text-luxury-black shadow-[0_4px_14px_rgba(200,162,77,0.25)] hover:shadow-[0_6px_20px_rgba(200,162,77,0.4)]',
+    secondary: 'bg-luxury-charcoal text-luxury-white hover:bg-opacity-80',
+    outline:
+      'border-2 border-luxury-gold text-luxury-gold hover:bg-luxury-gold hover:text-luxury-black',
+    ghost:
+      'text-luxury-grey hover:text-luxury-gold hover:bg-luxury-charcoal/50',
+  }
+  const sizes = {
+    sm: 'px-4 py-2 text-sm',
+    md: 'px-6 py-3 text-base',
+    lg: 'px-8 py-4 text-lg',
+  }
+  return (
+    <motion.button
+      whileTap={
+        disabled || isLoading
+          ? {}
+          : {
+              scale: 0.96,
+            }
+      }
+      className={`
+        ${baseStyles}
+        ${variants[variant]}
+        ${sizes[size]}
+        ${fullWidth ? 'w-full' : ''}
+        ${disabled || isLoading ? 'opacity-60 cursor-not-allowed' : ''}
+        ${className}
+      `}
+      disabled={disabled || isLoading}
+      {...props}
+    >
+      {isLoading && <Loader2 className="w-5 h-5 mr-2 animate-spin" />}
+      <span className={isLoading ? 'opacity-80' : ''}>{children}</span>
+
+      {/* Subtle shine effect for primary button */}
+      {variant === 'primary' && !disabled && !isLoading && (
+        <div className="absolute inset-0 -translate-x-full hover:animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12" />
+      )}
+    </motion.button>
+  )
+}
+
+```
+```components/ui/Card.tsx
+import React from 'react'
+import { motion, HTMLMotionProps } from 'framer-motion'
+interface CardProps extends Omit<HTMLMotionProps<'div'>, 'ref'> {
+  interactive?: boolean
+  active?: boolean
+}
+export function Card({
+  children,
+  className = '',
+  interactive = false,
+  active = false,
+  ...props
+}: CardProps) {
+  return (
+    <motion.div
+      whileHover={
+        interactive
+          ? {
+              y: -2,
+            }
+          : {}
+      }
+      whileTap={
+        interactive
+          ? {
+              scale: 0.98,
+            }
+          : {}
+      }
+      className={`
+        bg-luxury-charcoal rounded-2xl p-5
+        ${interactive ? 'cursor-pointer transition-colors' : ''}
+        ${active ? 'ring-2 ring-luxury-gold shadow-[0_0_15px_rgba(200,162,77,0.15)]' : 'border border-white/5'}
+        ${className}
+      `}
+      {...props}
+    >
+      {children}
+    </motion.div>
+  )
+}
+
+```
+```index.css
+/* @import url() FONT IMPORTS MUST ALWAYS BE AT THE VERY TOP OF THIS FILE, ABOVE THE TAILWIND IMPORTS — DO NOT DELETE THIS COMMENT */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Montserrat:wght@400;500;600;700;800&display=swap');
+
+/* CRITICAL: THE FOLLOWING TAILWIND IMPORTS MUST NEVER BE DELETED OR REORDERED — DO NOT DELETE THIS COMMENT */
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* END TAILWIND IMPORTS — ALL OTHER CSS MUST GO BELOW THIS LINE */
+
+@layer base {
+  body {
+    @apply bg-luxury-black text-luxury-white font-body antialiased selection:bg-luxury-gold selection:text-luxury-black;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading;
+  }
+}
+/* Hide scrollbar for clean mobile look */
+::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;
+}
+.glass-panel {
+  background: rgba(28, 28, 28, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(200, 162, 77, 0.1);
+}
+
+```
+```index.tsx
+import "./index.css";
+import React from "react";
+import { render } from "react-dom";
+import { App } from "./App";
+
+render(<App />, document.getElementById("root"));
+
+```
+```pages/Admin.tsx
+import React from 'react'
+import { motion } from 'framer-motion'
+import {
+  TrendingUp,
+  Users,
+  Calendar,
+  DollarSign,
+  GripVertical,
+} from 'lucide-react'
+import { Card } from '../components/ui/Card'
+export function Admin() {
+  const stats = [
+    {
+      label: "Today's Bookings",
+      value: '24',
+      icon: Calendar,
+      trend: '+12%',
+    },
+    {
+      label: 'Revenue',
+      value: '$1,840',
+      icon: DollarSign,
+      trend: '+8%',
+    },
+    {
+      label: 'In Queue',
+      value: '6',
+      icon: Users,
+      trend: 'Normal',
+    },
+    {
+      label: 'Reviews Pending',
+      value: '3',
+      icon: TrendingUp,
+      trend: 'Action',
+    },
+  ]
+  const queue = [
+    {
+      id: 1,
+      name: 'Michael T.',
+      service: 'Executive Cut',
+      time: '10:00 AM',
+      status: 'serving',
+    },
+    {
+      id: 2,
+      name: 'James R.',
+      service: 'Beard Trim',
+      time: '10:45 AM',
+      status: 'waiting',
+    },
+    {
+      id: 3,
+      name: 'David W.',
+      service: 'Full Grooming',
+      time: '11:30 AM',
+      status: 'waiting',
+    },
+  ]
+  return (
+    <div className="pb-28 pt-6 px-6">
+      <div className="mb-8">
+        <h1 className="text-2xl font-heading font-bold text-luxury-white mb-1">
+          Admin Dashboard
+        </h1>
+        <p className="text-luxury-emerald text-sm flex items-center">
+          <span className="w-2 h-2 rounded-full bg-luxury-emerald mr-2 animate-pulse" />
+          System Online
+        </p>
+      </div>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-2 gap-4 mb-8">
+        {stats.map((stat, index) => {
+          const Icon = stat.icon
+          return (
+            <motion.div
+              key={index}
+              initial={{
+                opacity: 0,
+                y: 20,
+              }}
+              animate={{
+                opacity: 1,
+                y: 0,
+              }}
+              transition={{
+                delay: index * 0.1,
+              }}
+            >
+              <Card className="p-4">
+                <div className="flex justify-between items-start mb-4">
+                  <div className="p-2 bg-luxury-black rounded-lg">
+                    <Icon className="w-5 h-5 text-luxury-gold" />
+                  </div>
+                  <span
+                    className={`text-xs font-medium ${stat.trend.includes('+') ? 'text-luxury-emerald' : 'text-luxury-grey'}`}
+                  >
+                    {stat.trend}
+                  </span>
+                </div>
+                <h3 className="text-2xl font-heading font-bold text-luxury-white mb-1">
+                  {stat.value}
+                </h3>
+                <p className="text-xs text-luxury-grey">{stat.label}</p>
+              </Card>
+            </motion.div>
+          )
+        })}
+      </div>
+
+      {/* Drag and Drop Queue Mock */}
+      <motion.div
+        initial={{
+          opacity: 0,
+        }}
+        animate={{
+          opacity: 1,
+        }}
+        transition={{
+          delay: 0.4,
+        }}
+      >
+        <div className="flex justify-between items-end mb-4">
+          <h2 className="text-lg font-heading font-bold text-luxury-white">
+            Manage Queue
+          </h2>
+          <button className="text-xs text-luxury-gold hover:underline">
+            View All
+          </button>
+        </div>
+
+        <div className="space-y-3">
+          {queue.map((item) => (
+            <Card
+              key={item.id}
+              className={`flex items-center p-3 border-l-4 ${item.status === 'serving' ? 'border-l-luxury-emerald' : 'border-l-luxury-gold'}`}
+            >
+              <button className="p-2 text-luxury-grey hover:text-luxury-white cursor-grab active:cursor-grabbing">
+                <GripVertical className="w-5 h-5" />
+              </button>
+              <div className="ml-2 flex-1">
+                <div className="flex justify-between items-center">
+                  <h4 className="font-semibold text-luxury-white">
+                    {item.name}
+                  </h4>
+                  <span className="text-xs font-medium text-luxury-grey">
+                    {item.time}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center mt-1">
+                  <p className="text-xs text-luxury-grey">{item.service}</p>
+                  <span
+                    className={`text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full ${item.status === 'serving' ? 'bg-luxury-emerald/20 text-luxury-emerald' : 'bg-luxury-gold/20 text-luxury-gold'}`}
+                  >
+                    {item.status}
+                  </span>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </motion.div>
+    </div>
+  )
+}
+
+```
+```pages/Book.tsx
+import React, { useState } from 'react'
+import { motion } from 'framer-motion'
+import { Check, Calendar as CalendarIcon, Clock } from 'lucide-react'
+import { Button } from '../components/ui/Button'
+import { Card } from '../components/ui/Card'
+export function Book() {
+  const [step, setStep] = useState(1)
+  const [selectedService, setSelectedService] = useState<number | null>(null)
+  const [selectedDate, setSelectedDate] = useState<number | null>(15)
+  const [selectedTime, setSelectedTime] = useState<string | null>(null)
+  const [isBooking, setIsBooking] = useState(false)
+  const [isSuccess, setIsSuccess] = useState(false)
+  const services = [
+    {
+      id: 1,
+      name: 'The Executive Cut',
+      price: '$65',
+      duration: '45 min',
+      image:
+        'https://images.unsplash.com/photo-1622286342621-4bd786c2447c?auto=format&fit=crop&q=80&w=400',
+    },
+    {
+      id: 2,
+      name: 'Royal Beard Trim',
+      price: '$45',
+      duration: '30 min',
+      image:
+        'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=400',
+    },
+    {
+      id: 3,
+      name: 'Full Grooming Experience',
+      price: '$100',
+      duration: '75 min',
+      image:
+        'https://images.unsplash.com/photo-1599351431202-1e0f0137899a?auto=format&fit=crop&q=80&w=400',
+    },
+  ]
+  const times = [
+    '09:00 AM',
+    '10:00 AM',
+    '11:30 AM',
+    '01:00 PM',
+    '02:30 PM',
+    '04:00 PM',
+    '05:30 PM',
+  ]
+  const bookedTimes = ['10:00 AM', '01:00 PM', '04:00 PM']
+  const handleBook = () => {
+    setIsBooking(true)
+    setTimeout(() => {
+      setIsBooking(false)
+      setIsSuccess(true)
+    }, 1500)
+  }
+  if (isSuccess) {
+    return (
+      <motion.div
+        initial={{
+          opacity: 0,
+          scale: 0.9,
+        }}
+        animate={{
+          opacity: 1,
+          scale: 1,
+        }}
+        className="min-h-[80vh] flex flex-col items-center justify-center p-6 text-center"
+      >
+        <div className="w-24 h-24 rounded-full bg-luxury-gold/20 flex items-center justify-center mb-6 relative">
+          <div className="absolute inset-0 rounded-full border-2 border-luxury-gold animate-ping opacity-20" />
+          <Check className="w-12 h-12 text-luxury-gold" />
+        </div>
+        <h2 className="text-3xl font-heading font-bold text-luxury-white mb-4">
+          Booking Confirmed
+        </h2>
+        <p className="text-luxury-grey mb-8 max-w-xs">
+          Your appointment for The Executive Cut is set for Oct 15 at 11:30 AM.
+        </p>
+        <Button
+          onClick={() => {
+            setIsSuccess(false)
+            setStep(1)
+            setSelectedService(null)
+            setSelectedTime(null)
+          }}
+        >
+          View Appointments
+        </Button>
+      </motion.div>
+    )
+  }
+  return (
+    <div className="pb-28 pt-6 px-6">
+      <h1 className="text-2xl font-heading font-bold text-luxury-white mb-6">
+        Book Appointment
+      </h1>
+
+      {/* Progress Steps */}
+      <div className="flex items-center justify-between mb-8 relative">
+        <div className="absolute left-0 right-0 h-0.5 bg-luxury-charcoal top-1/2 -translate-y-1/2 z-0" />
+        <div
+          className="absolute left-0 h-0.5 bg-luxury-gold top-1/2 -translate-y-1/2 z-0 transition-all duration-300"
+          style={{
+            width: step === 1 ? '0%' : '100%',
+          }}
+        />
+
+        <div
+          className={`relative z-10 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-colors ${step >= 1 ? 'bg-luxury-gold text-luxury-black' : 'bg-luxury-charcoal text-luxury-grey'}`}
+        >
+          1
+        </div>
+        <div
+          className={`relative z-10 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-colors ${step >= 2 ? 'bg-luxury-gold text-luxury-black' : 'bg-luxury-charcoal text-luxury-grey'}`}
+        >
+          2
+        </div>
+      </div>
+
+      {step === 1 && (
+        <motion.div
+          initial={{
+            opacity: 0,
+            x: -20,
+          }}
+          animate={{
+            opacity: 1,
+            x: 0,
+          }}
+          exit={{
+            opacity: 0,
+            x: 20,
+          }}
+        >
+          <h2 className="text-lg font-semibold text-luxury-white mb-4">
+            Select Service
+          </h2>
+          <div className="space-y-4">
+            {services.map((service) => (
+              <Card
+                key={service.id}
+                interactive
+                active={selectedService === service.id}
+                onClick={() => setSelectedService(service.id)}
+                className="flex p-3 overflow-hidden"
+              >
+                <img
+                  src={service.image}
+                  alt={service.name}
+                  className="w-20 h-20 rounded-lg object-cover mr-4"
+                />
+                <div className="flex-1 flex flex-col justify-center">
+                  <h3 className="font-semibold text-luxury-white">
+                    {service.name}
+                  </h3>
+                  <div className="flex items-center justify-between mt-2">
+                    <span className="text-luxury-gold font-heading font-bold">
+                      {service.price}
+                    </span>
+                    <span className="text-xs text-luxury-grey flex items-center">
+                      <Clock className="w-3 h-3 mr-1" /> {service.duration}
+                    </span>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+
+          <div className="mt-8">
+            <Button
+              fullWidth
+              disabled={!selectedService}
+              onClick={() => setStep(2)}
+            >
+              Continue to Date & Time
+            </Button>
+          </div>
+        </motion.div>
+      )}
+
+      {step === 2 && (
+        <motion.div
+          initial={{
+            opacity: 0,
+            x: 20,
+          }}
+          animate={{
+            opacity: 1,
+            x: 0,
+          }}
+        >
+          <div className="mb-6">
+            <button
+              onClick={() => setStep(1)}
+              className="text-sm text-luxury-grey mb-4 hover:text-luxury-white"
+            >
+              ← Back to Services
+            </button>
+            <h2 className="text-lg font-semibold text-luxury-white mb-4 flex items-center">
+              <CalendarIcon className="w-5 h-5 mr-2 text-luxury-gold" /> Select
+              Date
+            </h2>
+
+            {/* Mock Calendar Row */}
+            <div className="flex space-x-3 overflow-x-auto pb-2 scrollbar-hide">
+              {[13, 14, 15, 16, 17, 18, 19].map((date) => (
+                <button
+                  key={date}
+                  onClick={() => setSelectedDate(date)}
+                  className={`flex-shrink-0 w-16 h-20 rounded-xl flex flex-col items-center justify-center transition-all ${selectedDate === date ? 'bg-luxury-gold text-luxury-black shadow-[0_0_15px_rgba(200,162,77,0.3)]' : 'bg-luxury-charcoal text-luxury-white border border-white/5'}`}
+                >
+                  <span className="text-xs font-medium mb-1 opacity-80">
+                    OCT
+                  </span>
+                  <span className="text-xl font-heading font-bold">{date}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <h2 className="text-lg font-semibold text-luxury-white mb-4 flex items-center">
+              <Clock className="w-5 h-5 mr-2 text-luxury-gold" /> Select Time
+            </h2>
+            <div className="grid grid-cols-3 gap-3">
+              {times.map((time) => {
+                const isBooked = bookedTimes.includes(time)
+                const isSelected = selectedTime === time
+                return (
+                  <button
+                    key={time}
+                    disabled={isBooked}
+                    onClick={() => setSelectedTime(time)}
+                    className={`py-3 rounded-xl text-sm font-medium transition-all ${isBooked ? 'bg-luxury-black text-luxury-grey/30 cursor-not-allowed border border-white/5' : isSelected ? 'bg-transparent text-luxury-gold border-2 border-luxury-gold shadow-[0_0_10px_rgba(200,162,77,0.2)]' : 'bg-luxury-charcoal text-luxury-white hover:bg-luxury-charcoal/80 border border-transparent'}`}
+                  >
+                    {time}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
+          <div className="mt-10">
+            <Card className="mb-6 bg-luxury-black border border-luxury-gold/20">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-luxury-grey text-sm">Service</span>
+                <span className="text-luxury-white font-medium">
+                  The Executive Cut
+                </span>
+              </div>
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-luxury-grey text-sm">Date & Time</span>
+                <span className="text-luxury-white font-medium">
+                  Oct 15, {selectedTime || '---'}
+                </span>
+              </div>
+              <div className="h-px w-full bg-white/10 my-3" />
+              <div className="flex justify-between items-center">
+                <span className="text-luxury-white font-semibold">Total</span>
+                <span className="text-luxury-gold font-heading font-bold text-lg">
+                  $65.00
+                </span>
+              </div>
+            </Card>
+
+            <Button
+              fullWidth
+              size="lg"
+              disabled={!selectedTime}
+              isLoading={isBooking}
+              onClick={handleBook}
+            >
+              Confirm Booking
+            </Button>
+          </div>
+        </motion.div>
+      )}
+    </div>
+  )
+}
+
+```
+```pages/Gallery.tsx
+import React, { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { X } from 'lucide-react'
+export function Gallery() {
+  const [selectedImage, setSelectedImage] = useState<string | null>(null)
+  const images = [
+    'https://images.unsplash.com/photo-1599351431202-1e0f0137899a?auto=format&fit=crop&q=80&w=600',
+    'https://images.unsplash.com/photo-1622286342621-4bd786c2447c?auto=format&fit=crop&q=80&w=600',
+    'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=600',
+    'https://images.unsplash.com/photo-1585747860715-2ba37e788b70?auto=format&fit=crop&q=80&w=600',
+    'https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600',
+    'https://images.unsplash.com/photo-1532710093739-9470ac1d4d5b?auto=format&fit=crop&q=80&w=600',
+  ]
+  return (
+    <div className="pb-28 pt-6 px-4">
+      <div className="mb-8 px-2">
+        <h1 className="text-2xl font-heading font-bold text-luxury-white mb-2">
+          Our Work
+        </h1>
+        <p className="text-luxury-grey text-sm">
+          Precision and style in every cut.
+        </p>
+      </div>
+
+      {/* Masonry-style Grid */}
+      <div className="columns-2 gap-4 space-y-4">
+        {images.map((src, index) => (
+          <motion.div
+            key={index}
+            initial={{
+              opacity: 0,
+              y: 20,
+            }}
+            animate={{
+              opacity: 1,
+              y: 0,
+            }}
+            transition={{
+              delay: index * 0.1,
+            }}
+            className="break-inside-avoid relative group cursor-pointer"
+            onClick={() => setSelectedImage(src)}
+          >
+            <div className="absolute inset-0 bg-luxury-black/0 group-hover:bg-luxury-black/20 transition-colors duration-300 rounded-xl z-10" />
+            <img
+              src={src}
+              alt={`Gallery image ${index + 1}`}
+              className="w-full rounded-xl object-cover"
+            />
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Full Screen Viewer */}
+      <AnimatePresence>
+        {selectedImage && (
+          <motion.div
+            initial={{
+              opacity: 0,
+            }}
+            animate={{
+              opacity: 1,
+            }}
+            exit={{
+              opacity: 0,
+            }}
+            className="fixed inset-0 z-[100] bg-luxury-black/95 backdrop-blur-sm flex items-center justify-center p-4"
+            onClick={() => setSelectedImage(null)}
+          >
+            <button
+              className="absolute top-6 right-6 p-2 bg-luxury-charcoal/50 rounded-full text-luxury-white hover:text-luxury-gold transition-colors"
+              onClick={(e) => {
+                e.stopPropagation()
+                setSelectedImage(null)
+              }}
+            >
+              <X className="w-6 h-6" />
+            </button>
+            <motion.img
+              initial={{
+                scale: 0.9,
+              }}
+              animate={{
+                scale: 1,
+              }}
+              exit={{
+                scale: 0.9,
+              }}
+              src={selectedImage}
+              alt="Full screen view"
+              className="max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
+
+```
+```pages/Home.tsx
+import React, { Children } from 'react'
+import { motion } from 'framer-motion'
+import { Star, Clock, Users, ChevronRight, MapPin } from 'lucide-react'
+import { Button } from '../components/ui/Button'
+import { Card } from '../components/ui/Card'
+interface HomeProps {
+  onNavigate: (tab: any) => void
+}
+export function Home({ onNavigate }: HomeProps) {
+  const containerVariants = {
+    hidden: {
+      opacity: 0,
+    },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+  }
+  const itemVariants = {
+    hidden: {
+      opacity: 0,
+      y: 20,
+    },
+    visible: {
+      opacity: 1,
+      y: 0,
+    },
+  }
+  return (
+    <motion.div
+      className="pb-28"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
+      {/* Hero Section */}
+      <div className="relative h-[60vh] w-full">
+        <div className="absolute inset-0 bg-luxury-black">
+          <img
+            src="https://images.unsplash.com/photo-1585747860715-2ba37e788b70?auto=format&fit=crop&q=80&w=2000"
+            alt="Luxury Barbershop Interior"
+            className="w-full h-full object-cover opacity-60"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-luxury-black via-luxury-black/50 to-transparent" />
+        </div>
+
+        <div className="absolute inset-0 flex flex-col justify-end p-6 pb-12">
+          <motion.div variants={itemVariants} className="mb-2">
+            <h1 className="text-4xl font-heading font-bold text-luxury-white tracking-tight uppercase">
+              Precision.
+              <br />
+              <span className="text-luxury-gold">Style.</span>
+              <br />
+              Confidence.
+            </h1>
+          </motion.div>
+
+          <motion.div
+            variants={itemVariants}
+            className="flex items-center space-x-2 mb-6"
+          >
+            <div className="flex items-center bg-luxury-charcoal/80 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10">
+              <Star className="w-4 h-4 text-luxury-gold fill-luxury-gold mr-1" />
+              <span className="text-sm font-semibold text-luxury-white">
+                4.8
+              </span>
+              <span className="text-sm text-luxury-grey ml-1">
+                (1.2k reviews)
+              </span>
+            </div>
+          </motion.div>
+
+          <motion.div variants={itemVariants}>
+            <Button fullWidth size="lg" onClick={() => onNavigate('book')}>
+              Book Appointment
+            </Button>
+          </motion.div>
+        </div>
+      </div>
+
+      <div className="px-6 space-y-8 mt-4">
+        {/* Quick Info */}
+        <motion.div variants={itemVariants} className="grid grid-cols-2 gap-4">
+          <Card className="flex flex-col items-center justify-center text-center p-4">
+            <Clock className="w-6 h-6 text-luxury-gold mb-2" />
+            <span className="text-sm text-luxury-grey mb-1">Open Today</span>
+            <span className="font-semibold text-luxury-white">9AM – 7PM</span>
+          </Card>
+          <Card
+            className="flex flex-col items-center justify-center text-center p-4"
+            interactive
+            onClick={() => onNavigate('queue')}
+          >
+            <Users className="w-6 h-6 text-luxury-gold mb-2" />
+            <span className="text-sm text-luxury-grey mb-1">Live Queue</span>
+            <span className="font-semibold text-luxury-white">6 Available</span>
+          </Card>
+        </motion.div>
+
+        {/* Featured Services */}
+        <motion.div variants={itemVariants}>
+          <div className="flex justify-between items-end mb-4">
+            <h2 className="text-xl font-heading font-bold text-luxury-white">
+              Featured Services
+            </h2>
+            <button className="text-sm text-luxury-gold flex items-center hover:underline">
+              View All <ChevronRight className="w-4 h-4 ml-1" />
+            </button>
+          </div>
+
+          <div className="space-y-3">
+            {[
+              {
+                name: 'The Executive Cut',
+                price: '$65',
+                time: '45 min',
+                desc: 'Precision haircut, hot towel, styling',
+              },
+              {
+                name: 'Royal Beard Trim',
+                price: '$45',
+                time: '30 min',
+                desc: 'Straight razor line up, beard oil treatment',
+              },
+            ].map((service, i) => (
+              <Card
+                key={i}
+                interactive
+                className="flex justify-between items-center"
+              >
+                <div>
+                  <h3 className="font-semibold text-luxury-white">
+                    {service.name}
+                  </h3>
+                  <p className="text-sm text-luxury-grey mt-1">
+                    {service.desc}
+                  </p>
+                  <p className="text-xs text-luxury-grey mt-2 flex items-center">
+                    <Clock className="w-3 h-3 mr-1" /> {service.time}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <span className="text-lg font-heading font-bold text-luxury-gold">
+                    {service.price}
+                  </span>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Location */}
+        <motion.div variants={itemVariants}>
+          <Card className="flex items-start space-x-4">
+            <div className="bg-luxury-black p-3 rounded-full">
+              <MapPin className="w-6 h-6 text-luxury-gold" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-luxury-white mb-1">
+                The Gentleman's Studio
+              </h3>
+              <p className="text-sm text-luxury-grey">
+                123 Luxury Avenue, Suite 100
+                <br />
+                New York, NY 10001
+              </p>
+            </div>
+          </Card>
+        </motion.div>
+      </div>
+    </motion.div>
+  )
+}
+
+```
+```pages/Profile.tsx
+import React from 'react'
+import { motion } from 'framer-motion'
+import {
+  Settings,
+  Calendar,
+  CreditCard,
+  MessageSquare,
+  Info,
+  Phone,
+  LogOut,
+  ChevronRight,
+} from 'lucide-react'
+import { Card } from '../components/ui/Card'
+export function Profile() {
+  const menuItems = [
+    {
+      icon: Calendar,
+      label: 'My Appointments',
+      value: '2 Upcoming',
+    },
+    {
+      icon: CreditCard,
+      label: 'Price List',
+    },
+    {
+      icon: MessageSquare,
+      label: 'Leave a Review',
+    },
+    {
+      icon: Info,
+      label: 'About Us',
+    },
+    {
+      icon: Phone,
+      label: 'Contact',
+    },
+  ]
+  return (
+    <div className="pb-28 pt-10 px-6">
+      <motion.div
+        initial={{
+          opacity: 0,
+          y: 20,
+        }}
+        animate={{
+          opacity: 1,
+          y: 0,
+        }}
+        className="flex flex-col items-center mb-10"
+      >
+        <div className="relative mb-4">
+          <div className="w-24 h-24 rounded-full p-1 bg-gradient-to-tr from-luxury-gold to-luxury-goldDark">
+            <img
+              src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200"
+              alt="Profile"
+              className="w-full h-full rounded-full object-cover border-4 border-luxury-black"
+            />
+          </div>
+          <button className="absolute bottom-0 right-0 p-2 bg-luxury-charcoal rounded-full border border-luxury-black text-luxury-white hover:text-luxury-gold transition-colors">
+            <Settings className="w-4 h-4" />
+          </button>
+        </div>
+        <h1 className="text-2xl font-heading font-bold text-luxury-white">
+          Alex Johnson
+        </h1>
+        <p className="text-luxury-gold text-sm mt-1">Premium Member</p>
+      </motion.div>
+
+      <div className="space-y-3">
+        {menuItems.map((item, index) => {
+          const Icon = item.icon
+          return (
+            <motion.div
+              key={index}
+              initial={{
+                opacity: 0,
+                x: -20,
+              }}
+              animate={{
+                opacity: 1,
+                x: 0,
+              }}
+              transition={{
+                delay: index * 0.1,
+              }}
+            >
+              <Card
+                interactive
+                className="flex items-center justify-between p-4"
+              >
+                <div className="flex items-center">
+                  <div className="w-10 h-10 rounded-full bg-luxury-black flex items-center justify-center mr-4">
+                    <Icon className="w-5 h-5 text-luxury-gold" />
+                  </div>
+                  <span className="font-medium text-luxury-white">
+                    {item.label}
+                  </span>
+                </div>
+                <div className="flex items-center">
+                  {item.value && (
+                    <span className="text-sm text-luxury-grey mr-3">
+                      {item.value}
+                    </span>
+                  )}
+                  <ChevronRight className="w-5 h-5 text-luxury-grey" />
+                </div>
+              </Card>
+            </motion.div>
+          )
+        })}
+      </div>
+
+      <motion.button
+        initial={{
+          opacity: 0,
+        }}
+        animate={{
+          opacity: 1,
+        }}
+        transition={{
+          delay: 0.6,
+        }}
+        className="w-full mt-8 py-4 flex items-center justify-center text-luxury-grey hover:text-red-400 transition-colors font-medium"
+      >
+        <LogOut className="w-5 h-5 mr-2" />
+        Log Out
+      </motion.button>
+    </div>
+  )
+}
+
+```
+```pages/Queue.tsx
+import React from 'react'
+import { motion } from 'framer-motion'
+import { Users, Clock, RefreshCw } from 'lucide-react'
+import { Card } from '../components/ui/Card'
+export function Queue() {
+  const queueList = [
+    {
+      id: 1,
+      name: 'Michael T.',
+      service: 'Executive Cut',
+      time: '10:00 AM',
+      status: 'serving',
+    },
+    {
+      id: 2,
+      name: 'James R.',
+      service: 'Beard Trim',
+      time: '10:45 AM',
+      status: 'next',
+    },
+    {
+      id: 3,
+      name: 'You',
+      service: 'Executive Cut',
+      time: '11:30 AM',
+      status: 'waiting',
+    },
+    {
+      id: 4,
+      name: 'David W.',
+      service: 'Full Grooming',
+      time: '12:15 PM',
+      status: 'waiting',
+    },
+  ]
+  return (
+    <div className="pb-28 pt-6 px-6">
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-2xl font-heading font-bold text-luxury-white">
+          Live Queue
+        </h1>
+        <button className="p-2 rounded-full bg-luxury-charcoal text-luxury-gold hover:bg-luxury-charcoal/80 transition-colors">
+          <RefreshCw className="w-5 h-5" />
+        </button>
+      </div>
+
+      {/* Currently Serving */}
+      <motion.div
+        initial={{
+          opacity: 0,
+          y: 20,
+        }}
+        animate={{
+          opacity: 1,
+          y: 0,
+        }}
+        className="mb-8"
+      >
+        <h2 className="text-sm font-semibold text-luxury-grey uppercase tracking-wider mb-3">
+          Currently Serving
+        </h2>
+        <Card className="relative overflow-hidden border-luxury-gold/30 bg-gradient-to-br from-luxury-charcoal to-luxury-black">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-luxury-gold/5 rounded-full blur-2xl -mr-10 -mt-10" />
+
+          <div className="flex items-center justify-between relative z-10">
+            <div className="flex items-center">
+              <div className="w-12 h-12 rounded-full bg-luxury-gold/20 flex items-center justify-center mr-4">
+                <div className="w-3 h-3 bg-luxury-gold rounded-full animate-pulse" />
+              </div>
+              <div>
+                <h3 className="text-xl font-heading font-bold text-luxury-white">
+                  Michael T.
+                </h3>
+                <p className="text-luxury-gold text-sm">with Barber Alex</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <span className="text-xs text-luxury-grey block mb-1">
+                Est. Finish
+              </span>
+              <span className="font-semibold text-luxury-white">10:40 AM</span>
+            </div>
+          </div>
+        </Card>
+      </motion.div>
+
+      {/* Your Position */}
+      <motion.div
+        initial={{
+          opacity: 0,
+          scale: 0.95,
+        }}
+        animate={{
+          opacity: 1,
+          scale: 1,
+        }}
+        transition={{
+          delay: 0.1,
+        }}
+        className="flex flex-col items-center justify-center mb-10"
+      >
+        <div className="w-32 h-32 rounded-full border-4 border-luxury-charcoal flex flex-col items-center justify-center relative">
+          <svg
+            className="absolute inset-0 w-full h-full -rotate-90"
+            viewBox="0 0 100 100"
+          >
+            <circle
+              cx="50"
+              cy="50"
+              r="46"
+              fill="none"
+              stroke="#1C1C1C"
+              strokeWidth="8"
+            />
+            <circle
+              cx="50"
+              cy="50"
+              r="46"
+              fill="none"
+              stroke="#C8A24D"
+              strokeWidth="8"
+              strokeDasharray="289"
+              strokeDashoffset="144"
+              className="transition-all duration-1000"
+            />
+          </svg>
+          <span className="text-4xl font-heading font-bold text-luxury-white">
+            3<span className="text-lg text-luxury-grey font-body">rd</span>
+          </span>
+          <span className="text-xs text-luxury-grey mt-1 uppercase tracking-widest">
+            In Line
+          </span>
+        </div>
+        <p className="text-luxury-grey mt-4 text-sm flex items-center">
+          <Clock className="w-4 h-4 mr-2 text-luxury-gold" /> Estimated wait: 45
+          mins
+        </p>
+      </motion.div>
+
+      {/* Queue List */}
+      <motion.div
+        initial={{
+          opacity: 0,
+          y: 20,
+        }}
+        animate={{
+          opacity: 1,
+          y: 0,
+        }}
+        transition={{
+          delay: 0.2,
+        }}
+      >
+        <h2 className="text-sm font-semibold text-luxury-grey uppercase tracking-wider mb-3">
+          Up Next
+        </h2>
+        <div className="space-y-3">
+          {queueList
+            .filter((q) => q.status !== 'serving')
+            .map((item, index) => (
+              <div
+                key={item.id}
+                className={`flex items-center justify-between p-4 rounded-xl transition-all ${item.name === 'You' ? 'bg-luxury-gold/10 border border-luxury-gold/30' : 'bg-luxury-charcoal border border-white/5'}`}
+              >
+                <div className="flex items-center">
+                  <span
+                    className={`w-6 font-heading font-bold ${item.name === 'You' ? 'text-luxury-gold' : 'text-luxury-grey'}`}
+                  >
+                    {index + 2}
+                  </span>
+                  <div className="ml-4">
+                    <h4
+                      className={`font-semibold ${item.name === 'You' ? 'text-luxury-gold' : 'text-luxury-white'}`}
+                    >
+                      {item.name}
+                    </h4>
+                    <p className="text-xs text-luxury-grey mt-0.5">
+                      {item.service}
+                    </p>
+                  </div>
+                </div>
+                <span className="text-sm font-medium text-luxury-grey">
+                  {item.time}
+                </span>
+              </div>
+            ))}
+        </div>
+      </motion.div>
+    </div>
+  )
+}
+
+```
+```tailwind.config.js
+
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+    "./*.{js,ts,jsx,tsx}"
+  ],
+  theme: {
+    extend: {
+      colors: {
+        luxury: {
+          black: '#0F0F0F',
+          charcoal: '#1C1C1C',
+          gold: '#C8A24D',
+          goldDark: '#A67C00',
+          emerald: '#0E3B2E',
+          white: '#F5F5F5',
+          grey: '#A0A0A0',
+        }
+      },
+      fontFamily: {
+        heading: ['Montserrat', 'sans-serif'],
+        body: ['Inter', 'sans-serif'],
+      },
+      backgroundImage: {
+        'gold-gradient': 'linear-gradient(135deg, #C8A24D 0%, #A67C00 100%)',
+      }
+    },
+  },
+  plugins: [],
+}
+
+```

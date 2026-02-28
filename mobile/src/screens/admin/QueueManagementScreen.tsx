@@ -218,7 +218,7 @@ const styles = StyleSheet.create({
     padding: SPACING.md,
     backgroundColor: COLORS.surface,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: 'rgba(200,162,77,0.15)',
   },
   stat: {
     alignItems: 'center',
@@ -264,6 +264,8 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.surface,
     borderRadius: 10,
     padding: SPACING.md,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.06)',
     elevation: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },

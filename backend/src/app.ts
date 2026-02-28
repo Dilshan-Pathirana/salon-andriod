@@ -14,6 +14,10 @@ import { scheduleRoutes } from './modules/schedule';
 import { appointmentsRoutes } from './modules/appointments';
 import { queueRoutes } from './modules/queue';
 import { sessionRoutes } from './modules/session';
+import { servicesRoutes } from './modules/services';
+import { reviewsRoutes } from './modules/reviews';
+import { galleryRoutes } from './modules/gallery';
+import { businessInfoRoutes } from './modules/business-info';
 
 const app = express();
 
@@ -74,6 +78,10 @@ app.use('/api/v1/schedule', scheduleRoutes);
 app.use('/api/v1/appointments', appointmentsRoutes);
 app.use('/api/v1/queue', queueRoutes);
 app.use('/api/v1/session', sessionRoutes);
+app.use('/api/v1/services', servicesRoutes);
+app.use('/api/v1/reviews', reviewsRoutes);
+app.use('/api/v1/gallery', galleryRoutes);
+app.use('/api/v1/business-info', businessInfoRoutes);
 
 // 404 handler
 app.use((_req, res) => {

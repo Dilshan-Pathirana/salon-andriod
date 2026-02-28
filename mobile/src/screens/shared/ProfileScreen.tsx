@@ -106,7 +106,7 @@ export function ProfileScreen() {
 
         <Text style={styles.fieldLabel}>Phone</Text>
         <View style={styles.readOnlyField}>
-          <Text style={styles.readOnlyText}>{user.phone}</Text>
+          <Text style={styles.readOnlyText}>{user.phoneNumber}</Text>
           <Text style={styles.readOnlyHint}>Cannot be changed</Text>
         </View>
 
@@ -195,16 +195,18 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.xl,
     backgroundColor: COLORS.surface,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: 'rgba(200,162,77,0.15)',
   },
   avatar: {
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: COLORS.primaryLight,
+    backgroundColor: 'rgba(200,162,77,0.1)',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: SPACING.md,
+    borderWidth: 2,
+    borderColor: 'rgba(200,162,77,0.3)',
   },
   avatarText: {
     fontSize: FONTS.sizes.xxl,
@@ -244,6 +246,8 @@ const styles = StyleSheet.create({
     marginBottom: 0,
     padding: SPACING.lg,
     borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.06)',
   },
   sectionTitle: {
     fontSize: FONTS.sizes.lg,

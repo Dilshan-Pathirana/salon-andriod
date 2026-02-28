@@ -70,7 +70,7 @@ export function ConfirmDialog({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(0,0,0,0.7)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: SPACING.xl,
@@ -81,6 +81,8 @@ const styles = StyleSheet.create({
     padding: SPACING.xl,
     width: '100%',
     maxWidth: 340,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
   },
   title: {
     fontSize: FONTS.sizes.lg,

@@ -87,16 +87,21 @@ const styles = StyleSheet.create({
   // Variants
   variant_primary: {
     backgroundColor: COLORS.primary,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 14,
+    elevation: 6,
   },
   variant_secondary: {
-    backgroundColor: COLORS.secondary,
+    backgroundColor: COLORS.surface,
   },
   variant_danger: {
     backgroundColor: COLORS.danger,
   },
   variant_outline: {
     backgroundColor: 'transparent',
-    borderWidth: 1.5,
+    borderWidth: 2,
     borderColor: COLORS.primary,
   },
   variant_ghost: {
@@ -106,23 +111,24 @@ const styles = StyleSheet.create({
   // Sizes
   size_sm: {
     paddingVertical: SPACING.sm,
-    paddingHorizontal: SPACING.md,
+    paddingHorizontal: SPACING.lg,
   },
   size_md: {
-    paddingVertical: SPACING.md,
-    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.md + 2,
+    paddingHorizontal: SPACING.xl,
   },
   size_lg: {
     paddingVertical: SPACING.lg,
-    paddingHorizontal: SPACING.xl,
+    paddingHorizontal: SPACING.xxl,
   },
 
   // Text
   text: {
-    fontWeight: '600',
+    fontWeight: '700',
+    letterSpacing: 0.5,
   },
   text_primary: {
-    color: COLORS.textWhite,
+    color: '#0F0F0F',  // dark text on gold button
   },
   text_secondary: {
     color: COLORS.textWhite,
@@ -134,7 +140,7 @@ const styles = StyleSheet.create({
     color: COLORS.primary,
   },
   text_ghost: {
-    color: COLORS.primary,
+    color: COLORS.textSecondary,
   },
   textDisabled: {
     opacity: 0.7,

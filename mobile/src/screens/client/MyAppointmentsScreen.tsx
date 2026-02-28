@@ -143,6 +143,8 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.surface,
     borderRadius: 12,
     padding: SPACING.lg,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.06)',
     elevation: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },

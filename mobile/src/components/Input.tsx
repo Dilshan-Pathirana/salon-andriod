@@ -1,12 +1,15 @@
-import React, { useState } from 'react';
+import React, { forwardRef, useRef, useState } from 'react';
 import {
   View,
-  TextInput,
   Text,
   StyleSheet,
   ViewStyle,
+  TextInput,
   TextInputProps,
-  TouchableOpacity,
+  Pressable,
+  Animated,
+  NativeSyntheticEvent,
+  TextInputFocusEventData,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, FONTS } from '../constants';
@@ -19,24 +22,49 @@ interface InputProps extends TextInputProps {
   isPassword?: boolean;
 }
 
-export function Input({
-  label,
-  error,
-  containerStyle,
-  leftIcon,
-  isPassword,
-  ...props
-}: InputProps) {
-  const [isFocused, setIsFocused] = useState(false);
+export const Input = forwardRef<TextInput, InputProps>(function Input(
+  { label, error, containerStyle, leftIcon, isPassword, onFocus, onBlur, style, ...props },
+  ref,
+) {
   const [showPassword, setShowPassword] = useState(false);
+
+  // Track focus with a ref — NO re-render on focus/blur
+  const focusedRef = useRef(false);
+  // Use Animated for border color so we skip React re-renders entirely
+  const focusAnim = useRef(new Animated.Value(0)).current;
+
+  const borderColor = focusAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [error ? COLORS.danger : 'rgba(255,255,255,0.08)', COLORS.primary],
+  });
+
+  const handleFocus = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
+    focusedRef.current = true;
+    Animated.timing(focusAnim, {
+      toValue: 1,
+      duration: 150,
+      useNativeDriver: false,
+    }).start();
+    onFocus?.(e);
+  };
+
+  const handleBlur = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
+    focusedRef.current = false;
+    Animated.timing(focusAnim, {
+      toValue: 0,
+      duration: 150,
+      useNativeDriver: false,
+    }).start();
+    onBlur?.(e);
+  };
 
   return (
     <View style={[styles.container, containerStyle]}>
       {label && <Text style={styles.label}>{label}</Text>}
-      <View
+      <Animated.View
         style={[
           styles.inputContainer,
-          isFocused && styles.focused,
+          { borderColor },
           error ? styles.error : undefined,
         ]}
       >
@@ -44,35 +72,38 @@ export function Input({
           <Ionicons
             name={leftIcon}
             size={20}
-            color={isFocused ? COLORS.primary : COLORS.textLight}
+            color={COLORS.textLight}
             style={styles.leftIcon}
           />
         )}
         <TextInput
-          style={styles.input}
+          ref={ref}
+          style={[styles.input, style]}
           placeholderTextColor={COLORS.textLight}
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
           secureTextEntry={isPassword && !showPassword}
+          autoCorrect={false}
           {...props}
         />
         {isPassword && (
-          <TouchableOpacity
-            onPress={() => setShowPassword(!showPassword)}
+          <Pressable
+            onPress={() => setShowPassword((v) => !v)}
             style={styles.eyeIcon}
+            hitSlop={8}
           >
             <Ionicons
               name={showPassword ? 'eye-off-outline' : 'eye-outline'}
               size={20}
               color={COLORS.textLight}
             />
-          </TouchableOpacity>
+          </Pressable>
         )}
-      </View>
+      </Animated.View>
       {error && <Text style={styles.errorText}>{error}</Text>}
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   container: {
@@ -81,25 +112,19 @@ const styles = StyleSheet.create({
   label: {
     fontSize: FONTS.sizes.sm,
     fontWeight: '600',
-    color: COLORS.text,
+    color: COLORS.textSecondary,
     marginBottom: SPACING.xs,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1.5,
-    borderColor: COLORS.border,
+    borderColor: 'rgba(255,255,255,0.08)',
     borderRadius: 12,
     backgroundColor: COLORS.surface,
     paddingHorizontal: SPACING.md,
-  },
-  focused: {
-    borderColor: COLORS.primary,
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
   },
   error: {
     borderColor: COLORS.danger,

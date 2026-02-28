@@ -137,8 +137,14 @@ export function CalendarManagementScreen() {
           markedDates={markedDates}
           onDayPress={handleDayPress}
           theme={{
+            calendarBackground: COLORS.surface,
+            dayTextColor: COLORS.text,
+            monthTextColor: COLORS.text,
+            textSectionTitleColor: COLORS.textSecondary,
+            textDisabledColor: 'rgba(255,255,255,0.2)',
             todayTextColor: COLORS.primary,
             selectedDayBackgroundColor: COLORS.primary,
+            selectedDayTextColor: '#0F0F0F',
             arrowColor: COLORS.primary,
           }}
         />
@@ -249,6 +255,8 @@ const styles = StyleSheet.create({
     margin: SPACING.lg,
     borderRadius: 12,
     overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.06)',
     elevation: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
@@ -281,6 +289,8 @@ const styles = StyleSheet.create({
     marginTop: 0,
     padding: SPACING.lg,
     borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.06)',
     elevation: 1,
   },
   formTitle: {

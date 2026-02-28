@@ -4,6 +4,8 @@ export type AppointmentStatus = 'BOOKED' | 'IN_SERVICE' | 'COMPLETED' | 'CANCELL
 
 export type DayStatus = 'OPEN' | 'CLOSED' | 'HOLIDAY';
 
+export type ServiceCategory = 'HAIRCUT' | 'BEARD' | 'COMBO' | 'PREMIUM';
+
 export interface User {
   id: string;
   phoneNumber: string;
@@ -70,14 +72,79 @@ export interface Appointment {
   timeSlot: string;
   queuePosition: number;
   status: AppointmentStatus;
+  serviceId?: string;
+  service?: Service;
   user?: {
     id: string;
     firstName: string;
     lastName: string;
     phoneNumber: string;
   };
+  review?: Review;
   slotDurationMins?: number;
   createdAt: string;
+}
+
+export interface Service {
+  id: string;
+  name: string;
+  description: string | null;
+  duration: number;
+  price: number;
+  category: ServiceCategory;
+  isActive: boolean;
+  sortOrder: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Review {
+  id: string;
+  userId: string;
+  appointmentId: string;
+  rating: number;
+  comment: string | null;
+  isVisible: boolean;
+  createdAt: string;
+  updatedAt: string;
+  user?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    profileImageUrl: string | null;
+  };
+  appointment?: {
+    id: string;
+    date: string;
+    timeSlot: string;
+  };
+}
+
+export interface ReviewStats {
+  averageRating: number;
+  totalReviews: number;
+  distribution: { rating: number; count: number }[];
+}
+
+export interface GalleryItem {
+  id: string;
+  title: string;
+  description: string | null;
+  imageUrl: string;
+  category: string;
+  sortOrder: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface BusinessInfo {
+  id: string;
+  key: string;
+  value: string;
+  category: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface QueueItem {
@@ -118,6 +185,7 @@ export interface DashboardStats {
   sessionStatus: 'OPEN' | 'CLOSED' | 'NO_SCHEDULE';
   totalAppointments: number;
   inQueue: number;
+  inService: number;
   completed: number;
   cancelled: number;
   noShow: number;

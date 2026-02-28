@@ -1,14 +1,15 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
   Alert,
+  TextInput,
+  Pressable,
+  ScrollView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 import { Button, Input } from '../../components';
 import { useAuthStore } from '../../store';
 import { COLORS, FONTS, SPACING } from '../../constants';
@@ -16,11 +17,21 @@ import { isValidPhone, isValidPassword } from '../../utils';
 import { AxiosError } from 'axios';
 
 export function LoginScreen() {
+  const navigation = useNavigation<any>();
   const [phoneNumber, setPhoneNumber] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<{ phone?: string; password?: string }>({});
+  const passwordInputRef = useRef<TextInput>(null);
 
   const { login, isLoading } = useAuthStore();
+
+  const handlePhoneChange = (text: string) => {
+    setPhoneNumber(text.replace(/[^0-9]/g, '').slice(0, 10));
+  };
+
+  const handlePasswordChange = (text: string) => {
+    setPassword(text);
+  };
 
   const validate = (): boolean => {
     const newErrors: { phone?: string; password?: string } = {};
@@ -56,64 +67,65 @@ export function LoginScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
+    <ScrollView
+      contentContainerStyle={styles.scrollContent}
+      keyboardShouldPersistTaps="handled"
+      keyboardDismissMode="on-drag"
       style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      showsVerticalScrollIndicator={false}
     >
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
-      >
-        <View style={styles.header}>
-          <View style={styles.iconContainer}>
-            <Ionicons name="cut" size={48} color={COLORS.primary} />
-          </View>
-          <Text style={styles.title}>Salon App</Text>
-          <Text style={styles.subtitle}>Book your appointment</Text>
+      <View style={styles.header}>
+        <View style={styles.iconContainer}>
+          <Ionicons name="cut" size={48} color={COLORS.primary} />
         </View>
+        <Text style={styles.title}>Salon App</Text>
+        <Text style={styles.subtitle}>Book your appointment</Text>
+      </View>
 
-        <View style={styles.form}>
-          <Input
-            label="Phone Number"
-            placeholder="Enter 10-digit phone number"
-            value={phoneNumber}
-            onChangeText={(text) => {
-              setPhoneNumber(text.replace(/[^0-9]/g, '').slice(0, 10));
-              if (errors.phone) setErrors((prev) => ({ ...prev, phone: undefined }));
-            }}
-            keyboardType="phone-pad"
-            maxLength={10}
-            leftIcon="call-outline"
-            error={errors.phone}
-          />
+      <View style={styles.form}>
+        <Input
+          label="Phone Number"
+          placeholder="Enter 10-digit phone number"
+          value={phoneNumber}
+          onChangeText={handlePhoneChange}
+          keyboardType="phone-pad"
+          maxLength={10}
+          leftIcon="call-outline"
+          error={errors.phone}
+          returnKeyType="next"
+          onSubmitEditing={() => passwordInputRef.current?.focus()}
+          blurOnSubmit={false}
+        />
 
-          <Input
-            label="Password"
-            placeholder="Enter your password"
-            value={password}
-            onChangeText={(text) => {
-              setPassword(text);
-              if (errors.password) setErrors((prev) => ({ ...prev, password: undefined }));
-            }}
-            isPassword
-            leftIcon="lock-closed-outline"
-            error={errors.password}
-          />
+        <Input
+          ref={passwordInputRef}
+          label="Password"
+          placeholder="Enter your password"
+          value={password}
+          onChangeText={handlePasswordChange}
+          isPassword
+          leftIcon="lock-closed-outline"
+          error={errors.password}
+          returnKeyType="go"
+          onSubmitEditing={handleLogin}
+        />
 
-          <Button
-            title="Login"
-            onPress={handleLogin}
-            loading={isLoading}
-            size="lg"
-            style={styles.loginButton}
-          />
+        <Button
+          title="Login"
+          onPress={handleLogin}
+          loading={isLoading}
+          size="lg"
+          style={styles.loginButton}
+        />
 
-          <Text style={styles.helpText}>
-            Don't have an account? Contact Admin
-          </Text>
+        <View style={styles.registerRow}>
+          <Text style={styles.helpText}>Don't have an account? </Text>
+          <Pressable onPress={() => navigation.navigate('Register')}>
+            <Text style={styles.registerLink}>Register here</Text>
+          </Pressable>
         </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+      </View>
+    </ScrollView>
   );
 }
 
@@ -135,15 +147,18 @@ const styles = StyleSheet.create({
     width: 88,
     height: 88,
     borderRadius: 44,
-    backgroundColor: COLORS.primaryLight,
+    backgroundColor: 'rgba(200,162,77,0.1)',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: SPACING.lg,
+    borderWidth: 2,
+    borderColor: 'rgba(200,162,77,0.3)',
   },
   title: {
     fontSize: FONTS.sizes.xxxl,
     fontWeight: '700',
     color: COLORS.text,
+    letterSpacing: 1,
   },
   subtitle: {
     fontSize: FONTS.sizes.md,
@@ -156,10 +171,19 @@ const styles = StyleSheet.create({
   loginButton: {
     marginTop: SPACING.sm,
   },
+  registerRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: SPACING.xl,
+  },
   helpText: {
-    textAlign: 'center',
     color: COLORS.textSecondary,
     fontSize: FONTS.sizes.sm,
-    marginTop: SPACING.xl,
+  },
+  registerLink: {
+    color: COLORS.primary,
+    fontSize: FONTS.sizes.sm,
+    fontWeight: '600',
   },
 });

@@ -3,6 +3,7 @@
     "name": "Salon App",
     "slug": "salon-app",
     "version": "1.0.0",
+    "newArchEnabled": true,
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -21,7 +22,8 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.salon.app"
+      "package": "com.salon.app",
+      "softwareKeyboardLayoutMode": "adjustPan"
     },
     "web": {
       "favicon": "./assets/favicon.png"

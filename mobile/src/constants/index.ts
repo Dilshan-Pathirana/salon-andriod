@@ -7,31 +7,39 @@ export const SOCKET_URL = __DEV__
   : 'https://your-salon-api.railway.app';
 
 export const COLORS = {
-  primary: '#2563EB',
-  primaryDark: '#1D4ED8',
-  primaryLight: '#DBEAFE',
-  secondary: '#7C3AED',
+  // Luxury palette from style.txt
+  primary: '#C8A24D',        // luxury-gold
+  primaryDark: '#A67C00',    // luxury-goldDark
+  primaryLight: 'rgba(200, 162, 77, 0.15)', // gold glow
+
+  secondary: '#0E3B2E',     // luxury-emerald
   success: '#10B981',
   warning: '#F59E0B',
   danger: '#EF4444',
   info: '#3B82F6',
 
-  background: '#F8FAFC',
-  surface: '#FFFFFF',
-  surfaceSecondary: '#F1F5F9',
+  background: '#0F0F0F',    // luxury-black
+  surface: '#1C1C1C',       // luxury-charcoal
+  surfaceSecondary: '#252525',
 
-  text: '#0F172A',
-  textSecondary: '#64748B',
-  textLight: '#94A3B8',
-  textWhite: '#FFFFFF',
+  text: '#F5F5F5',          // luxury-white
+  textSecondary: '#A0A0A0', // luxury-grey
+  textLight: '#A0A0A0',     // luxury-grey
+  textWhite: '#F5F5F5',
 
-  border: '#E2E8F0',
-  borderDark: '#CBD5E1',
+  border: 'rgba(255,255,255,0.05)',
+  borderDark: 'rgba(255,255,255,0.1)',
+
+  gold: '#C8A24D',
+  goldDark: '#A67C00',
+  charcoal: '#1C1C1C',
+  luxuryBlack: '#0F0F0F',
+  emerald: '#0E3B2E',
 
   // Status colors
   statusAvailable: '#10B981',
   statusBooked: '#3B82F6',
-  statusInService: '#F59E0B',
+  statusInService: '#C8A24D',
   statusCompleted: '#6B7280',
   statusCancelled: '#EF4444',
   statusNoShow: '#DC2626',

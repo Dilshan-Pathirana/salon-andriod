@@ -158,10 +158,10 @@ export function AppointmentManagementScreen() {
           </TouchableOpacity>
         )}
         <TouchableOpacity
-          style={[styles.actionChip, { backgroundColor: COLORS.error + '15' }]}
+          style={[styles.actionChip, { backgroundColor: COLORS.danger + '15' }]}
           onPress={() => setDeleteTarget(item.id)}
         >
-          <Ionicons name="trash-outline" size={14} color={COLORS.error} />
+          <Ionicons name="trash-outline" size={14} color={COLORS.danger} />
         </TouchableOpacity>
       </View>
     </View>
@@ -256,7 +256,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.surface,
     paddingTop: SPACING.md,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: 'rgba(200,162,77,0.15)',
   },
   dateFilterRow: {
     flexDirection: 'row',
@@ -304,7 +304,7 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
   },
   filterChipTextActive: {
-    color: COLORS.textWhite,
+    color: '#0F0F0F',
   },
   listContent: {
     padding: SPACING.lg,
@@ -317,6 +317,8 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.surface,
     borderRadius: 12,
     padding: SPACING.lg,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.06)',
     elevation: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },

@@ -254,6 +254,8 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: SPACING.md,
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.06)',
     elevation: 1,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
