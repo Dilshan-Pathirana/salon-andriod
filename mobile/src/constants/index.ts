@@ -1,9 +1,9 @@
 export const API_BASE_URL = __DEV__
-  ? 'http://192.168.1.100:3000/api/v1'  // Change to your local IP
+  ? 'http://192.168.8.184:3000/api/v1'  // Your local Wi-Fi IP
   : 'https://your-salon-api.railway.app/api/v1';
 
 export const SOCKET_URL = __DEV__
-  ? 'http://192.168.1.100:3000'
+  ? 'http://192.168.8.184:3000'
   : 'https://your-salon-api.railway.app';
 
 export const COLORS = {

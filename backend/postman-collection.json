@@ -278,28 +278,28 @@
         {
           "name": "[Admin] Mark In Service",
           "request": {
-            "method": "PATCH",
+            "method": "PUT",
             "url": "{{baseUrl}}/appointments/:id/in-service"
           }
         },
         {
           "name": "[Admin] Complete Appointment",
           "request": {
-            "method": "PATCH",
+            "method": "PUT",
             "url": "{{baseUrl}}/appointments/:id/complete"
           }
         },
         {
           "name": "[Admin] Mark No-Show",
           "request": {
-            "method": "PATCH",
+            "method": "PUT",
             "url": "{{baseUrl}}/appointments/:id/no-show"
           }
         },
         {
           "name": "Cancel Appointment",
           "request": {
-            "method": "PATCH",
+            "method": "PUT",
             "url": "{{baseUrl}}/appointments/:id/cancel"
           }
         },
@@ -319,14 +319,14 @@
           "name": "Get Live Queue",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/queue/2025-01-25"
+            "url": "{{baseUrl}}/queue"
           }
         },
         {
           "name": "[Admin] Reorder Queue",
           "request": {
             "method": "PUT",
-            "url": "{{baseUrl}}/queue/2025-01-25/reorder",
+            "url": "{{baseUrl}}/queue/reorder",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
@@ -343,28 +343,33 @@
           "name": "Get Session",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/session/2025-01-25"
+            "url": "{{baseUrl}}/session?date=2025-01-25"
           }
         },
         {
           "name": "[Admin] Open Session",
           "request": {
             "method": "POST",
-            "url": "{{baseUrl}}/session/2025-01-25/open"
+            "url": "{{baseUrl}}/session/open",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"date\": \"2025-01-25\"\n}"
+            }
           }
         },
         {
           "name": "[Admin] Close Session",
           "request": {
-            "method": "POST",
-            "url": "{{baseUrl}}/session/2025-01-25/close"
+            "method": "PUT",
+            "url": "{{baseUrl}}/session/close?date=2025-01-25"
           }
         },
         {
           "name": "[Admin] Dashboard Stats",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/session/2025-01-25/stats"
+            "url": "{{baseUrl}}/session/dashboard?date=2025-01-25"
           }
         }
       ]

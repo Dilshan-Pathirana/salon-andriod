@@ -64,10 +64,12 @@ try {
 # 6. Get Current Session
 Write-Output "`n--- 6. Get Current Session ---"
 try {
-    $session = Invoke-RestMethod -Uri "$base/session/current" -Headers $headers
+    $session = Invoke-RestMethod -Uri "$base/session" -Headers $headers
     Write-Output "SUCCESS: $($session.message)"
     if ($session.data) {
         Write-Output "  Session ID: $($session.data.id), status: $($session.data.status)"
+    } else {
+        Write-Output "  No active session"
     }
 } catch {
     Write-Output "FAILED: $($_.Exception.Message)"
@@ -113,6 +115,30 @@ try {
     $myappts = Invoke-RestMethod -Uri "$base/appointments/my" -Headers $cheaders
     Write-Output "SUCCESS: $($myappts.message)"
     Write-Output "  My appointments: $($myappts.data.Count)"
+} catch {
+    Write-Output "FAILED: $($_.Exception.Message)"
+}
+
+# 11. Open Session (Admin)
+Write-Output "`n--- 11. Open Session (Admin) ---"
+try {
+    $opensess = Invoke-RestMethod -Uri "$base/session/open" -Method POST -Headers $headers -ContentType "application/json" -Body "{`"date`":`"$today`"}"
+    Write-Output "SUCCESS: $($opensess.message)"
+    if ($opensess.data) {
+        Write-Output "  Session ID: $($opensess.data.id), status: $($opensess.data.status)"
+    }
+} catch {
+    Write-Output "FAILED: $($_.Exception.Message)"
+}
+
+# 12. Dashboard Stats (Admin)
+Write-Output "`n--- 12. Dashboard Stats ---"
+try {
+    $stats = Invoke-RestMethod -Uri "$base/session/dashboard?date=$today" -Headers $headers
+    Write-Output "SUCCESS: $($stats.message)"
+    if ($stats.data) {
+        Write-Output ($stats.data | ConvertTo-Json -Depth 3)
+    }
 } catch {
     Write-Output "FAILED: $($_.Exception.Message)"
 }
