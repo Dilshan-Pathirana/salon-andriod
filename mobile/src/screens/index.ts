@@ -2,6 +2,7 @@
 export { LoginScreen } from './auth/LoginScreen';
 
 // Client screens
+export { LandingScreen } from './client/LandingScreen';
 export { BookAppointmentScreen } from './client/BookAppointmentScreen';
 export { MyAppointmentsScreen } from './client/MyAppointmentsScreen';
 export { LiveQueueScreen } from './client/LiveQueueScreen';

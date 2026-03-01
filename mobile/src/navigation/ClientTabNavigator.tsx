@@ -1,136 +1,118 @@
 import React from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { TouchableOpacity } from 'react-native';
+import { createDrawerNavigator } from '@react-navigation/drawer';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '../constants';
+import { CustomDrawerContent } from './CustomDrawerContent';
+import { LandingScreen } from '../screens/client/LandingScreen';
 import { ServicesScreen } from '../screens/client/ServicesScreen';
 import { BookAppointmentScreen } from '../screens/client/BookAppointmentScreen';
 import { GalleryScreen } from '../screens/client/GalleryScreen';
 import { ReviewsScreen } from '../screens/client/ReviewsScreen';
-import { ClientMoreScreen } from '../screens/client/ClientMoreScreen';
 import { AboutScreen } from '../screens/client/AboutScreen';
 import { MyAppointmentsScreen } from '../screens/client/MyAppointmentsScreen';
 import { LiveQueueScreen } from '../screens/client/LiveQueueScreen';
 import { ProfileScreen } from '../screens/shared/ProfileScreen';
 
-// More tab stack
-const MoreStack = createNativeStackNavigator();
-
-function ClientMoreNavigator() {
-  return (
-    <MoreStack.Navigator
-      screenOptions={{
-        headerStyle: { backgroundColor: COLORS.surface },
-        headerTintColor: COLORS.text,
-        headerTitleStyle: { fontWeight: '700' },
-        headerShadowVisible: false,
-      }}
-    >
-      <MoreStack.Screen name="MoreHome" component={ClientMoreScreen} options={{ headerTitle: 'More' }} />
-      <MoreStack.Screen name="About" component={AboutScreen} options={{ headerTitle: 'About Us' }} />
-      <MoreStack.Screen name="MyAppointments" component={MyAppointmentsScreen} options={{ headerTitle: 'My Appointments' }} />
-      <MoreStack.Screen name="LiveQueue" component={LiveQueueScreen} options={{ headerTitle: 'Live Queue' }} />
-      <MoreStack.Screen name="ClientProfile" component={ProfileScreen} options={{ headerTitle: 'Profile' }} />
-    </MoreStack.Navigator>
-  );
-}
-
-export type ClientTabParamList = {
+export type ClientDrawerParamList = {
+  Landing: undefined;
   Services: undefined;
   Book: undefined;
   Gallery: undefined;
   Reviews: undefined;
-  More: undefined;
+  LiveQueue: undefined;
+  MyAppointments: undefined;
+  About: undefined;
+  Profile: undefined;
 };
 
-const Tab = createBottomTabNavigator<ClientTabParamList>();
+const Drawer = createDrawerNavigator<ClientDrawerParamList>();
+
+function HamburgerButton({ navigation }: { navigation: any }) {
+  return (
+    <TouchableOpacity
+      onPress={() => navigation.toggleDrawer()}
+      style={{ marginLeft: 16, padding: 4 }}
+      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+    >
+      <Ionicons name="menu" size={26} color={COLORS.gold} />
+    </TouchableOpacity>
+  );
+}
 
 export function ClientTabNavigator() {
   return (
-    <Tab.Navigator
-      screenOptions={{
-        tabBarActiveTintColor: COLORS.champagne,
-        tabBarInactiveTintColor: 'rgba(242,241,237,0.4)',
-        tabBarLabelStyle: {
-          fontSize: 10,
-          fontWeight: '500',
-          letterSpacing: 1.5,
-          textTransform: 'uppercase',
-        },
-        tabBarStyle: {
-          backgroundColor: COLORS.background + 'F2',
-          borderTopColor: COLORS.brown,
-          borderTopWidth: 1,
-          paddingBottom: 6,
-          paddingTop: 6,
-          height: 68,
-          elevation: 0,
+    <Drawer.Navigator
+      drawerContent={(props) => <CustomDrawerContent {...props} />}
+      screenOptions={({ navigation }) => ({
+        drawerType: 'front',
+        drawerStyle: {
+          backgroundColor: COLORS.background,
+          width: 300,
         },
         headerStyle: {
           backgroundColor: COLORS.surface,
+          elevation: 0,
+          shadowOpacity: 0,
+          borderBottomWidth: 1,
+          borderBottomColor: 'rgba(200,162,77,0.1)',
         },
         headerTintColor: COLORS.text,
         headerTitleStyle: {
           fontWeight: '600',
           letterSpacing: 0.8,
+          color: COLORS.text,
         },
         headerShadowVisible: false,
-      }}
+        headerLeft: () => <HamburgerButton navigation={navigation} />,
+        overlayColor: 'rgba(0,0,0,0.6)',
+      })}
     >
-      <Tab.Screen
+      <Drawer.Screen
+        name="Landing"
+        component={LandingScreen}
+        options={{ headerShown: false, title: 'Home' }}
+      />
+      <Drawer.Screen
         name="Services"
         component={ServicesScreen}
-        options={{
-          title: 'Services',
-          headerTitle: 'Our Services',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="pricetag-outline" size={size} color={color} />
-          ),
-        }}
+        options={{ headerTitle: 'Our Services' }}
       />
-      <Tab.Screen
+      <Drawer.Screen
         name="Book"
         component={BookAppointmentScreen}
-        options={{
-          title: 'Book',
-          headerTitle: 'Book Appointment',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="calendar-outline" size={size} color={color} />
-          ),
-        }}
+        options={{ headerTitle: 'Book Appointment' }}
       />
-      <Tab.Screen
+      <Drawer.Screen
         name="Gallery"
         component={GalleryScreen}
-        options={{
-          title: 'Gallery',
-          headerTitle: 'Our Work',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="images-outline" size={size} color={color} />
-          ),
-        }}
+        options={{ headerTitle: 'Our Work' }}
       />
-      <Tab.Screen
+      <Drawer.Screen
         name="Reviews"
         component={ReviewsScreen}
-        options={{
-          title: 'Reviews',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="star-outline" size={size} color={color} />
-          ),
-        }}
+        options={{ headerTitle: 'Reviews' }}
       />
-      <Tab.Screen
-        name="More"
-        component={ClientMoreNavigator}
-        options={{
-          title: 'More',
-          headerShown: false,
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="ellipsis-horizontal" size={size} color={color} />
-          ),
-        }}
+      <Drawer.Screen
+        name="LiveQueue"
+        component={LiveQueueScreen}
+        options={{ headerTitle: 'Live Queue' }}
       />
-    </Tab.Navigator>
+      <Drawer.Screen
+        name="MyAppointments"
+        component={MyAppointmentsScreen}
+        options={{ headerTitle: 'My Appointments' }}
+      />
+      <Drawer.Screen
+        name="About"
+        component={AboutScreen}
+        options={{ headerTitle: 'About Us' }}
+      />
+      <Drawer.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{ headerTitle: 'Profile' }}
+      />
+    </Drawer.Navigator>
   );
 }

@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 340,
     borderWidth: 1,
-    borderColor: 'rgba(93,68,41,0.25)',
+    borderColor: 'rgba(200,162,77,0.25)',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.3,

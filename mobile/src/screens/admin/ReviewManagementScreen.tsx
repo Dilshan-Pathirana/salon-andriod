@@ -199,7 +199,7 @@ const styles = StyleSheet.create({
   statsBar: {
     flexDirection: 'row', justifyContent: 'space-around',
     padding: SPACING.md, backgroundColor: COLORS.surface,
-    borderBottomWidth: 1, borderBottomColor: 'rgba(194,173,144,0.15)',
+    borderBottomWidth: 1, borderBottomColor: 'rgba(200,162,77,0.15)',
   },
   statItem: { alignItems: 'center' },
   statValue: { fontSize: FONTS.sizes.xl, fontWeight: '300', color: COLORS.champagne },
@@ -208,7 +208,7 @@ const styles = StyleSheet.create({
   emptyContainer: { flex: 1 },
   card: {
     backgroundColor: COLORS.surface, borderRadius: 12, padding: SPACING.lg,
-    borderWidth: 1, borderColor: 'rgba(93,68,41,0.2)',
+    borderWidth: 1, borderColor: 'rgba(200,162,77,0.2)',
     elevation: 1, shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05, shadowRadius: 2,
   },

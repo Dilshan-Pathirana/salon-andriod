@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
     borderRadius: 9999,
     backgroundColor: 'transparent',
     borderWidth: 1,
-    borderColor: 'rgba(194,173,144,0.3)',
+    borderColor: 'rgba(200,162,77,0.3)',
   },
   categoryChipActive: {
     backgroundColor: COLORS.champagne,
@@ -189,7 +189,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   categoryChipTextActive: {
-    color: '#0C100E',
+    color: '#0F0F0F',
   },
   listContent: {
     padding: SPACING.lg,
@@ -207,7 +207,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     backgroundColor: COLORS.surface,
     borderWidth: 1,
-    borderColor: 'rgba(93,68,41,0.2)',
+    borderColor: 'rgba(200,162,77,0.2)',
     elevation: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },

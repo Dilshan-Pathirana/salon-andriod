@@ -35,7 +35,7 @@ export const Input = forwardRef<TextInput, InputProps>(function Input(
 
   const borderColor = focusAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: [error ? COLORS.danger : 'rgba(93,68,41,0.25)', COLORS.champagne],
+    outputRange: [error ? COLORS.danger : 'rgba(200,162,77,0.25)', COLORS.champagne],
   });
 
   const handleFocus = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1.5,
-    borderColor: 'rgba(93,68,41,0.25)',
+    borderColor: 'rgba(200,162,77,0.25)',
     borderRadius: 14,
     backgroundColor: COLORS.surface,
     paddingHorizontal: SPACING.md,

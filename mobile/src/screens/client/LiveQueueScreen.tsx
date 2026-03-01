@@ -162,14 +162,14 @@ const styles = StyleSheet.create({
     marginTop: SPACING.xs,
   },
   myPositionCard: {
-    backgroundColor: 'rgba(194,173,144,0.08)',
+    backgroundColor: 'rgba(200,162,77,0.08)',
     marginHorizontal: SPACING.lg,
     marginBottom: SPACING.md,
     padding: SPACING.lg,
     borderRadius: 16,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(194,173,144,0.2)',
+    borderColor: 'rgba(200,162,77,0.2)',
     overflow: 'hidden',
   },
   myPositionLabel: {
@@ -213,7 +213,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     padding: SPACING.md,
     borderWidth: 1,
-    borderColor: 'rgba(93,68,41,0.2)',
+    borderColor: 'rgba(200,162,77,0.2)',
     elevation: 1,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
@@ -224,7 +224,7 @@ const styles = StyleSheet.create({
   queueItemHighlight: {
     borderWidth: 1.5,
     borderColor: COLORS.champagne,
-    backgroundColor: 'rgba(54,68,66,0.3)',
+    backgroundColor: 'rgba(28,28,28,0.3)',
   },
   positionBadge: {
     width: 32,

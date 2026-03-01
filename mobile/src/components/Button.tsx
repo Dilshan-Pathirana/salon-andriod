@@ -45,7 +45,7 @@ export function Button({
     fullWidth && styles.fullWidth,
     isDisabled && styles.disabled,
     style ?? {},
-  ];
+  ].filter(Boolean) as ViewStyle[];
 
   const labelStyle: TextStyle[] = [
     styles.text,
@@ -57,9 +57,9 @@ export function Button({
 
   const iconColor =
     variant === 'outline' || variant === 'ghost'
-      ? COLORS.primary
+      ? COLORS.gold
       : variant === 'primary'
-      ? '#0C100E'
+      ? '#0F0F0F'
       : COLORS.textWhite;
 
   return (
@@ -72,7 +72,7 @@ export function Button({
       {loading ? (
         <ActivityIndicator
           size="small"
-          color={variant === 'outline' || variant === 'ghost' ? COLORS.primary : variant === 'primary' ? '#0C100E' : COLORS.textWhite}
+          color={variant === 'outline' || variant === 'ghost' ? COLORS.gold : variant === 'primary' ? '#0F0F0F' : COLORS.textWhite}
         />
       ) : (
         <View style={styles.content}>
@@ -98,6 +98,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     flexDirection: 'row',
     overflow: 'hidden',
+    maxWidth: '100%',
+    alignSelf: 'stretch',
   },
   content: {
     flexDirection: 'row',
@@ -109,6 +111,7 @@ const styles = StyleSheet.create({
   },
   fullWidth: {
     width: '100%',
+    maxWidth: '100%',
   },
   disabled: {
     opacity: 0.45,
@@ -120,13 +123,13 @@ const styles = StyleSheet.create({
     shadowColor: COLORS.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
-    shadowRadius: 12,
+    shadowRadius: 14,
     elevation: 6,
   },
   variant_secondary: {
     backgroundColor: COLORS.surface,
     borderWidth: 1,
-    borderColor: 'rgba(93,68,41,0.25)',
+    borderColor: 'rgba(200,162,77,0.25)',
   },
   variant_danger: {
     backgroundColor: COLORS.danger,
@@ -138,8 +141,8 @@ const styles = StyleSheet.create({
   },
   variant_outline: {
     backgroundColor: 'transparent',
-    borderWidth: 1.5,
-    borderColor: COLORS.champagne,
+    borderWidth: 2,
+    borderColor: COLORS.gold,
   },
   variant_ghost: {
     backgroundColor: 'transparent',
@@ -169,7 +172,7 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   text_primary: {
-    color: '#0C100E',
+    color: '#0F0F0F',
   },
   text_secondary: {
     color: COLORS.textWhite,
@@ -178,10 +181,10 @@ const styles = StyleSheet.create({
     color: COLORS.textWhite,
   },
   text_outline: {
-    color: COLORS.champagne,
+    color: COLORS.gold,
   },
   text_ghost: {
-    color: COLORS.champagne,
+    color: COLORS.gold,
   },
   textDisabled: {
     opacity: 0.7,

@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: SPACING.lg,
     borderWidth: 1,
-    borderColor: 'rgba(194,173,144,0.2)',
+    borderColor: 'rgba(200,162,77,0.2)',
   },
   title: {
     fontSize: FONTS.sizes.xxl,

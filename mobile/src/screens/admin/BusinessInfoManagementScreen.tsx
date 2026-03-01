@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
   section: {
     backgroundColor: COLORS.surface, margin: SPACING.lg, marginBottom: 0,
     padding: SPACING.lg, borderRadius: 12,
-    borderWidth: 1, borderColor: 'rgba(93,68,41,0.2)',
+    borderWidth: 1, borderColor: 'rgba(200,162,77,0.2)',
   },
   sectionTitle: {
     fontSize: FONTS.sizes.lg, fontWeight: '600', color: COLORS.text, marginBottom: SPACING.md,

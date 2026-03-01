@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.xl,
     backgroundColor: COLORS.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(194,173,144,0.15)',
+    borderBottomColor: 'rgba(200,162,77,0.15)',
   },
   avatar: {
     width: 84,
@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
     padding: SPACING.lg,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: 'rgba(93,68,41,0.2)',
+    borderColor: 'rgba(200,162,77,0.2)',
     overflow: 'hidden',
   },
   sectionTitle: {

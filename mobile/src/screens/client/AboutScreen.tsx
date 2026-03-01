@@ -236,7 +236,7 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.xxxl,
     backgroundColor: COLORS.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(194,173,144,0.15)',
+    borderBottomColor: 'rgba(200,162,77,0.15)',
   },
   logoContainer: {
     width: 88, height: 88, borderRadius: 44,
@@ -244,7 +244,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center', alignItems: 'center',
     marginBottom: SPACING.md,
     borderWidth: 1,
-    borderColor: 'rgba(194,173,144,0.2)',
+    borderColor: 'rgba(200,162,77,0.2)',
   },
   salonName: {
     fontSize: FONTS.sizes.xxl, fontWeight: '600', color: COLORS.champagne,
@@ -259,7 +259,7 @@ const styles = StyleSheet.create({
     margin: SPACING.lg, marginBottom: 0,
     padding: SPACING.lg, borderRadius: 16,
     borderWidth: 1,
-    borderColor: 'rgba(93,68,41,0.2)',
+    borderColor: 'rgba(200,162,77,0.2)',
     overflow: 'hidden',
   },
   sectionTitle: {
@@ -286,7 +286,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.green,
     justifyContent: 'center', alignItems: 'center', marginRight: SPACING.md,
     borderWidth: 1,
-    borderColor: 'rgba(93,68,41,0.2)',
+    borderColor: 'rgba(200,162,77,0.2)',
   },
   contactContent: { flex: 1 },
   contactLabel: { fontSize: FONTS.sizes.xs, color: COLORS.textLight },

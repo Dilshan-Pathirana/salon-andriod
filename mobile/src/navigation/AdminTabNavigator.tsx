@@ -54,7 +54,7 @@ export function AdminTabNavigator() {
     <Tab.Navigator
       screenOptions={{
         tabBarActiveTintColor: COLORS.champagne,
-        tabBarInactiveTintColor: 'rgba(242,241,237,0.4)',
+        tabBarInactiveTintColor: 'rgba(245,245,245,0.4)',
         tabBarLabelStyle: {
           fontSize: 10,
           fontWeight: '500',

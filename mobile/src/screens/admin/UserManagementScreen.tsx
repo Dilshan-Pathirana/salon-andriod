@@ -279,7 +279,7 @@ const styles = StyleSheet.create({
     padding: SPACING.lg,
     backgroundColor: COLORS.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(194,173,144,0.15)',
+    borderBottomColor: 'rgba(200,162,77,0.15)',
   },
   headerTitle: {
     fontSize: FONTS.sizes.lg,
@@ -343,7 +343,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: SPACING.lg,
     borderWidth: 1,
-    borderColor: 'rgba(93,68,41,0.2)',
+    borderColor: 'rgba(200,162,77,0.2)',
     elevation: 1,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },

@@ -257,7 +257,7 @@ const styles = StyleSheet.create({
     padding: SPACING.md,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(93,68,41,0.2)',
+    borderColor: 'rgba(200,162,77,0.2)',
     elevation: 1,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },

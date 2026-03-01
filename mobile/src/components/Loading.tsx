@@ -65,11 +65,11 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: 'rgba(54,68,66,0.3)',
+    backgroundColor: 'rgba(28,28,28,0.3)',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(194,173,144,0.15)',
+    borderColor: 'rgba(200,162,77,0.15)',
   },
   inline: {
     padding: SPACING.xl,

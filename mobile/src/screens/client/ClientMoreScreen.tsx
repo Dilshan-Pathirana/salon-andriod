@@ -76,12 +76,12 @@ const styles = StyleSheet.create({
   userCard: {
     flexDirection: 'row', alignItems: 'center', gap: SPACING.md,
     padding: SPACING.lg, backgroundColor: COLORS.surface,
-    borderBottomWidth: 1, borderBottomColor: 'rgba(194,173,144,0.15)',
+    borderBottomWidth: 1, borderBottomColor: 'rgba(200,162,77,0.15)',
   },
   avatar: {
     width: 52, height: 52, borderRadius: 26,
     backgroundColor: COLORS.green, justifyContent: 'center', alignItems: 'center',
-    borderWidth: 1, borderColor: 'rgba(194,173,144,0.2)',
+    borderWidth: 1, borderColor: 'rgba(200,162,77,0.2)',
   },
   avatarText: { fontSize: FONTS.sizes.md, fontWeight: '600', color: COLORS.champagne },
   userName: { fontSize: FONTS.sizes.md, fontWeight: '600', color: COLORS.text },
@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.green, justifyContent: 'center', alignItems: 'center',
     marginRight: SPACING.md,
     borderWidth: 1,
-    borderColor: 'rgba(93,68,41,0.2)',
+    borderColor: 'rgba(200,162,77,0.2)',
   },
   menuContent: { flex: 1 },
   menuTitle: { fontSize: FONTS.sizes.md, fontWeight: '600', color: COLORS.text },

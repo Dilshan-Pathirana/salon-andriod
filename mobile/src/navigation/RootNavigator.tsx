@@ -8,7 +8,7 @@ import { AdminTabNavigator } from './AdminTabNavigator';
 
 export type RootStackParamList = {
   Auth: undefined;
-  ClientTabs: undefined;
+  MainDrawer: undefined;
   AdminTabs: undefined;
 };
 
@@ -28,7 +28,7 @@ export function RootNavigator() {
       ) : user?.role === 'ADMIN' ? (
         <Stack.Screen name="AdminTabs" component={AdminTabNavigator} />
       ) : (
-        <Stack.Screen name="ClientTabs" component={ClientTabNavigator} />
+        <Stack.Screen name="MainDrawer" component={ClientTabNavigator} />
       )}
     </Stack.Navigator>
   );

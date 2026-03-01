@@ -7,42 +7,42 @@ export const SOCKET_URL = __DEV__
   : 'https://your-salon-api.railway.app';
 
 export const COLORS = {
-  // Luxury palette — L'Atelier style
-  primary: '#97754D',                      // luxury-gold (warm, muted)
-  primaryDark: '#7A5D3A',                  // luxury-gold darker
-  primaryLight: 'rgba(151,117,77,0.15)',   // gold glow
+  // Luxury palette — White & Gold style (from style.txt)
+  primary: '#C8A24D',                      // luxury-gold
+  primaryDark: '#A67C00',                  // luxury-gold darker
+  primaryLight: 'rgba(200,162,77,0.15)',   // gold glow
 
-  secondary: '#364442',                    // luxury-green
+  secondary: '#1C1C1C',                    // luxury-charcoal
   success: '#10B981',
   warning: '#F59E0B',
   danger: '#EF4444',
   info: '#3B82F6',
 
-  background: '#0C100E',                   // luxury-black (olive-tinted)
-  surface: '#1A2421',                      // dark green-tinted surface
-  surfaceSecondary: '#243230',             // lighter green surface
+  background: '#0F0F0F',                   // luxury-black
+  surface: '#1C1C1C',                      // luxury-charcoal
+  surfaceSecondary: '#2A2A2A',             // lighter charcoal
 
-  text: '#F2F1ED',                         // luxury-white (warm)
-  textSecondary: 'rgba(194,173,144,0.7)',  // luxury-muted (champagne)
-  textLight: 'rgba(194,173,144,0.5)',      // luxury-muted lighter
-  textWhite: '#F2F1ED',
+  text: '#F5F5F5',                         // luxury-white
+  textSecondary: 'rgba(160,160,160,0.9)',  // luxury-grey
+  textLight: 'rgba(160,160,160,0.6)',      // luxury-grey lighter
+  textWhite: '#F5F5F5',
 
-  border: 'rgba(93,68,41,0.25)',           // luxury-brown border
-  borderDark: 'rgba(93,68,41,0.4)',        // luxury-brown border stronger
+  border: 'rgba(200,162,77,0.1)',          // gold-tinted border
+  borderDark: 'rgba(200,162,77,0.25)',     // gold-tinted border stronger
 
-  gold: '#97754D',
-  goldDark: '#7A5D3A',
-  champagne: '#C2AD90',                    // champagne accent
-  brown: '#5D4429',                        // luxury-brown
-  green: '#364442',                        // luxury-green
-  charcoal: '#1A2421',
-  luxuryBlack: '#0C100E',
-  emerald: '#364442',
+  gold: '#C8A24D',
+  goldDark: '#A67C00',
+  champagne: '#C8A24D',                    // gold accent (was champagne)
+  brown: '#A67C00',                        // luxury-goldDark
+  green: '#0E3B2E',                        // luxury-emerald
+  charcoal: '#1C1C1C',
+  luxuryBlack: '#0F0F0F',
+  emerald: '#0E3B2E',
 
   // Status colors
   statusAvailable: '#10B981',
   statusBooked: '#3B82F6',
-  statusInService: '#C2AD90',
+  statusInService: '#C8A24D',
   statusCompleted: '#6B7280',
   statusCancelled: '#EF4444',
   statusNoShow: '#DC2626',
@@ -107,9 +107,9 @@ export const SHADOWS = {
     elevation: 6,
   },
   gold: {
-    shadowColor: '#97754D',
+    shadowColor: '#C8A24D',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.25,
     shadowRadius: 12,
     elevation: 6,
   },

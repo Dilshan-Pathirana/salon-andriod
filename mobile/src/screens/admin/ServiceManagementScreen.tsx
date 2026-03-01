@@ -310,7 +310,7 @@ const styles = StyleSheet.create({
   emptyContainer: { flex: 1 },
   card: {
     backgroundColor: COLORS.surface, borderRadius: 16, padding: SPACING.lg,
-    borderWidth: 1, borderColor: 'rgba(93,68,41,0.2)',
+    borderWidth: 1, borderColor: 'rgba(200,162,77,0.2)',
     elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1, shadowRadius: 6, overflow: 'hidden',
   },
@@ -320,7 +320,7 @@ const styles = StyleSheet.create({
   cardName: { fontSize: FONTS.sizes.md, fontWeight: '500', color: COLORS.text, letterSpacing: 0.3 },
   badgeRow: { flexDirection: 'row', gap: SPACING.xs, marginTop: SPACING.xs },
   categoryBadge: {
-    backgroundColor: 'rgba(54,68,66,0.4)', paddingHorizontal: SPACING.sm, paddingVertical: 2, borderRadius: 8,
+    backgroundColor: 'rgba(28,28,28,0.4)', paddingHorizontal: SPACING.sm, paddingVertical: 2, borderRadius: 8,
   },
   categoryText: { fontSize: FONTS.sizes.xs, fontWeight: '500', color: COLORS.champagne, letterSpacing: 0.5, textTransform: 'uppercase' },
   inactiveBadge: {
@@ -335,7 +335,7 @@ const styles = StyleSheet.create({
   actionBtn: { padding: SPACING.xs },
   // Modal
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.75)', justifyContent: 'flex-end' },
-  modalContent: { backgroundColor: COLORS.surface, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: SPACING.xxl, maxHeight: '85%', borderTopWidth: 1, borderTopColor: 'rgba(194,173,144,0.15)' },
+  modalContent: { backgroundColor: COLORS.surface, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: SPACING.xxl, maxHeight: '85%', borderTopWidth: 1, borderTopColor: 'rgba(200,162,77,0.15)' },
   modalTitle: { fontSize: FONTS.sizes.xl, fontWeight: '600', color: COLORS.text, marginBottom: SPACING.lg, letterSpacing: 0.5 },
   label: { fontSize: FONTS.sizes.xs, fontWeight: '500', color: COLORS.champagne, marginBottom: SPACING.xs, marginTop: SPACING.sm, textTransform: 'uppercase', letterSpacing: 1.5 },
   input: { borderWidth: 1, borderColor: COLORS.border, borderRadius: 14, paddingHorizontal: SPACING.md, paddingVertical: SPACING.sm, fontSize: FONTS.sizes.md, color: COLORS.text, backgroundColor: COLORS.background },
@@ -343,10 +343,10 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', gap: SPACING.md },
   half: { flex: 1 },
   categoryRow: { flexDirection: 'row', gap: SPACING.sm, flexWrap: 'wrap' },
-  catChip: { paddingHorizontal: SPACING.md, paddingVertical: SPACING.sm, borderRadius: 9999, backgroundColor: 'transparent', borderWidth: 1, borderColor: 'rgba(194,173,144,0.3)' },
+  catChip: { paddingHorizontal: SPACING.md, paddingVertical: SPACING.sm, borderRadius: 9999, backgroundColor: 'transparent', borderWidth: 1, borderColor: 'rgba(200,162,77,0.3)' },
   catChipActive: { backgroundColor: COLORS.champagne, borderColor: COLORS.champagne },
   catChipText: { fontSize: FONTS.sizes.sm, color: COLORS.champagne, letterSpacing: 0.5 },
-  catChipTextActive: { color: '#0C100E' },
+  catChipTextActive: { color: '#0F0F0F' },
   switchRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: SPACING.md },
   modalActions: { flexDirection: 'row', gap: SPACING.md, marginTop: SPACING.xl },
   modalBtn: { flex: 1 },

@@ -120,10 +120,10 @@ export function BookAppointmentScreen() {
             dayTextColor: COLORS.text,
             monthTextColor: COLORS.champagne,
             textSectionTitleColor: COLORS.textSecondary,
-            textDisabledColor: 'rgba(242,241,237,0.2)',
+            textDisabledColor: 'rgba(245,245,245,0.2)',
             todayTextColor: COLORS.champagne,
             selectedDayBackgroundColor: COLORS.champagne,
-            selectedDayTextColor: '#0C100E',
+            selectedDayTextColor: '#0F0F0F',
             arrowColor: COLORS.champagne,
             dotColor: COLORS.statusAvailable,
           }}
@@ -225,7 +225,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(93,68,41,0.2)',
+    borderColor: 'rgba(200,162,77,0.2)',
     elevation: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -273,7 +273,7 @@ const styles = StyleSheet.create({
     color: COLORS.textLight,
   },
   slotTextSelected: {
-    color: '#0C100E',
+    color: '#0F0F0F',
   },
   bookButton: {
     marginHorizontal: SPACING.lg,

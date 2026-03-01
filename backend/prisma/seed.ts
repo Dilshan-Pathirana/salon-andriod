@@ -33,6 +33,20 @@ async function main(): Promise<void> {
   });
   console.log(`✅ Admin created: ${admin.phoneNumber} / admin12345`);
 
+  // Create client user
+  const clientPassword = await bcrypt.hash('client12345', 12);
+  const client = await prisma.user.create({
+    data: {
+      phoneNumber: '0771234567',
+      passwordHash: clientPassword,
+      firstName: 'John',
+      lastName: 'Doe',
+      role: Role.CLIENT,
+      isActive: true,
+    },
+  });
+  console.log(`✅ Client created: ${client.phoneNumber} / client12345`);
+
   // Create default services
   const services = await Promise.all([
     prisma.service.create({
@@ -106,7 +120,8 @@ async function main(): Promise<void> {
 
   console.log('\n🎉 Seed completed successfully!');
   console.log('\n📋 Login credentials:');
-  console.log('  Admin: 0712345678 / admin12345');
+  console.log('  Admin:  0712345678 / admin12345');
+  console.log('  Client: 0771234567 / client12345');
 }
 
 main()

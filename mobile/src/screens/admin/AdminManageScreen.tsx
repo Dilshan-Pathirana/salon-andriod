@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
   card: {
     width: '47%', backgroundColor: COLORS.surface,
     borderRadius: 16, padding: SPACING.lg,
-    borderWidth: 1, borderColor: 'rgba(93,68,41,0.2)',
+    borderWidth: 1, borderColor: 'rgba(200,162,77,0.2)',
     elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1, shadowRadius: 6,
     overflow: 'hidden',
@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center', alignItems: 'center', marginBottom: SPACING.sm,
     backgroundColor: COLORS.green,
     borderWidth: 1,
-    borderColor: 'rgba(93,68,41,0.2)',
+    borderColor: 'rgba(200,162,77,0.2)',
   },
   cardTitle: { fontSize: FONTS.sizes.md, fontWeight: '500', color: COLORS.text, letterSpacing: 0.3 },
   cardSubtitle: { fontSize: FONTS.sizes.xs, color: COLORS.textSecondary, marginTop: 2, letterSpacing: 0.3 },
