@@ -40,25 +40,36 @@
 ### 2. Get Your Firebase Config
 
 1. In Firebase Console → Project Settings → General → **Your apps** → click the Web icon (`</>`)
-2. Register a web app (name: `salon-mobile`)   firebase hosting on salon-app-54d7b
+2. Register a web app (name: `salon-mobile`)
 3. Copy the `firebaseConfig` object
 
-### 3. Paste Into Mobile Config
+### 3. Set Mobile Environment Variables
 
-Open `mobile/src/config/firebase.ts` and replace the placeholder values:
+Create `mobile/.env` from `mobile/.env.example` and fill values from Firebase Console:
 
-```typescript
-const firebaseConfig = {
-  apiKey: 'AIza...',
-  authDomain: 'salon-app-xxxxx.firebaseapp.com',
-  projectId: 'salon-app-xxxxx',
-  storageBucket: 'salon-app-xxxxx.appspot.com',
-  messagingSenderId: '123456789',
-  appId: '1:123456789:web:abcdef',
-};
+```bash
+cp mobile/.env.example mobile/.env
 ```
 
-### 4. Update `.firebaserc`
+Required variables:
+- `EXPO_PUBLIC_FIREBASE_API_KEY`
+- `EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN`
+- `EXPO_PUBLIC_FIREBASE_PROJECT_ID`
+- `EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET`
+- `EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`
+- `EXPO_PUBLIC_FIREBASE_APP_ID`
+
+### 4. Register Android App (optional but recommended)
+
+1. Firebase Console → Project Settings → **Your apps** → Add Android app
+2. Package name for this project: `com.salon.app`
+3. Download `google-services.json`
+4. Place it at `mobile/android/app/google-services.json` after running `npx expo prebuild`
+
+> This project uses Firebase JS SDK, so Auth/Firestore/Functions work without native Gradle setup.
+> `google-services.json` is required when adding native Firebase Android services.
+
+### 5. Update `.firebaserc`
 
 Open `.firebaserc` and replace `your-salon-project-id` with your actual Firebase project ID.
 
@@ -99,16 +110,10 @@ This starts:
 
 ### 3. Connect mobile app to emulators
 
-Uncomment the emulator block in `mobile/src/config/firebase.ts`:
+Set emulator host in `mobile/.env`:
 
-```typescript
-import { connectAuthEmulator } from 'firebase/auth';
-import { connectFirestoreEmulator } from 'firebase/firestore';
-if (__DEV__) {
-  connectAuthEmulator(auth, 'http://192.168.8.184:9099', { disableWarnings: true });
-  connectFirestoreEmulator(db, '192.168.8.184', 8080);
-  connectFunctionsEmulator(functions, '192.168.8.184', 5001);
-}
+```bash
+EXPO_PUBLIC_FIREBASE_EMULATOR_HOST=192.168.8.184
 ```
 
 Replace `192.168.8.184` with your machine's local IP address.
@@ -159,6 +164,18 @@ firebase functions:shell
 > require('./lib/seed').seedDatabase()
 ```
 
+### 3. Deploy via GitHub Actions (recommended)
+
+Two workflows are included:
+
+- `.github/workflows/android-build.yml` (Expo/EAS Android build)
+- `.github/workflows/firebase-deploy.yml` (Firestore rules/indexes + Functions deploy)
+
+Add these repository secrets:
+
+- `EXPO_TOKEN` for EAS build access
+- `FIREBASE_TOKEN` from `firebase login:ci`
+
 ---
 
 ## Mobile App
@@ -178,6 +195,8 @@ npx eas build --platform ios --profile production
 ```
 
 Make sure the `firebaseConfig` in `mobile/src/config/firebase.ts` points to your **production** Firebase project.
+
+For this repo, Firebase config is loaded from `mobile/.env` (`EXPO_PUBLIC_FIREBASE_*`).
 
 ---
 

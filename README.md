@@ -117,6 +117,11 @@ salon-andriod/
 firebase login
 firebase use salon-app-54d7b
 
+# (Optional) add Android app in Firebase Console
+# Package name in this repo: com.salon.app
+# Download google-services.json only if you prebuild native Android
+# and place it at: mobile/android/app/google-services.json
+
 # Deploy Firestore rules & indexes
 firebase deploy --only firestore:rules,firestore:indexes
 
@@ -137,6 +142,8 @@ cd ..
 ```bash
 cd mobile
 npm install
+cp .env.example .env
+# Fill .env with EXPO_PUBLIC_FIREBASE_* values from Firebase Console
 npx expo start
 ```
 
@@ -145,7 +152,7 @@ npx expo start
 # Start all Firebase emulators
 firebase emulators:start
 
-# In mobile/src/config/firebase.ts, uncomment the emulator connection block
+# In mobile/.env set EXPO_PUBLIC_FIREBASE_EMULATOR_HOST=<your-local-ip>
 # Then start Expo
 cd mobile
 npx expo start
@@ -170,3 +177,19 @@ npx expo start
 ## Deployment
 
 See [DEPLOYMENT.md](DEPLOYMENT.md) for full Firebase deployment instructions, emulator setup, and troubleshooting.
+
+## CI/CD (GitHub Actions)
+
+- Android build workflow: `.github/workflows/android-build.yml` (TypeScript check on PRs/pushes, EAS Android build on `main`)
+- Firebase deploy workflow: `.github/workflows/firebase-deploy.yml` (deploys Firestore rules/indexes + Cloud Functions on `main`)
+
+Required GitHub secrets:
+
+- `EXPO_TOKEN` (for EAS builds)
+- `FIREBASE_TOKEN` (from `firebase login:ci`)
+
+To generate Firebase token locally:
+
+```bash
+firebase login:ci
+```

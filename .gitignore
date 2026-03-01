@@ -1,5 +1,7 @@
 /mobile/node_modules
 /mobile/.expo
 /mobile/expo-start.log
+/mobile/.env
+/mobile/.env.local
 /functions/node_modules
 /node_modules

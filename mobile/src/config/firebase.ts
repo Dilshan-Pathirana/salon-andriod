@@ -13,14 +13,28 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // @ts-ignore – getReactNativePersistence exists at runtime in RN bundles
 import { getReactNativePersistence } from 'firebase/auth';
 
+const requiredEnvVars = [
+  'EXPO_PUBLIC_FIREBASE_API_KEY',
+  'EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN',
+  'EXPO_PUBLIC_FIREBASE_PROJECT_ID',
+  'EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET',
+  'EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID',
+  'EXPO_PUBLIC_FIREBASE_APP_ID',
+] as const;
+
+const missingEnvVars = requiredEnvVars.filter((key) => !process.env[key]);
+
+if (missingEnvVars.length > 0) {
+  throw new Error(`Missing Firebase env vars: ${missingEnvVars.join(', ')}`);
+}
+
 const firebaseConfig = {
-  apiKey: 'AIzaSyA_C5JU8Rqb0PHr37QbmP0ZH5fSpBb8tys',
-  authDomain: 'salon-app-54d7b.firebaseapp.com',
-  projectId: 'salon-app-54d7b',
-  storageBucket: 'salon-app-54d7b.firebasestorage.app',
-  messagingSenderId: '838890672878',
-  appId: '1:838890672878:web:c765e79bc440850357d9ff',
-  measurementId: 'G-F6NM71V2CH',
+  apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY!,
+  authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN!,
+  projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID!,
+  storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET!,
+  messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID!,
+  appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID!,
 };
 
 // Avoid re-initialising on Expo Fast Refresh
@@ -41,10 +55,12 @@ const db = getFirestore(app);
 const functions = getFunctions(app);
 
 if (__DEV__) {
-  const LOCAL_IP = '192.168.8.184';
-  connectAuthEmulator(auth, `http://${LOCAL_IP}:9099`, { disableWarnings: true });
-  connectFirestoreEmulator(db, LOCAL_IP, 8080);
-  connectFunctionsEmulator(functions, LOCAL_IP, 5001);
+  const emulatorHost = process.env.EXPO_PUBLIC_FIREBASE_EMULATOR_HOST;
+  if (emulatorHost) {
+    connectAuthEmulator(auth, `http://${emulatorHost}:9099`, { disableWarnings: true });
+    connectFirestoreEmulator(db, emulatorHost, 8080);
+    connectFunctionsEmulator(functions, emulatorHost, 5001);
+  }
 }
 
 export { app, auth, db, functions };
