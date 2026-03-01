@@ -198,6 +198,21 @@ Make sure the `firebaseConfig` in `mobile/src/config/firebase.ts` points to your
 
 For this repo, Firebase config is loaded from `mobile/.env` (`EXPO_PUBLIC_FIREBASE_*`).
 
+### One-time Android credentials bootstrap for CI
+
+GitHub Actions uses non-interactive mode, so Android keystore must exist on Expo first.
+
+Run once locally (interactive):
+
+```bash
+cd mobile
+npx eas login
+npx eas build --platform android --profile production
+```
+
+When prompted, allow EAS to generate and store Android keystore credentials.
+After this first successful build, CI `--non-interactive` builds work.
+
 ---
 
 ## Seed Data
