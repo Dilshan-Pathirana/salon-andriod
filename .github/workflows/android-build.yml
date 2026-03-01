@@ -38,12 +38,6 @@ jobs:
       - name: Validate app compiles
         run: npx tsc --noEmit
 
-      - name: Verify Android credentials exist
-        if: github.ref == 'refs/heads/main'
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-        run: eas credentials --platform android --non-interactive
-
       - name: Build Android (EAS)
         if: github.ref == 'refs/heads/main'
         env:
