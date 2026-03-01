@@ -1,13 +1,38 @@
-import api from './api';
-import { ApiResponse, AuthResponse } from '../types';
+import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
+import { auth, db, callFunction, tsToString } from './api';
+import { AuthResponse, User } from '../types';
+
+function phoneToEmail(phone: string): string {
+  return `${phone}@salon.app`;
+}
 
 export const authApi = {
   login: async (phoneNumber: string, password: string): Promise<AuthResponse> => {
-    const response = await api.post<ApiResponse<AuthResponse>>('/auth/login', {
-      phoneNumber,
-      password,
-    });
-    return response.data.data;
+    const email = phoneToEmail(phoneNumber);
+    const credential = await signInWithEmailAndPassword(auth, email, password);
+    const uid = credential.user.uid;
+
+    const userDoc = await getDoc(doc(db, 'users', uid));
+    if (!userDoc.exists()) throw new Error('User profile not found');
+    const d = userDoc.data();
+
+    const user: User = {
+      id: uid,
+      phoneNumber: d.phoneNumber,
+      firstName: d.firstName,
+      lastName: d.lastName,
+      role: d.role,
+      profileImageUrl: d.profileImageUrl ?? null,
+      isActive: d.isActive,
+      createdAt: tsToString(d.createdAt),
+    };
+
+    return {
+      user,
+      accessToken: await credential.user.getIdToken(),
+      refreshToken: credential.user.refreshToken,
+    };
   },
 
   register: async (data: {
@@ -17,19 +42,18 @@ export const authApi = {
     lastName: string;
     role?: string;
   }): Promise<AuthResponse> => {
-    const response = await api.post<ApiResponse<AuthResponse>>('/auth/register', data);
-    return response.data.data;
+    await callFunction('registerUser', data);
+    return authApi.login(data.phoneNumber, data.password);
   },
 
-  refreshToken: async (refreshToken: string) => {
-    const response = await api.post<ApiResponse<{ accessToken: string; refreshToken: string }>>(
-      '/auth/refresh',
-      { refreshToken }
-    );
-    return response.data.data;
+  refreshToken: async (_refreshToken: string) => {
+    const user = auth.currentUser;
+    if (!user) throw new Error('Not authenticated');
+    const accessToken = await user.getIdToken(true);
+    return { accessToken, refreshToken: user.refreshToken };
   },
 
-  logout: async (refreshToken: string): Promise<void> => {
-    await api.post('/auth/logout', { refreshToken });
+  logout: async (_refreshToken?: string): Promise<void> => {
+    await signOut(auth);
   },
 };

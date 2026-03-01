@@ -12,7 +12,7 @@ import { Button, StatusBadge, EmptyState, Loading, ConfirmDialog } from '../../c
 import { COLORS, FONTS, SPACING } from '../../constants';
 import { formatTimeAmPm, formatDate } from '../../utils';
 import { Appointment } from '../../types';
-import { AxiosError } from 'axios';
+
 
 export function MyAppointmentsScreen() {
   const { myAppointments, isLoading, fetchMyAppointments, cancelAppointment } = useBookingStore();
@@ -38,8 +38,8 @@ export function MyAppointmentsScreen() {
       Alert.alert('Success', 'Appointment cancelled successfully');
     } catch (error) {
       let message = 'Failed to cancel appointment';
-      if (error instanceof AxiosError && error.response?.data?.message) {
-        message = error.response.data.message;
+      if (error instanceof Error) {
+        message = error.message;
       }
       Alert.alert('Error', message);
     } finally {

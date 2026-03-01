@@ -16,7 +16,7 @@ import { galleryApi } from '../../services';
 import { Loading, EmptyState, Button, ConfirmDialog } from '../../components';
 import { COLORS, FONTS, SPACING } from '../../constants';
 import { GalleryItem } from '../../types';
-import { AxiosError } from 'axios';
+
 
 const GALLERY_CATEGORIES = ['Haircut', 'Beard', 'Fade', 'Styling'];
 
@@ -105,8 +105,8 @@ export function GalleryManagementScreen() {
       await loadItems();
     } catch (error) {
       let message = 'Failed to save';
-      if (error instanceof AxiosError && error.response?.data?.message) {
-        message = error.response.data.message;
+      if (error instanceof Error) {
+        message = error.message;
       }
       Alert.alert('Error', message);
     } finally {
@@ -123,8 +123,8 @@ export function GalleryManagementScreen() {
       Alert.alert('Success', 'Gallery item deleted');
     } catch (error) {
       let message = 'Failed to delete';
-      if (error instanceof AxiosError && error.response?.data?.message) {
-        message = error.response.data.message;
+      if (error instanceof Error) {
+        message = error.message;
       }
       Alert.alert('Error', message);
     } finally {

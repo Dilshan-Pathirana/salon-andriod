@@ -1,7 +1,9 @@
 import { create } from 'zustand';
-import { User, Role } from '../types';
+import { onAuthStateChanged } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
+import { User } from '../types';
 import { authApi } from '../services';
-import { setTokens, clearTokens, setUserData, getUserData, getRefreshToken } from '../utils/storage';
+import { auth, db, tsToString } from '../services/api';
 
 interface AuthState {
   user: User | null;
@@ -22,25 +24,45 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   isInitialized: false,
 
   initialize: async () => {
-    try {
-      const userData = await getUserData();
-      if (userData) {
-        const user = JSON.parse(userData) as User;
-        set({ user, isAuthenticated: true, isInitialized: true });
-      } else {
-        set({ isInitialized: true });
-      }
-    } catch {
-      set({ isInitialized: true });
-    }
+    return new Promise<void>((resolve) => {
+      let resolved = false;
+      // Keep listener alive so auth state changes (e.g. token refresh, sign-out)
+      // are picked up automatically. Only resolve the promise on first emission.
+      onAuthStateChanged(auth, async (firebaseUser) => {
+        if (firebaseUser) {
+          try {
+            const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+            if (userDoc.exists()) {
+              const d = userDoc.data();
+              const user: User = {
+                id: firebaseUser.uid,
+                phoneNumber: d.phoneNumber,
+                firstName: d.firstName,
+                lastName: d.lastName,
+                role: d.role,
+                profileImageUrl: d.profileImageUrl ?? null,
+                isActive: d.isActive,
+                createdAt: tsToString(d.createdAt),
+              };
+              set({ user, isAuthenticated: true, isInitialized: true });
+            } else {
+              set({ user: null, isAuthenticated: false, isInitialized: true });
+            }
+          } catch {
+            set({ isInitialized: true });
+          }
+        } else {
+          set({ user: null, isAuthenticated: false, isInitialized: true });
+        }
+        if (!resolved) { resolved = true; resolve(); }
+      });
+    });
   },
 
   login: async (phoneNumber: string, password: string) => {
     set({ isLoading: true });
     try {
       const data = await authApi.login(phoneNumber, password);
-      await setTokens(data.accessToken, data.refreshToken);
-      await setUserData(JSON.stringify(data.user));
       set({
         user: data.user,
         isAuthenticated: true,
@@ -54,12 +76,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   logout: async () => {
     try {
-      const refreshToken = await getRefreshToken();
-      if (refreshToken) {
-        await authApi.logout(refreshToken).catch(() => {});
-      }
+      await authApi.logout();
     } finally {
-      await clearTokens();
       set({
         user: null,
         isAuthenticated: false,
@@ -69,6 +87,5 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   setUser: (user: User) => {
     set({ user });
-    setUserData(JSON.stringify(user));
   },
 }));

@@ -16,7 +16,7 @@ import { servicesApi } from '../../services';
 import { Loading, EmptyState, Button, ConfirmDialog } from '../../components';
 import { COLORS, FONTS, SPACING } from '../../constants';
 import { Service, ServiceCategory } from '../../types';
-import { AxiosError } from 'axios';
+
 
 const CATEGORIES: ServiceCategory[] = ['HAIRCUT', 'BEARD', 'COMBO', 'PREMIUM'];
 
@@ -114,8 +114,8 @@ export function ServiceManagementScreen() {
       await loadServices();
     } catch (error) {
       let message = 'Failed to save';
-      if (error instanceof AxiosError && error.response?.data?.message) {
-        message = error.response.data.message;
+      if (error instanceof Error) {
+        message = error.message;
       }
       Alert.alert('Error', message);
     } finally {
@@ -132,8 +132,8 @@ export function ServiceManagementScreen() {
       Alert.alert('Success', 'Service deleted');
     } catch (error) {
       let message = 'Failed to delete';
-      if (error instanceof AxiosError && error.response?.data?.message) {
-        message = error.response.data.message;
+      if (error instanceof Error) {
+        message = error.message;
       }
       Alert.alert('Error', message);
     } finally {

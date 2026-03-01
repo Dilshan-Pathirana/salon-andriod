@@ -1,36 +1,41 @@
-import api from './api';
-import { ApiResponse, BusinessInfo } from '../types';
+import {
+  collection, query, where, getDocs, doc, getDoc,
+} from 'firebase/firestore';
+import { db, callFunction, tsToString } from './api';
+import { BusinessInfo } from '../types';
+
+function mapBusinessInfo(id: string, d: Record<string, any>): BusinessInfo {
+  return {
+    id,
+    key: id,
+    value: d.value,
+    category: d.category ?? 'about',
+    createdAt: tsToString(d.createdAt),
+    updatedAt: tsToString(d.updatedAt),
+  };
+}
 
 export const businessInfoApi = {
   getAll: async (): Promise<BusinessInfo[]> => {
-    const response = await api.get<ApiResponse<BusinessInfo[]>>('/business-info');
-    return response.data.data;
+    const snap = await getDocs(collection(db, 'businessInfo'));
+    return snap.docs.map((d) => mapBusinessInfo(d.id, d.data()));
   },
 
   getByCategory: async (category: string): Promise<BusinessInfo[]> => {
-    const response = await api.get<ApiResponse<BusinessInfo[]>>(`/business-info/category/${category}`);
-    return response.data.data;
+    const q = query(collection(db, 'businessInfo'), where('category', '==', category));
+    const snap = await getDocs(q);
+    return snap.docs.map((d) => mapBusinessInfo(d.id, d.data()));
   },
 
-  upsert: async (data: {
-    key: string;
-    value: string;
-    category: string;
-  }): Promise<BusinessInfo> => {
-    const response = await api.put<ApiResponse<BusinessInfo>>('/business-info', data);
-    return response.data.data;
+  upsert: async (data: { key: string; value: string; category: string }): Promise<BusinessInfo> => {
+    return callFunction<BusinessInfo>('adminManageBusinessInfo', { action: 'upsert', ...data });
   },
 
-  bulkUpsert: async (items: {
-    key: string;
-    value: string;
-    category: string;
-  }[]): Promise<BusinessInfo[]> => {
-    const response = await api.put<ApiResponse<BusinessInfo[]>>('/business-info/bulk', { items });
-    return response.data.data;
+  bulkUpsert: async (items: { key: string; value: string; category: string }[]): Promise<BusinessInfo[]> => {
+    return callFunction<BusinessInfo[]>('adminManageBusinessInfo', { action: 'bulkUpsert', items });
   },
 
   remove: async (key: string): Promise<void> => {
-    await api.delete(`/business-info/${key}`);
+    await callFunction('adminManageBusinessInfo', { action: 'remove', key });
   },
 };

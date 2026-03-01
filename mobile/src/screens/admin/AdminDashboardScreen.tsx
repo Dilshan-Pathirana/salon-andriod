@@ -14,7 +14,7 @@ import { Button, Loading, ConfirmDialog } from '../../components';
 import { COLORS, FONTS, SPACING } from '../../constants';
 import { getTodayString } from '../../utils';
 import { Session, DashboardStats } from '../../types';
-import { AxiosError } from 'axios';
+
 
 export function AdminDashboardScreen() {
   const [session, setSession] = useState<Session | null>(null);
@@ -67,8 +67,8 @@ export function AdminDashboardScreen() {
       await loadData();
     } catch (error) {
       let message = 'Action failed';
-      if (error instanceof AxiosError && error.response?.data?.message) {
-        message = error.response.data.message;
+      if (error instanceof Error) {
+        message = error.message;
       }
       Alert.alert('Error', message);
     } finally {
@@ -81,7 +81,7 @@ export function AdminDashboardScreen() {
     return <Loading message="Loading dashboard..." />;
   }
 
-  const isOpen = session?.status === 'OPEN';
+  const isOpen = session?.isClosed === false;
 
   return (
     <ScrollView
@@ -162,7 +162,7 @@ export function AdminDashboardScreen() {
             : 'Close today\'s session? Make sure all appointments are completed.'
         }
         confirmText={actionType === 'open' ? 'Open' : 'Close'}
-        variant={actionType === 'close' ? 'danger' : 'default'}
+        variant={actionType === 'close' ? 'danger' : 'primary'}
         onConfirm={handleSessionAction}
         onCancel={() => setShowConfirm(false)}
         loading={actioning}

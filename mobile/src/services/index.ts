@@ -1,4 +1,3 @@
-export { default as api } from './api';
 export { authApi } from './auth.service';
 export { usersApi, usersApi as usersService } from './users.service';
 export { scheduleApi, scheduleApi as scheduleService } from './schedule.service';

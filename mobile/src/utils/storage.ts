@@ -1,46 +1,42 @@
+/**
+ * Simplified storage utilities for Firebase.
+ *
+ * Firebase Auth handles token storage internally via AsyncStorage.
+ * These helpers are kept for backward-compatibility so any remaining
+ * imports don't break, but they are mostly no-ops now.
+ */
 import * as SecureStore from 'expo-secure-store';
 
 const KEYS = {
-  ACCESS_TOKEN: 'salon_access_token',
-  REFRESH_TOKEN: 'salon_refresh_token',
   USER_DATA: 'salon_user_data',
 } as const;
 
+// ── Token helpers (no-ops — Firebase Auth manages tokens) ──
+
 export async function getAccessToken(): Promise<string | null> {
-  return SecureStore.getItemAsync(KEYS.ACCESS_TOKEN);
+  return null;
 }
 
-export async function setAccessToken(token: string): Promise<void> {
-  await SecureStore.setItemAsync(KEYS.ACCESS_TOKEN, token);
-}
+export async function setAccessToken(_token: string): Promise<void> {}
 
 export async function getRefreshToken(): Promise<string | null> {
-  return SecureStore.getItemAsync(KEYS.REFRESH_TOKEN);
+  return null;
 }
 
-export async function setRefreshToken(token: string): Promise<void> {
-  await SecureStore.setItemAsync(KEYS.REFRESH_TOKEN, token);
-}
+export async function setRefreshToken(_token: string): Promise<void> {}
 
-export async function setTokens(accessToken: string, refreshToken: string): Promise<void> {
-  await Promise.all([
-    setAccessToken(accessToken),
-    setRefreshToken(refreshToken),
-  ]);
-}
+export async function setTokens(_accessToken: string, _refreshToken: string): Promise<void> {}
 
 export async function clearTokens(): Promise<void> {
-  await Promise.all([
-    SecureStore.deleteItemAsync(KEYS.ACCESS_TOKEN),
-    SecureStore.deleteItemAsync(KEYS.REFRESH_TOKEN),
-    SecureStore.deleteItemAsync(KEYS.USER_DATA),
-  ]);
+  try { await SecureStore.deleteItemAsync(KEYS.USER_DATA); } catch {}
 }
 
+// ── User data cache (optional) ──
+
 export async function getUserData(): Promise<string | null> {
-  return SecureStore.getItemAsync(KEYS.USER_DATA);
+  try { return SecureStore.getItemAsync(KEYS.USER_DATA); } catch { return null; }
 }
 
 export async function setUserData(data: string): Promise<void> {
-  await SecureStore.setItemAsync(KEYS.USER_DATA, data);
+  try { await SecureStore.setItemAsync(KEYS.USER_DATA, data); } catch {}
 }

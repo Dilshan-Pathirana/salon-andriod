@@ -11,15 +11,15 @@ import { Calendar, DateData } from 'react-native-calendars';
 import { scheduleService } from '../../services';
 import { Button, Loading, ConfirmDialog } from '../../components';
 import { COLORS, FONTS, SPACING } from '../../constants';
-import { Schedule } from '../../types';
-import { AxiosError } from 'axios';
+import { Schedule, ScheduleSummary } from '../../types';
+
 
 type DayStatus = 'OPEN' | 'CLOSED' | 'HOLIDAY';
 
 export function CalendarManagementScreen() {
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [schedule, setSchedule] = useState<Schedule | null>(null);
-  const [allSchedules, setAllSchedules] = useState<Schedule[]>([]);
+  const [allSchedules, setAllSchedules] = useState<ScheduleSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -53,10 +53,10 @@ export function CalendarManagementScreen() {
     try {
       const res = await scheduleService.getScheduleByDate(dateString);
       setSchedule(res as Schedule);
-      setDayStatus(res.dayStatus || 'OPEN');
-      setStartTime(res.startTime || '09:00');
-      setEndTime(res.endTime || '18:00');
-      setSlotDuration(String(res.slotDurationMins || 30));
+      setDayStatus(res?.status || 'OPEN');
+      setStartTime(res?.startTime || '09:00');
+      setEndTime(res?.endTime || '18:00');
+      setSlotDuration(String(res?.slotDurationMins || 30));
     } catch {
       // No schedule for this date - set defaults
       setSchedule(null);
@@ -93,8 +93,8 @@ export function CalendarManagementScreen() {
       loadSchedules(); // refresh calendar markers
     } catch (error) {
       let message = 'Failed to save schedule';
-      if (error instanceof AxiosError && error.response?.data?.message) {
-        message = error.response.data.message;
+      if (error instanceof Error) {
+        message = error.message;
       }
       Alert.alert('Error', message);
     } finally {
@@ -106,9 +106,9 @@ export function CalendarManagementScreen() {
   const markedDates: Record<string, object> = {};
   allSchedules.forEach((s) => {
     const color =
-      s.dayStatus === 'OPEN'
+      s.status === 'OPEN'
         ? COLORS.statusAvailable
-        : s.dayStatus === 'HOLIDAY'
+        : s.status === 'HOLIDAY'
         ? COLORS.statusNoShow
         : COLORS.statusClosed;
 

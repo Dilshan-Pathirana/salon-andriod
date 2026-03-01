@@ -51,7 +51,7 @@ export function Button({
     styles.text,
     styles[`text_${variant}`],
     styles[`textSize_${size}`],
-    isDisabled && styles.textDisabled,
+    isDisabled ? styles.textDisabled : ({} as TextStyle),
     textStyle ?? {},
   ];
 

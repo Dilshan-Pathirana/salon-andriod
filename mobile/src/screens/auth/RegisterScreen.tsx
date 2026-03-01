@@ -15,7 +15,7 @@ import { Button, Input } from '../../components';
 import { useAuthStore } from '../../store';
 import { COLORS, FONTS, SPACING } from '../../constants';
 import { isValidPhone, isValidPassword } from '../../utils';
-import { AxiosError } from 'axios';
+
 
 interface Props {
   navigation: any;
@@ -80,8 +80,8 @@ export function RegisterScreen({ navigation }: Props) {
       await login(phoneNumber, password);
     } catch (error) {
       let message = 'Registration failed. Please try again.';
-      if (error instanceof AxiosError && error.response?.data?.message) {
-        message = error.response.data.message;
+      if (error instanceof Error) {
+        message = error.message;
       }
       Alert.alert('Registration Failed', message);
     } finally {

@@ -13,7 +13,7 @@ import { useBookingStore } from '../../store';
 import { Button, Loading, ConfirmDialog, EmptyState } from '../../components';
 import { COLORS, FONTS, SPACING, STATUS_COLORS } from '../../constants';
 import { formatTimeAmPm, getDateRange, getTodayString } from '../../utils';
-import { AxiosError } from 'axios';
+
 
 export function BookAppointmentScreen() {
   const {
@@ -94,8 +94,8 @@ export function BookAppointmentScreen() {
       );
     } catch (error) {
       let message = 'Booking failed. Please try again.';
-      if (error instanceof AxiosError && error.response?.data?.message) {
-        message = error.response.data.message;
+      if (error instanceof Error) {
+        message = error.message;
       }
       Alert.alert('Booking Failed', message);
     } finally {

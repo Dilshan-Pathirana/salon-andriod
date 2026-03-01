@@ -17,7 +17,7 @@ import { Button, Input } from '../../components';
 import { useAuthStore } from '../../store';
 import { COLORS, FONTS, SPACING } from '../../constants';
 import { isValidPhone, isValidPassword } from '../../utils';
-import { AxiosError } from 'axios';
+
 
 export function LoginScreen() {
   const navigation = useNavigation<any>();
@@ -62,8 +62,8 @@ export function LoginScreen() {
       await login(phoneNumber, password);
     } catch (error) {
       let message = 'Login failed. Please try again.';
-      if (error instanceof AxiosError && error.response?.data?.message) {
-        message = error.response.data.message;
+      if (error instanceof Error) {
+        message = error.message;
       }
       Alert.alert('Login Failed', message);
     }

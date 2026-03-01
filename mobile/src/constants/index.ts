@@ -1,10 +1,5 @@
-export const API_BASE_URL = __DEV__
-  ? 'http://192.168.8.184:3000/api/v1'  // Your local Wi-Fi IP
-  : 'https://your-salon-api.railway.app/api/v1';
-
-export const SOCKET_URL = __DEV__
-  ? 'http://192.168.8.184:3000'
-  : 'https://your-salon-api.railway.app';
+// Firebase-powered — no API_BASE_URL or SOCKET_URL needed.
+// Auth, Firestore, and Cloud Functions are configured in src/config/firebase.ts.
 
 export const COLORS = {
   // Luxury palette — White & Gold style (from style.txt)

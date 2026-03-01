@@ -13,7 +13,7 @@ import { reviewsApi } from '../../services';
 import { Loading, EmptyState, ConfirmDialog } from '../../components';
 import { COLORS, FONTS, SPACING } from '../../constants';
 import { Review, ReviewStats } from '../../types';
-import { AxiosError } from 'axios';
+
 
 export function ReviewManagementScreen() {
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -54,8 +54,8 @@ export function ReviewManagementScreen() {
       await loadData();
     } catch (error) {
       let message = 'Failed to update';
-      if (error instanceof AxiosError && error.response?.data?.message) {
-        message = error.response.data.message;
+      if (error instanceof Error) {
+        message = error.message;
       }
       Alert.alert('Error', message);
     }
@@ -70,8 +70,8 @@ export function ReviewManagementScreen() {
       Alert.alert('Success', 'Review deleted');
     } catch (error) {
       let message = 'Failed to delete';
-      if (error instanceof AxiosError && error.response?.data?.message) {
-        message = error.response.data.message;
+      if (error instanceof Error) {
+        message = error.message;
       }
       Alert.alert('Error', message);
     } finally {

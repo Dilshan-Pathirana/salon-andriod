@@ -12,7 +12,9 @@
       "resizeMode": "contain",
       "backgroundColor": "#0F0F0F"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.salon.app"
@@ -31,6 +33,12 @@
     "plugins": [
       "expo-secure-store"
     ],
-    "scheme": "salon-app"
+    "scheme": "salon-app",
+    "extra": {
+      "eas": {
+        "projectId": "9ade98f9-545f-4d9d-b931-17f051446175"
+      }
+    },
+    "owner": "dilshan-pathirana"
   }
 }

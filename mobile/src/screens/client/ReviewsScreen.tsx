@@ -16,7 +16,7 @@ import { useAuthStore } from '../../store';
 import { Loading, EmptyState, Button } from '../../components';
 import { COLORS, FONTS, SPACING } from '../../constants';
 import { Review, ReviewStats, Appointment } from '../../types';
-import { AxiosError } from 'axios';
+
 
 export function ReviewsScreen() {
   const { user } = useAuthStore();
@@ -93,8 +93,8 @@ export function ReviewsScreen() {
       await loadData();
     } catch (error) {
       let message = 'Failed to submit review';
-      if (error instanceof AxiosError && error.response?.data?.message) {
-        message = error.response.data.message;
+      if (error instanceof Error) {
+        message = error.message;
       }
       Alert.alert('Error', message);
     } finally {

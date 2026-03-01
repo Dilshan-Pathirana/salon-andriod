@@ -14,7 +14,7 @@ import { usersService } from '../../services';
 import { Button, Loading, EmptyState, ConfirmDialog } from '../../components';
 import { COLORS, FONTS, SPACING } from '../../constants';
 import { User } from '../../types';
-import { AxiosError } from 'axios';
+
 
 export function UserManagementScreen() {
   const [users, setUsers] = useState<User[]>([]);
@@ -79,7 +79,7 @@ export function UserManagementScreen() {
     setAdding(true);
     try {
       await usersService.createUser({
-        phone: formPhone,
+        phoneNumber: formPhone,
         password: formPassword,
         firstName: formFirstName,
         lastName: formLastName,
@@ -90,8 +90,8 @@ export function UserManagementScreen() {
       fetchUsers();
     } catch (error) {
       let message = 'Failed to create user';
-      if (error instanceof AxiosError && error.response?.data?.message) {
-        message = error.response.data.message;
+      if (error instanceof Error) {
+        message = error.message;
       }
       Alert.alert('Error', message);
     } finally {
@@ -108,8 +108,8 @@ export function UserManagementScreen() {
       Alert.alert('Success', 'User deleted');
     } catch (error) {
       let message = 'Failed to delete user';
-      if (error instanceof AxiosError && error.response?.data?.message) {
-        message = error.response.data.message;
+      if (error instanceof Error) {
+        message = error.message;
       }
       Alert.alert('Error', message);
     } finally {
@@ -130,7 +130,7 @@ export function UserManagementScreen() {
           <Text style={styles.userName}>
             {item.firstName} {item.lastName}
           </Text>
-          <Text style={styles.userPhone}>{item.phone}</Text>
+          <Text style={styles.userPhone}>{item.phoneNumber}</Text>
         </View>
         <View style={[styles.roleBadge, item.role === 'ADMIN' ? styles.roleAdmin : styles.roleClient]}>
           <Text style={[styles.roleText, item.role === 'ADMIN' ? styles.roleTextAdmin : styles.roleTextClient]}>

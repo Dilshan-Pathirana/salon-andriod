@@ -7,6 +7,9 @@ import { RootNavigator } from './src/navigation';
 import { useAuthStore } from './src/store';
 import { Loading } from './src/components';
 
+// Ensures Firebase is initialised before anything else runs
+import './src/config/firebase';
+
 export default function App() {
   const { initialize } = useAuthStore();
   const [isReady, setIsReady] = useState(false);

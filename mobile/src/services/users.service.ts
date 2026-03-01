@@ -1,10 +1,29 @@
-import api from './api';
-import { ApiResponse, User } from '../types';
+import {
+  collection, query, where, orderBy, getDocs, getDoc, doc,
+} from 'firebase/firestore';
+import { db, auth, callFunction, tsToString } from './api';
+import { User } from '../types';
+
+function mapUser(id: string, d: Record<string, any>): User {
+  return {
+    id,
+    phoneNumber: d.phoneNumber,
+    firstName: d.firstName,
+    lastName: d.lastName,
+    role: d.role,
+    profileImageUrl: d.profileImageUrl ?? null,
+    isActive: d.isActive,
+    createdAt: tsToString(d.createdAt),
+  };
+}
 
 export const usersApi = {
   getProfile: async (): Promise<User> => {
-    const response = await api.get<ApiResponse<User>>('/users/profile');
-    return response.data.data;
+    const uid = auth.currentUser?.uid;
+    if (!uid) throw new Error('Not authenticated');
+    const snap = await getDoc(doc(db, 'users', uid));
+    if (!snap.exists()) throw new Error('User profile not found');
+    return mapUser(uid, snap.data());
   },
 
   updateProfile: async (data: {
@@ -13,13 +32,13 @@ export const usersApi = {
     password?: string;
     profileImageUrl?: string | null;
   }): Promise<User> => {
-    const response = await api.put<ApiResponse<User>>('/users/profile', data);
-    return response.data.data;
+    return callFunction<User>('updateProfile', data);
   },
 
   getAllUsers: async (): Promise<User[]> => {
-    const response = await api.get<ApiResponse<User[]>>('/users');
-    return response.data.data;
+    const q = query(collection(db, 'users'), orderBy('createdAt', 'desc'));
+    const snap = await getDocs(q);
+    return snap.docs.map((d) => mapUser(d.id, d.data()));
   },
 
   createUser: async (data: {
@@ -29,27 +48,23 @@ export const usersApi = {
     lastName: string;
     role: string;
   }): Promise<User> => {
-    const response = await api.post<ApiResponse<User>>('/users', data);
-    return response.data.data;
+    return callFunction<User>('adminManageUser', { action: 'create', ...data });
   },
 
   deleteUser: async (id: string): Promise<void> => {
-    await api.delete(`/users/${id}`);
+    await callFunction('adminManageUser', { action: 'delete', userId: id });
   },
 
   deactivateUser: async (id: string): Promise<User> => {
-    const response = await api.put<ApiResponse<User>>(`/users/${id}/deactivate`);
-    return response.data.data;
+    return callFunction<User>('adminManageUser', { action: 'deactivate', userId: id });
   },
 
   activateUser: async (id: string): Promise<User> => {
-    const response = await api.put<ApiResponse<User>>(`/users/${id}/activate`);
-    return response.data.data;
+    return callFunction<User>('adminManageUser', { action: 'activate', userId: id });
   },
 
   // Aliases used by admin/shared screens
   getUsers: async (): Promise<User[]> => {
-    const response = await api.get<ApiResponse<User[]>>('/users');
-    return response.data.data;
+    return usersApi.getAllUsers();
   },
 };

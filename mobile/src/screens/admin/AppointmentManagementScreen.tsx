@@ -15,7 +15,7 @@ import { Button, StatusBadge, EmptyState, Loading, ConfirmDialog } from '../../c
 import { COLORS, FONTS, SPACING } from '../../constants';
 import { formatTimeAmPm, formatDate, getTodayString } from '../../utils';
 import { Appointment, AppointmentStatus } from '../../types';
-import { AxiosError } from 'axios';
+
 
 const STATUS_FILTERS: (AppointmentStatus | 'ALL')[] = [
   'ALL',
@@ -69,8 +69,8 @@ export function AppointmentManagementScreen() {
       Alert.alert('Success', 'Appointment deleted');
     } catch (error) {
       let message = 'Failed to delete appointment';
-      if (error instanceof AxiosError && error.response?.data?.message) {
-        message = error.response.data.message;
+      if (error instanceof Error) {
+        message = error.message;
       }
       Alert.alert('Error', message);
     } finally {
@@ -91,8 +91,8 @@ export function AppointmentManagementScreen() {
       fetchData();
     } catch (error) {
       let message = 'Action failed';
-      if (error instanceof AxiosError && error.response?.data?.message) {
-        message = error.response.data.message;
+      if (error instanceof Error) {
+        message = error.message;
       }
       Alert.alert('Error', message);
     }
@@ -105,7 +105,7 @@ export function AppointmentManagementScreen() {
           <Text style={styles.clientName}>
             {item.user?.firstName} {item.user?.lastName}
           </Text>
-          <Text style={styles.clientPhone}>{item.user?.phone}</Text>
+          <Text style={styles.clientPhone}>{item.user?.phoneNumber}</Text>
         </View>
         <StatusBadge status={item.status} />
       </View>

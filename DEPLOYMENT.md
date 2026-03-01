@@ -1,149 +1,169 @@
-# Deployment Guide — Hair Salon Appointment & Live Queue Management System
+# Deployment Guide — Hair Salon App (Firebase)
 
 ## Table of Contents
 1. [Prerequisites](#prerequisites)
-2. [Local Development](#local-development)
-3. [Railway Deployment](#railway-deployment)
-4. [Mobile App Build](#mobile-app-build)
-5. [Environment Variables](#environment-variables)
-6. [Database Migrations](#database-migrations)
+2. [Firebase Project Setup](#firebase-project-setup)
+3. [Local Development (Emulators)](#local-development-emulators)
+4. [Deploy to Production](#deploy-to-production)
+5. [Mobile App](#mobile-app)
+6. [Seed Data](#seed-data)
+7. [Architecture Overview](#architecture-overview)
 
 ---
 
 ## Prerequisites
 
-- Node.js >= 18
-- npm >= 9
-- Docker & Docker Compose (optional, for local PostgreSQL)
-- Expo CLI: `npm install -g expo-cli`
-- Railway CLI (optional): `npm install -g @railway/cli`
+- **Node.js** >= 18, npm >= 9
+- **Firebase CLI**: `npm install -g firebase-tools`
+- **Expo CLI**: `npm install -g expo-cli` (or use `npx expo`)
+- A **Google account** for Firebase Console
+- (Optional) **Expo Go** app on your phone for testing
 
 ---
 
-## Local Development
+## Firebase Project Setup
 
-### 1. Start PostgreSQL
+### 1. Create a Firebase Project
 
-**Option A: Docker Compose**
-```bash
-cd backend
-docker-compose up -d postgres
+1. Go to <https://console.firebase.google.com>
+2. Click **Add project** → name it (e.g. `salon-app`) → continue
+3. **Enable Blaze plan** (pay-as-you-go) — required for Cloud Functions.
+   The free tier allowance is very generous and a salon app will stay well within it:
+   - Firestore: 1 GiB storage, 50K reads/day
+   - Cloud Functions: 2M invocations/month
+   - Auth: no cost for email/password
+4. Enable the following services in the Firebase console:
+   - **Authentication** → Sign-in method → **Email/Password** → Enable
+   - **Firestore Database** → Create database → Start in **production mode**
+   - **Cloud Functions** (available after Blaze plan)
+
+### 2. Get Your Firebase Config
+
+1. In Firebase Console → Project Settings → General → **Your apps** → click the Web icon (`</>`)
+2. Register a web app (name: `salon-mobile`)   firebase hosting on salon-app-54d7b
+3. Copy the `firebaseConfig` object
+
+### 3. Paste Into Mobile Config
+
+Open `mobile/src/config/firebase.ts` and replace the placeholder values:
+
+```typescript
+const firebaseConfig = {
+  apiKey: 'AIza...',
+  authDomain: 'salon-app-xxxxx.firebaseapp.com',
+  projectId: 'salon-app-xxxxx',
+  storageBucket: 'salon-app-xxxxx.appspot.com',
+  messagingSenderId: '123456789',
+  appId: '1:123456789:web:abcdef',
+};
 ```
 
-**Option B: Existing PostgreSQL**
-Ensure you have a running PostgreSQL instance and note the connection URL.
+### 4. Update `.firebaserc`
 
-### 2. Backend Setup
+Open `.firebaserc` and replace `your-salon-project-id` with your actual Firebase project ID.
+
+---
+
+## Local Development (Emulators)
+
+Firebase provides local emulators for Firestore, Auth, Functions, and Storage.
+
+### 1. Install dependencies
 
 ```bash
-cd backend
+# Cloud Functions
+cd functions
 npm install
+cd ..
 
-# Copy environment file
-cp .env.example .env
-# Edit .env with your DATABASE_URL and secrets
-
-# Run database migrations
-npx prisma migrate dev --name init
-
-# Seed the database
-npx prisma db seed
-
-# Start development server
-npm run dev
-```
-
-The backend runs on `http://localhost:3000` by default.
-
-**Seeded credentials:**
-- Admin: `0712345678` / `admin12345`
-- Client: `0771234567` / `client12345`
-
-### 3. Mobile Setup
-
-```bash
+# Mobile app
 cd mobile
 npm install
-
-# Start Expo development server
-npx expo start
+cd ..
 ```
 
-Scan the QR code with Expo Go on your phone or press `a` for Android emulator.
+### 2. Start emulators
 
-> **Note:** Update `API_BASE_URL` in `src/constants/index.ts` to your backend URL (use your local IP for physical devices, e.g., `http://192.168.1.x:3000/api/v1`).
+```bash
+firebase emulators:start
+```
 
----
+This starts:
+| Service    | Port  |
+|------------|-------|
+| Auth       | 9099  |
+| Functions  | 5001  |
+| Firestore  | 8080  |
+| Storage    | 9199  |
+| Emulator UI| 4000  |
 
-## Railway Deployment
+### 3. Connect mobile app to emulators
 
-### 1. Create Railway Project
+Uncomment the emulator block in `mobile/src/config/firebase.ts`:
 
-1. Go to [railway.app](https://railway.app) and create a new project
-2. Add a **PostgreSQL** service (click "New" → "Database" → "PostgreSQL")
-3. Add a **Node.js** service (click "New" → "GitHub Repo" and connect your repo)
-
-### 2. Configure Backend Service
-
-Set the **Root Directory** to `backend` in the service settings.
-
-**Environment Variables** (set in Railway dashboard):
-
-| Variable | Value |
-|---|---|
-| `DATABASE_URL` | `${{Postgres.DATABASE_URL}}` (Railway auto-links) |
-| `JWT_SECRET` | Generate: `openssl rand -hex 32` |
-| `JWT_REFRESH_SECRET` | Generate: `openssl rand -hex 32` |
-| `PORT` | `3000` |
-| `NODE_ENV` | `production` |
-| `CORS_ORIGIN` | `*` |
-
-### 3. Build & Deploy Configuration
-
-Railway auto-detects the `railway.json` or Nixpacks configuration:
-
-```json
-{
-  "build": {
-    "builder": "NIXPACKS",
-    "buildCommand": "npx prisma generate && npm run build"
-  },
-  "deploy": {
-    "startCommand": "npx prisma migrate deploy && npm start",
-    "restartPolicyType": "ON_FAILURE",
-    "restartPolicyMaxRetries": 10
-  }
+```typescript
+import { connectAuthEmulator } from 'firebase/auth';
+import { connectFirestoreEmulator } from 'firebase/firestore';
+if (__DEV__) {
+  connectAuthEmulator(auth, 'http://192.168.8.184:9099', { disableWarnings: true });
+  connectFirestoreEmulator(db, '192.168.8.184', 8080);
+  connectFunctionsEmulator(functions, '192.168.8.184', 5001);
 }
 ```
 
-### 4. Run Seed (First Deploy Only)
+Replace `192.168.8.184` with your machine's local IP address.
 
-After the first successful deployment, open the Railway service shell:
+### 4. Start Expo
 
 ```bash
-npx prisma db seed
+cd mobile
+npx expo start
 ```
 
-Or via Railway CLI:
+Scan the QR code with Expo Go on your phone.
+
+---
+
+## Deploy to Production
+
+### 1. Deploy Firestore rules, indexes, and Cloud Functions
+
 ```bash
-railway run npx prisma db seed
+# From the project root
+firebase deploy
 ```
 
-### 5. Get Production URL
+Or deploy individually:
 
-Copy the public URL from Railway (e.g., `https://your-app.up.railway.app`).
+```bash
+firebase deploy --only firestore:rules
+firebase deploy --only firestore:indexes
+firebase deploy --only functions
+```
 
-Update mobile app's `API_BASE_URL`:
-```typescript
-export const API_BASE_URL = 'https://your-app.up.railway.app/api/v1';
-export const SOCKET_URL = 'https://your-app.up.railway.app';
+### 2. Seed the database
+
+After deploying Functions, run the seed script:
+
+```bash
+cd functions
+npx ts-node src/seed.ts
+```
+
+> **Note:** You need `GOOGLE_APPLICATION_CREDENTIALS` set to a service account key file,
+> or be logged in via `firebase login` and use the admin SDK with default credentials.
+
+Alternative: Use the Firebase Functions shell:
+```bash
+firebase functions:shell
+> require('./lib/seed').seedDatabase()
 ```
 
 ---
 
-## Mobile App Build
+## Mobile App
 
-### Development Build (Expo Go)
+### Development
 
 ```bash
 cd mobile
@@ -152,118 +172,121 @@ npx expo start
 
 ### Production Build (EAS)
 
-1. Install EAS CLI:
 ```bash
-npm install -g eas-cli
+npx eas build --platform android --profile production
+npx eas build --platform ios --profile production
 ```
 
-2. Configure EAS:
-```bash
-cd mobile
-eas init
-eas build:configure
-```
-
-3. Build for Android:
-```bash
-# Development APK
-eas build --platform android --profile development
-
-# Production AAB (for Play Store)
-eas build --platform android --profile production
-```
-
-4. Build for iOS:
-```bash
-eas build --platform ios --profile production
-```
-
-### Local APK Build (without EAS)
-
-```bash
-cd mobile
-npx expo prebuild --platform android
-cd android
-./gradlew assembleRelease
-```
-
-The APK will be at `android/app/build/outputs/apk/release/app-release.apk`.
+Make sure the `firebaseConfig` in `mobile/src/config/firebase.ts` points to your **production** Firebase project.
 
 ---
 
-## Environment Variables
+## Seed Data
 
-### Backend (.env)
+The seed script (`functions/src/seed.ts`) creates:
 
-```env
-# Database
-DATABASE_URL=postgresql://user:password@host:5432/salon_queue
+| Data            | Count |
+|-----------------|-------|
+| Admin user      | 1     |
+| Client user     | 1     |
+| Services        | 8     |
+| Gallery items   | 4     |
+| Business info   | 12    |
 
-# JWT
-JWT_SECRET=your-super-secret-jwt-key-min-32-chars
-JWT_REFRESH_SECRET=your-refresh-secret-key-min-32-chars
-JWT_EXPIRY=15m
-JWT_REFRESH_EXPIRY=7d
+**Default credentials:**
+| Role   | Phone        | Password      |
+|--------|-------------|---------------|
+| Admin  | 0712345678  | admin12345    |
+| Client | 0771234567  | client12345   |
 
-# Server
-PORT=3000
-NODE_ENV=production
-CORS_ORIGIN=*
-```
-
-### Mobile (src/constants/index.ts)
-
-```typescript
-export const API_BASE_URL = 'https://your-backend.up.railway.app/api/v1';
-export const SOCKET_URL = 'https://your-backend.up.railway.app';
-```
+> Phone numbers are mapped to emails internally: `0712345678@salon.app`
 
 ---
 
-## Database Migrations
+## Architecture Overview
 
-### Create a new migration (development)
-```bash
-npx prisma migrate dev --name your_migration_name
+```
+┌──────────────────────────────────────────────┐
+│                  Mobile App                   │
+│         (React Native / Expo Go)             │
+├──────────────────────────────────────────────┤
+│  Firebase JS SDK (v10)                       │
+│  ┌──────────┐ ┌──────────┐ ┌──────────────┐ │
+│  │   Auth   │ │ Firestore│ │  Functions   │ │
+│  │ (login)  │ │ (reads,  │ │ (writes via  │ │
+│  │          │ │ realtime)│ │ httpsCallable)│ │
+│  └──────────┘ └──────────┘ └──────────────┘ │
+└──────────┬──────────┬──────────┬─────────────┘
+           │          │          │
+    ┌──────▼──────────▼──────────▼────────┐
+    │          Firebase Backend            │
+    │  ┌────────────┐ ┌────────────────┐  │
+    │  │  Auth       │ │  Firestore DB  │  │
+    │  │  (email/pw) │ │  (NoSQL)       │  │
+    │  └────────────┘ └────────────────┘  │
+    │  ┌──────────────────────────────┐   │
+    │  │  Cloud Functions (v1)         │   │
+    │  │  14 callable functions        │   │
+    │  │  All writes & business logic  │   │
+    │  └──────────────────────────────┘   │
+    └─────────────────────────────────────┘
 ```
 
-### Apply migrations (production)
-```bash
-npx prisma migrate deploy
-```
+### Firestore Collections
 
-### Reset database (WARNING: deletes all data)
-```bash
-npx prisma migrate reset
-```
+| Collection       | Doc ID            | Purpose                    |
+|-----------------|-------------------|----------------------------|
+| `users`         | Firebase Auth UID | User profiles              |
+| `services`      | auto-ID           | Salon services             |
+| `schedules`     | `YYYY-MM-DD`      | Daily schedule config      |
+| `appointments`  | auto-ID           | All appointments           |
+| `sessions`      | `YYYY-MM-DD`      | Daily session status       |
+| `reviews`       | auto-ID           | Client reviews             |
+| `gallery`       | auto-ID           | Gallery items              |
+| `businessInfo`  | key name          | Key-value business info    |
+| `slotLocks`     | `date_timeSlot`   | Concurrency: slot booking  |
+| `userDayLocks`  | `userId_date`     | Concurrency: one per day   |
+| `queueCounters` | `YYYY-MM-DD`      | Queue position counter     |
 
-### View database with Prisma Studio
-```bash
-npx prisma studio
-```
+### Cloud Functions
 
----
-
-## Health Check
-
-After deployment, verify:
-
-```bash
-# API health
-curl https://your-app.up.railway.app/api/v1/health
-
-# Expected: { "status": "ok" }
-```
+| Function                  | Auth      | Purpose                              |
+|--------------------------|-----------|--------------------------------------|
+| `registerUser`           | Public    | Create Auth user + Firestore profile |
+| `updateProfile`          | User      | Update own profile / password        |
+| `adminManageUser`        | Admin     | Create, delete, activate, deactivate |
+| `bookAppointment`        | User      | Book with transaction + locks        |
+| `cancelAppointment`      | User/Admin| Cancel own or any (admin)            |
+| `adminUpdateAppointment` | Admin     | Complete, in-service, no-show, delete|
+| `reorderQueue`           | Admin     | Reorder queue positions              |
+| `manageSession`          | Admin     | Open / close daily session           |
+| `upsertSchedule`         | Admin     | Create/update daily schedule         |
+| `adminManageService`     | Admin     | CRUD salon services                  |
+| `createReview`           | User      | Review a completed appointment       |
+| `adminManageReview`      | Admin     | Delete, toggle visibility            |
+| `adminManageGallery`     | Admin     | CRUD gallery items                   |
+| `adminManageBusinessInfo`| Admin     | Upsert, bulk upsert, delete          |
 
 ---
 
 ## Troubleshooting
 
-| Issue | Solution |
-|---|---|
-| `ECONNREFUSED` on mobile | Check API_BASE_URL; use machine IP, not localhost |
-| `401 Unauthorized` | Token expired; app auto-refreshes, check refresh token logic |
-| `P2002` unique constraint | Duplicate entry (e.g., same phone or same date+time slot) |
-| Socket not connecting | Verify SOCKET_URL matches backend; check CORS settings |
-| `prisma migrate` fails | Ensure DATABASE_URL is correct and DB is accessible |
-| Build fails on Railway | Check root directory is set to `backend`; verify Node version >= 18 |
+### "Missing or insufficient permissions" on Firestore
+- Ensure `firestore.rules` is deployed: `firebase deploy --only firestore:rules`
+- Check the user is authenticated before making queries
+
+### Cloud Functions returning "unauthenticated"
+- The Firebase JS SDK automatically sends the ID token with callable functions
+- Ensure the user is logged in (`auth.currentUser !== null`)
+
+### Indexes error
+- Firebase will show a URL in the error message to create the missing index
+- Or deploy all indexes: `firebase deploy --only firestore:indexes`
+
+### Emulator: functions not found
+- Make sure functions are compiled: `cd functions && npm run build`
+- Restart emulators after changes
+
+### Mobile: Firebase not initializing
+- Verify `firebaseConfig` values in `mobile/src/config/firebase.ts`
+- Check that `@react-native-async-storage/async-storage` is installed

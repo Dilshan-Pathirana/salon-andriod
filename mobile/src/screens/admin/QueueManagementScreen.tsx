@@ -19,7 +19,7 @@ import { COLORS, FONTS, SPACING } from '../../constants';
 import { formatTimeAmPm, getTodayString } from '../../utils';
 import { QueueItem } from '../../types';
 import { appointmentsService } from '../../services';
-import { AxiosError } from 'axios';
+
 
 export function QueueManagementScreen() {
   const { liveQueue, isLoading, fetchQueue, reorderQueue } = useQueueStore();
@@ -64,8 +64,8 @@ export function QueueManagementScreen() {
       await fetchQueue(getTodayString());
     } catch (error) {
       let message = 'Action failed';
-      if (error instanceof AxiosError && error.response?.data?.message) {
-        message = error.response.data.message;
+      if (error instanceof Error) {
+        message = error.message;
       }
       Alert.alert('Error', message);
     } finally {
@@ -198,7 +198,7 @@ export function QueueManagementScreen() {
             : ''
         }
         confirmText="Confirm"
-        variant={confirmAction?.type === 'noShow' ? 'danger' : 'default'}
+        variant={confirmAction?.type === 'noShow' ? 'danger' : 'primary'}
         onConfirm={handleAction}
         onCancel={() => setConfirmAction(null)}
         loading={actioning}

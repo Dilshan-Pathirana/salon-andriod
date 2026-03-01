@@ -1,82 +1,73 @@
+/**
+ * useSocket — Firestore real-time replacement for Socket.IO.
+ *
+ * Uses Firestore onSnapshot listeners to react to appointment changes,
+ * keeping the same external API ({ connect, disconnect, joinQueue, leaveQueue, isConnected })
+ * so existing screens don't need modification.
+ */
 import { useEffect, useRef, useCallback, useState } from 'react';
-import { io, Socket } from 'socket.io-client';
-import { SOCKET_URL } from '../constants';
-import { getAccessToken } from '../utils/storage';
+import {
+  collection, query, where, orderBy, onSnapshot, Unsubscribe,
+} from 'firebase/firestore';
+import { db } from '../services/api';
 import { useQueueStore } from '../store';
 
 export function useSocket() {
-  const socketRef = useRef<Socket | null>(null);
+  const unsubRef = useRef<Unsubscribe | null>(null);
   const [isConnected, setIsConnected] = useState(false);
-  const { fetchQueue, liveQueue } = useQueueStore();
+  const { fetchQueue } = useQueueStore();
 
+  /** No TCP handshake needed — just flag "connected". */
   const connect = useCallback(async () => {
-    if (socketRef.current?.connected) return;
+    setIsConnected(true);
+  }, []);
 
-    const token = await getAccessToken();
-    if (!token) return;
-
-    const socket = io(SOCKET_URL, {
-      auth: { token },
-      transports: ['websocket'],
-      reconnection: true,
-      reconnectionAttempts: 10,
-      reconnectionDelay: 1000,
-      reconnectionDelayMax: 5000,
-    });
-
-    socket.on('connect', () => {
-      console.log('Socket connected:', socket.id);
-      setIsConnected(true);
-    });
-
-    socket.on('queue_updated', (data: { date: string }) => {
-      console.log('Queue updated event:', data);
-      fetchQueue(data.date);
-    });
-
-    socket.on('appointment_completed', (data: { appointmentId: string; date: string }) => {
-      console.log('Appointment completed event:', data);
-      fetchQueue(data.date);
-    });
-
-    socket.on('session_closed', (data: { date: string }) => {
-      console.log('Session closed event:', data);
-      fetchQueue(data.date);
-    });
-
-    socket.on('disconnect', (reason) => {
-      console.log('Socket disconnected:', reason);
-      setIsConnected(false);
-    });
-
-    socket.on('connect_error', (error) => {
-      console.error('Socket connection error:', error.message);
-    });
-
-    socketRef.current = socket;
-  }, [fetchQueue]);
-
+  /** Tear down any active listener. */
   const disconnect = useCallback(() => {
-    if (socketRef.current) {
-      socketRef.current.disconnect();
-      socketRef.current = null;
-      setIsConnected(false);
-    }
+    unsubRef.current?.();
+    unsubRef.current = null;
+    setIsConnected(false);
   }, []);
 
-  const joinQueue = useCallback((date: string) => {
-    socketRef.current?.emit('join_queue', date);
+  /** Subscribe to real-time appointment changes for a given date. */
+  const joinQueue = useCallback(
+    (date: string) => {
+      // Clean up previous subscription
+      unsubRef.current?.();
+
+      const q = query(
+        collection(db, 'appointments'),
+        where('date', '==', date),
+        where('status', 'in', ['BOOKED', 'IN_SERVICE']),
+        orderBy('queuePosition', 'asc'),
+      );
+
+      unsubRef.current = onSnapshot(
+        q,
+        () => {
+          // Snapshot changed → refresh queue via the store (which reads Firestore)
+          fetchQueue(date);
+        },
+        (err) => {
+          console.error('onSnapshot error:', err);
+        },
+      );
+    },
+    [fetchQueue],
+  );
+
+  /** Unsubscribe from the snapshot listener for a given date. */
+  const leaveQueue = useCallback((_date: string) => {
+    unsubRef.current?.();
+    unsubRef.current = null;
   }, []);
 
-  const leaveQueue = useCallback((date: string) => {
-    socketRef.current?.emit('leave_queue', date);
-  }, []);
-
+  // Cleanup on unmount
   useEffect(() => {
     return () => {
-      disconnect();
+      unsubRef.current?.();
     };
-  }, [disconnect]);
+  }, []);
 
   return {
     connect,

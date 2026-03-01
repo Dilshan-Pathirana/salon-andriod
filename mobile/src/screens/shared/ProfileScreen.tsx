@@ -11,7 +11,7 @@ import { useAuthStore } from '../../store';
 import { usersService } from '../../services';
 import { Button, Loading, ConfirmDialog } from '../../components';
 import { COLORS, FONTS, SPACING } from '../../constants';
-import { AxiosError } from 'axios';
+
 
 export function ProfileScreen() {
   const { user, setUser, logout } = useAuthStore();
@@ -58,8 +58,8 @@ export function ProfileScreen() {
       Alert.alert('Success', 'Profile updated successfully');
     } catch (error) {
       let message = 'Failed to update profile';
-      if (error instanceof AxiosError && error.response?.data?.message) {
-        message = error.response.data.message;
+      if (error instanceof Error) {
+        message = error.message;
       }
       Alert.alert('Error', message);
     } finally {

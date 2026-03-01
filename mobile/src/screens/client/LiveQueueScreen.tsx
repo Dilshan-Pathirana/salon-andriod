@@ -154,7 +154,6 @@ const styles = StyleSheet.create({
     fontSize: FONTS.sizes.xl,
     fontWeight: '700',
     color: COLORS.text,
-    numberOfLines: 1,
   },
   servingTime: {
     fontSize: FONTS.sizes.sm,

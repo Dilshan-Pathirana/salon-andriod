@@ -12,7 +12,7 @@ import { businessInfoApi } from '../../services';
 import { Loading, Button } from '../../components';
 import { COLORS, FONTS, SPACING } from '../../constants';
 import { BusinessInfo } from '../../types';
-import { AxiosError } from 'axios';
+
 
 interface InfoField {
   key: string;
@@ -87,8 +87,8 @@ export function BusinessInfoManagementScreen() {
       Alert.alert('Success', 'Business information updated');
     } catch (error) {
       let message = 'Failed to save';
-      if (error instanceof AxiosError && error.response?.data?.message) {
-        message = error.response.data.message;
+      if (error instanceof Error) {
+        message = error.message;
       }
       Alert.alert('Error', message);
     } finally {
