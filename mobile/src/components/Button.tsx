@@ -6,7 +6,9 @@ import {
   ActivityIndicator,
   ViewStyle,
   TextStyle,
+  View,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, FONTS } from '../constants';
 
 interface ButtonProps {
@@ -19,6 +21,7 @@ interface ButtonProps {
   style?: ViewStyle;
   textStyle?: TextStyle;
   fullWidth?: boolean;
+  icon?: keyof typeof Ionicons.glyphMap;
 }
 
 export function Button({
@@ -31,6 +34,7 @@ export function Button({
   style,
   textStyle,
   fullWidth = true,
+  icon,
 }: ButtonProps) {
   const isDisabled = disabled || loading;
 
@@ -51,20 +55,37 @@ export function Button({
     textStyle ?? {},
   ];
 
+  const iconColor =
+    variant === 'outline' || variant === 'ghost'
+      ? COLORS.primary
+      : variant === 'primary'
+      ? '#0C100E'
+      : COLORS.textWhite;
+
   return (
     <TouchableOpacity
       style={buttonStyle}
       onPress={onPress}
       disabled={isDisabled}
-      activeOpacity={0.7}
+      activeOpacity={0.65}
     >
       {loading ? (
         <ActivityIndicator
           size="small"
-          color={variant === 'outline' || variant === 'ghost' ? COLORS.primary : COLORS.textWhite}
+          color={variant === 'outline' || variant === 'ghost' ? COLORS.primary : variant === 'primary' ? '#0C100E' : COLORS.textWhite}
         />
       ) : (
-        <Text style={labelStyle}>{title}</Text>
+        <View style={styles.content}>
+          {icon && (
+            <Ionicons
+              name={icon}
+              size={size === 'sm' ? 15 : size === 'lg' ? 20 : 17}
+              color={iconColor}
+              style={styles.icon}
+            />
+          )}
+          <Text style={labelStyle} numberOfLines={1}>{title}</Text>
+        </View>
       )}
     </TouchableOpacity>
   );
@@ -72,16 +93,25 @@ export function Button({
 
 const styles = StyleSheet.create({
   base: {
-    borderRadius: 12,
+    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
+    overflow: 'hidden',
+  },
+  content: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  icon: {
+    marginRight: 6,
   },
   fullWidth: {
     width: '100%',
   },
   disabled: {
-    opacity: 0.5,
+    opacity: 0.45,
   },
 
   // Variants
@@ -90,19 +120,26 @@ const styles = StyleSheet.create({
     shadowColor: COLORS.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
-    shadowRadius: 14,
+    shadowRadius: 12,
     elevation: 6,
   },
   variant_secondary: {
     backgroundColor: COLORS.surface,
+    borderWidth: 1,
+    borderColor: 'rgba(93,68,41,0.25)',
   },
   variant_danger: {
     backgroundColor: COLORS.danger,
+    shadowColor: COLORS.danger,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    elevation: 4,
   },
   variant_outline: {
     backgroundColor: 'transparent',
-    borderWidth: 2,
-    borderColor: COLORS.primary,
+    borderWidth: 1.5,
+    borderColor: COLORS.champagne,
   },
   variant_ghost: {
     backgroundColor: 'transparent',
@@ -110,25 +147,29 @@ const styles = StyleSheet.create({
 
   // Sizes
   size_sm: {
-    paddingVertical: SPACING.sm,
+    paddingVertical: SPACING.sm + 2,
     paddingHorizontal: SPACING.lg,
+    borderRadius: 10,
   },
   size_md: {
     paddingVertical: SPACING.md + 2,
     paddingHorizontal: SPACING.xl,
+    borderRadius: 14,
   },
   size_lg: {
-    paddingVertical: SPACING.lg,
+    paddingVertical: SPACING.lg + 2,
     paddingHorizontal: SPACING.xxl,
+    borderRadius: 16,
   },
 
   // Text
   text: {
-    fontWeight: '700',
-    letterSpacing: 0.5,
+    fontWeight: '600',
+    letterSpacing: 1.2,
+    textTransform: 'uppercase',
   },
   text_primary: {
-    color: '#0F0F0F',  // dark text on gold button
+    color: '#0C100E',
   },
   text_secondary: {
     color: COLORS.textWhite,
@@ -137,10 +178,10 @@ const styles = StyleSheet.create({
     color: COLORS.textWhite,
   },
   text_outline: {
-    color: COLORS.primary,
+    color: COLORS.champagne,
   },
   text_ghost: {
-    color: COLORS.textSecondary,
+    color: COLORS.champagne,
   },
   textDisabled: {
     opacity: 0.7,

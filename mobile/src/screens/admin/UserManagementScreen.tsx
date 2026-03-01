@@ -279,12 +279,13 @@ const styles = StyleSheet.create({
     padding: SPACING.lg,
     backgroundColor: COLORS.surface,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(200,162,77,0.15)',
+    borderBottomColor: 'rgba(194,173,144,0.15)',
   },
   headerTitle: {
     fontSize: FONTS.sizes.lg,
-    fontWeight: '700',
+    fontWeight: '600',
     color: COLORS.text,
+    letterSpacing: 0.5,
   },
   addForm: {
     backgroundColor: COLORS.surface,
@@ -296,16 +297,19 @@ const styles = StyleSheet.create({
   },
   formTitle: {
     fontSize: FONTS.sizes.lg,
-    fontWeight: '700',
+    fontWeight: '600',
     color: COLORS.text,
     marginBottom: SPACING.md,
+    letterSpacing: 0.5,
   },
   fieldLabel: {
-    fontSize: FONTS.sizes.sm,
-    fontWeight: '600',
-    color: COLORS.textSecondary,
+    fontSize: FONTS.sizes.xs,
+    fontWeight: '500',
+    color: COLORS.champagne,
     marginBottom: SPACING.xs,
     marginTop: SPACING.sm,
+    textTransform: 'uppercase',
+    letterSpacing: 1.5,
   },
   input: {
     borderWidth: 1,
@@ -339,7 +343,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: SPACING.lg,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
+    borderColor: 'rgba(93,68,41,0.2)',
     elevation: 1,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
@@ -354,15 +358,15 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: COLORS.primaryLight,
+    backgroundColor: COLORS.green,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: SPACING.md,
   },
   avatarText: {
     fontSize: FONTS.sizes.md,
-    fontWeight: '700',
-    color: COLORS.primary,
+    fontWeight: '600',
+    color: COLORS.champagne,
   },
   userInfo: {
     flex: 1,
@@ -383,7 +387,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   roleAdmin: {
-    backgroundColor: COLORS.primary + '20',
+    backgroundColor: 'rgba(151,117,77,0.15)',
   },
   roleClient: {
     backgroundColor: COLORS.surfaceSecondary,
@@ -393,7 +397,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   roleTextAdmin: {
-    color: COLORS.primary,
+    color: COLORS.champagne,
   },
   roleTextClient: {
     color: COLORS.textSecondary,

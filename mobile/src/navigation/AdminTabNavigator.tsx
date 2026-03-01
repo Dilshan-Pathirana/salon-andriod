@@ -53,15 +53,21 @@ export function AdminTabNavigator() {
   return (
     <Tab.Navigator
       screenOptions={{
-        tabBarActiveTintColor: COLORS.primary,
-        tabBarInactiveTintColor: COLORS.textLight,
+        tabBarActiveTintColor: COLORS.champagne,
+        tabBarInactiveTintColor: 'rgba(242,241,237,0.4)',
+        tabBarLabelStyle: {
+          fontSize: 10,
+          fontWeight: '500',
+          letterSpacing: 1.5,
+          textTransform: 'uppercase',
+        },
         tabBarStyle: {
-          backgroundColor: COLORS.surface,
-          borderTopColor: 'rgba(200,162,77,0.15)',
+          backgroundColor: COLORS.background + 'F2',
+          borderTopColor: COLORS.brown,
           borderTopWidth: 1,
-          paddingBottom: 5,
-          paddingTop: 5,
-          height: 60,
+          paddingBottom: 6,
+          paddingTop: 6,
+          height: 68,
           elevation: 0,
         },
         headerStyle: {
@@ -69,7 +75,8 @@ export function AdminTabNavigator() {
         },
         headerTintColor: COLORS.text,
         headerTitleStyle: {
-          fontWeight: '700',
+          fontWeight: '600',
+          letterSpacing: 0.8,
         },
         headerShadowVisible: false,
       }}

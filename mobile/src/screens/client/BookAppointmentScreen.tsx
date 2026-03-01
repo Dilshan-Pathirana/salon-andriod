@@ -118,13 +118,13 @@ export function BookAppointmentScreen() {
           theme={{
             calendarBackground: COLORS.surface,
             dayTextColor: COLORS.text,
-            monthTextColor: COLORS.text,
+            monthTextColor: COLORS.champagne,
             textSectionTitleColor: COLORS.textSecondary,
-            textDisabledColor: 'rgba(255,255,255,0.2)',
-            todayTextColor: COLORS.primary,
-            selectedDayBackgroundColor: COLORS.primary,
-            selectedDayTextColor: '#0F0F0F',
-            arrowColor: COLORS.primary,
+            textDisabledColor: 'rgba(242,241,237,0.2)',
+            todayTextColor: COLORS.champagne,
+            selectedDayBackgroundColor: COLORS.champagne,
+            selectedDayTextColor: '#0C100E',
+            arrowColor: COLORS.champagne,
             dotColor: COLORS.statusAvailable,
           }}
         />
@@ -222,15 +222,15 @@ const styles = StyleSheet.create({
   calendarContainer: {
     backgroundColor: COLORS.surface,
     marginHorizontal: SPACING.lg,
-    borderRadius: 12,
+    borderRadius: 16,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
+    borderColor: 'rgba(93,68,41,0.2)',
     elevation: 2,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
   },
   slotsSection: {
     marginTop: SPACING.md,
@@ -242,10 +242,10 @@ const styles = StyleSheet.create({
     gap: SPACING.sm,
   },
   slotButton: {
-    paddingVertical: SPACING.sm,
-    paddingHorizontal: SPACING.md,
-    borderRadius: 8,
-    borderWidth: 1.5,
+    paddingVertical: SPACING.sm + 2,
+    paddingHorizontal: SPACING.md + 2,
+    borderRadius: 9999,
+    borderWidth: 1,
     minWidth: 90,
     alignItems: 'center',
   },
@@ -258,12 +258,13 @@ const styles = StyleSheet.create({
     borderColor: COLORS.border,
   },
   slotSelected: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
+    backgroundColor: COLORS.champagne,
+    borderColor: COLORS.champagne,
   },
   slotText: {
     fontSize: FONTS.sizes.sm,
-    fontWeight: '600',
+    fontWeight: '500',
+    letterSpacing: 0.5,
   },
   slotTextAvailable: {
     color: COLORS.statusAvailable,
@@ -272,7 +273,7 @@ const styles = StyleSheet.create({
     color: COLORS.textLight,
   },
   slotTextSelected: {
-    color: '#0F0F0F',
+    color: '#0C100E',
   },
   bookButton: {
     marginHorizontal: SPACING.lg,

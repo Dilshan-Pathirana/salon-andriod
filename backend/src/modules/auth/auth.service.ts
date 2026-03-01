@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
+import jwt, { SignOptions } from 'jsonwebtoken';
 import { Role } from '@prisma/client';
 import { prisma, config } from '../../config';
 import {
@@ -39,7 +39,7 @@ function generateAccessToken(userId: string, role: Role): string {
   return jwt.sign(
     { userId, role } as JwtPayload,
     config.jwt.accessSecret,
-    { expiresIn: config.jwt.accessExpiry as unknown as number }
+    { expiresIn: config.jwt.accessExpiry } as SignOptions
   );
 }
 
@@ -47,7 +47,7 @@ function generateRefreshToken(userId: string, role: Role): string {
   return jwt.sign(
     { userId, role } as JwtPayload,
     config.jwt.refreshSecret,
-    { expiresIn: config.jwt.refreshExpiry as unknown as number }
+    { expiresIn: config.jwt.refreshExpiry } as SignOptions
   );
 }
 

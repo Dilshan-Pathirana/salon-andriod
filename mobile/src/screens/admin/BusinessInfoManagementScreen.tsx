@@ -151,15 +151,16 @@ const styles = StyleSheet.create({
   section: {
     backgroundColor: COLORS.surface, margin: SPACING.lg, marginBottom: 0,
     padding: SPACING.lg, borderRadius: 12,
-    borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)',
+    borderWidth: 1, borderColor: 'rgba(93,68,41,0.2)',
   },
   sectionTitle: {
-    fontSize: FONTS.sizes.lg, fontWeight: '700', color: COLORS.text, marginBottom: SPACING.md,
+    fontSize: FONTS.sizes.lg, fontWeight: '600', color: COLORS.text, marginBottom: SPACING.md,
+    letterSpacing: 0.5,
   },
   fieldGroup: { marginBottom: SPACING.md },
   fieldLabel: {
-    fontSize: FONTS.sizes.sm, fontWeight: '600', color: COLORS.textSecondary,
-    marginBottom: SPACING.xs,
+    fontSize: FONTS.sizes.xs, fontWeight: '500', color: COLORS.champagne,
+    marginBottom: SPACING.xs, textTransform: 'uppercase', letterSpacing: 1.5,
   },
   input: {
     borderWidth: 1, borderColor: COLORS.border, borderRadius: 8,

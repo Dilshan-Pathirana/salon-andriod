@@ -16,7 +16,7 @@ export function StatusBadge({ status, size = 'md' }: StatusBadgeProps) {
   return (
     <View style={[styles.badge, { backgroundColor: color + '20' }, size === 'sm' && styles.badgeSm]}>
       <View style={[styles.dot, { backgroundColor: color }]} />
-      <Text style={[styles.text, { color }, size === 'sm' && styles.textSm]}>{label}</Text>
+      <Text style={[styles.text, { color }, size === 'sm' && styles.textSm]} numberOfLines={1}>{label}</Text>
     </View>
   );
 }

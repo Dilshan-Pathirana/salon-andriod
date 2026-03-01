@@ -7,7 +7,10 @@ import {
   TextInput,
   Pressable,
   ScrollView,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { Button, Input } from '../../components';
@@ -67,65 +70,72 @@ export function LoginScreen() {
   };
 
   return (
-    <ScrollView
-      contentContainerStyle={styles.scrollContent}
-      keyboardShouldPersistTaps="handled"
-      keyboardDismissMode="on-drag"
-      style={styles.container}
-      showsVerticalScrollIndicator={false}
-    >
-      <View style={styles.header}>
-        <View style={styles.iconContainer}>
-          <Ionicons name="cut" size={48} color={COLORS.primary} />
-        </View>
-        <Text style={styles.title}>Salon App</Text>
-        <Text style={styles.subtitle}>Book your appointment</Text>
-      </View>
+    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.header}>
+            <View style={styles.iconContainer}>
+              <Ionicons name="cut" size={44} color={COLORS.primary} />
+            </View>
+            <Text style={styles.title}>L'Atelier</Text>
+            <Text style={styles.subtitle}>Modern Grooming Experience</Text>
+          </View>
 
-      <View style={styles.form}>
-        <Input
-          label="Phone Number"
-          placeholder="Enter 10-digit phone number"
-          value={phoneNumber}
-          onChangeText={handlePhoneChange}
-          keyboardType="phone-pad"
-          maxLength={10}
-          leftIcon="call-outline"
-          error={errors.phone}
-          returnKeyType="next"
-          onSubmitEditing={() => passwordInputRef.current?.focus()}
-          blurOnSubmit={false}
-        />
+          <View style={styles.form}>
+            <Input
+              label="Phone Number"
+              placeholder="Enter 10-digit phone number"
+              value={phoneNumber}
+              onChangeText={handlePhoneChange}
+              keyboardType="phone-pad"
+              maxLength={10}
+              leftIcon="call-outline"
+              error={errors.phone}
+              returnKeyType="next"
+              onSubmitEditing={() => passwordInputRef.current?.focus()}
+              blurOnSubmit={false}
+            />
 
-        <Input
-          ref={passwordInputRef}
-          label="Password"
-          placeholder="Enter your password"
-          value={password}
-          onChangeText={handlePasswordChange}
-          isPassword
-          leftIcon="lock-closed-outline"
-          error={errors.password}
-          returnKeyType="go"
-          onSubmitEditing={handleLogin}
-        />
+            <Input
+              ref={passwordInputRef}
+              label="Password"
+              placeholder="Enter your password"
+              value={password}
+              onChangeText={handlePasswordChange}
+              isPassword
+              leftIcon="lock-closed-outline"
+              error={errors.password}
+              returnKeyType="go"
+              onSubmitEditing={handleLogin}
+            />
 
-        <Button
-          title="Login"
-          onPress={handleLogin}
-          loading={isLoading}
-          size="lg"
-          style={styles.loginButton}
-        />
+            <Button
+              title="Login"
+              onPress={handleLogin}
+              loading={isLoading}
+              size="lg"
+              icon="log-in-outline"
+              style={styles.loginButton}
+            />
 
-        <View style={styles.registerRow}>
-          <Text style={styles.helpText}>Don't have an account? </Text>
-          <Pressable onPress={() => navigation.navigate('Register')}>
-            <Text style={styles.registerLink}>Register here</Text>
-          </Pressable>
-        </View>
-      </View>
-    </ScrollView>
+            <View style={styles.registerRow}>
+              <Text style={styles.helpText}>Don't have an account? </Text>
+              <Pressable onPress={() => navigation.navigate('Register')} hitSlop={8}>
+                <Text style={styles.registerLink}>Register here</Text>
+              </Pressable>
+            </View>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
@@ -137,53 +147,58 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     justifyContent: 'center',
-    padding: SPACING.xl,
+    paddingHorizontal: SPACING.xxl,
+    paddingVertical: SPACING.xxxl,
   },
   header: {
     alignItems: 'center',
-    marginBottom: SPACING.xxxl,
+    marginBottom: SPACING.xxxl + 8,
   },
   iconContainer: {
-    width: 88,
-    height: 88,
-    borderRadius: 44,
-    backgroundColor: 'rgba(200,162,77,0.1)',
+    width: 92,
+    height: 92,
+    borderRadius: 46,
+    backgroundColor: COLORS.green,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: SPACING.lg,
-    borderWidth: 2,
-    borderColor: 'rgba(200,162,77,0.3)',
+    borderWidth: 1,
+    borderColor: 'rgba(194,173,144,0.2)',
   },
   title: {
     fontSize: FONTS.sizes.xxxl,
-    fontWeight: '700',
-    color: COLORS.text,
-    letterSpacing: 1,
+    fontWeight: '600',
+    color: COLORS.champagne,
+    letterSpacing: 3,
+    textTransform: 'uppercase',
   },
   subtitle: {
-    fontSize: FONTS.sizes.md,
+    fontSize: FONTS.sizes.sm,
     color: COLORS.textSecondary,
-    marginTop: SPACING.xs,
+    marginTop: SPACING.sm,
+    letterSpacing: 1.5,
+    textTransform: 'uppercase',
   },
   form: {
     width: '100%',
   },
   loginButton: {
-    marginTop: SPACING.sm,
+    marginTop: SPACING.md,
   },
   registerRow: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: SPACING.xl,
+    marginTop: SPACING.xxl,
   },
   helpText: {
     color: COLORS.textSecondary,
     fontSize: FONTS.sizes.sm,
   },
   registerLink: {
-    color: COLORS.primary,
+    color: COLORS.champagne,
     fontSize: FONTS.sizes.sm,
-    fontWeight: '600',
+    fontWeight: '500',
+    letterSpacing: 0.5,
   },
 });

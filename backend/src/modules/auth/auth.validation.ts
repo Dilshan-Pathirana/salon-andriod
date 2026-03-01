@@ -16,7 +16,7 @@ export const registerSchema = z.object({
     .string()
     .min(1, 'Last name is required')
     .max(50, 'Last name must be at most 50 characters'),
-  role: z.enum(['ADMIN', 'CLIENT']).optional().default('CLIENT'),
+  role: z.literal('CLIENT').optional().default('CLIENT'),
   profileImageUrl: z.string().url().optional().nullable(),
 });
 

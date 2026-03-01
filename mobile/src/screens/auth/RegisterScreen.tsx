@@ -6,7 +6,10 @@ import {
   Alert,
   TextInput,
   ScrollView,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Button, Input } from '../../components';
 import { useAuthStore } from '../../store';
@@ -87,105 +90,118 @@ export function RegisterScreen({ navigation }: Props) {
   };
 
   return (
-    <ScrollView
-      contentContainerStyle={styles.scrollContent}
-      keyboardShouldPersistTaps="handled"
-      keyboardDismissMode="on-drag"
-      style={styles.container}
-      showsVerticalScrollIndicator={false}
-    >
-      <View style={styles.header}>
-        <View style={styles.iconContainer}>
-          <Ionicons name="person-add" size={40} color={COLORS.primary} />
-        </View>
-        <Text style={styles.title}>Create Account</Text>
-        <Text style={styles.subtitle}>Join our premium salon</Text>
-      </View>
+    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.header}>
+            <View style={styles.iconContainer}>
+              <Ionicons name="person-add" size={36} color={COLORS.primary} />
+            </View>
+            <Text style={styles.title}>Create Account</Text>
+            <Text style={styles.subtitle}>Join our premium salon</Text>
+          </View>
 
-      <View style={styles.form}>
-              <Input
-                label="First Name"
-                placeholder="Enter your first name"
-                value={firstName}
-                onChangeText={setFirstName}
-                leftIcon="person-outline"
-                error={errors.firstName}
-                returnKeyType="next"
-                onSubmitEditing={() => lastNameInputRef.current?.focus()}
-                blurOnSubmit={false}
-              />
+          <View style={styles.form}>
+            <View style={styles.nameRow}>
+              <View style={styles.nameField}>
+                <Input
+                  label="First Name"
+                  placeholder="First name"
+                  value={firstName}
+                  onChangeText={setFirstName}
+                  leftIcon="person-outline"
+                  error={errors.firstName}
+                  returnKeyType="next"
+                  onSubmitEditing={() => lastNameInputRef.current?.focus()}
+                  blurOnSubmit={false}
+                />
+              </View>
 
-              <Input
-                ref={lastNameInputRef}
-                label="Last Name"
-                placeholder="Enter your last name"
-                value={lastName}
-                onChangeText={setLastName}
-                leftIcon="person-outline"
-                error={errors.lastName}
-                returnKeyType="next"
-                onSubmitEditing={() => phoneInputRef.current?.focus()}
-                blurOnSubmit={false}
-              />
+              <View style={styles.nameField}>
+                <Input
+                  ref={lastNameInputRef}
+                  label="Last Name"
+                  placeholder="Last name"
+                  value={lastName}
+                  onChangeText={setLastName}
+                  leftIcon="person-outline"
+                  error={errors.lastName}
+                  returnKeyType="next"
+                  onSubmitEditing={() => phoneInputRef.current?.focus()}
+                  blurOnSubmit={false}
+                />
+              </View>
+            </View>
 
-              <Input
-                ref={phoneInputRef}
-                label="Phone Number"
-                placeholder="Enter 10-digit phone number"
-                value={phoneNumber}
-                onChangeText={(t) => setPhoneNumber(t.replace(/[^0-9]/g, '').slice(0, 10))}
-                keyboardType="phone-pad"
-                maxLength={10}
-                leftIcon="call-outline"
-                error={errors.phone}
-                returnKeyType="next"
-                onSubmitEditing={() => passwordInputRef.current?.focus()}
-                blurOnSubmit={false}
-              />
+            <Input
+              ref={phoneInputRef}
+              label="Phone Number"
+              placeholder="Enter 10-digit phone number"
+              value={phoneNumber}
+              onChangeText={(t) => setPhoneNumber(t.replace(/[^0-9]/g, '').slice(0, 10))}
+              keyboardType="phone-pad"
+              maxLength={10}
+              leftIcon="call-outline"
+              error={errors.phone}
+              returnKeyType="next"
+              onSubmitEditing={() => passwordInputRef.current?.focus()}
+              blurOnSubmit={false}
+            />
 
-              <Input
-                ref={passwordInputRef}
-                label="Password"
-                placeholder="Min. 8 characters"
-                value={password}
-                onChangeText={setPassword}
-                isPassword
-                leftIcon="lock-closed-outline"
-                error={errors.password}
-                returnKeyType="next"
-                onSubmitEditing={() => confirmInputRef.current?.focus()}
-                blurOnSubmit={false}
-              />
+            <Input
+              ref={passwordInputRef}
+              label="Password"
+              placeholder="Min. 8 characters"
+              value={password}
+              onChangeText={setPassword}
+              isPassword
+              leftIcon="lock-closed-outline"
+              error={errors.password}
+              returnKeyType="next"
+              onSubmitEditing={() => confirmInputRef.current?.focus()}
+              blurOnSubmit={false}
+            />
 
-              <Input
-                ref={confirmInputRef}
-                label="Confirm Password"
-                placeholder="Re-enter your password"
-                value={confirmPassword}
-                onChangeText={setConfirmPassword}
-                isPassword
-                leftIcon="lock-closed-outline"
-                error={errors.confirmPassword}
-                returnKeyType="go"
-                onSubmitEditing={handleRegister}
-              />
+            <Input
+              ref={confirmInputRef}
+              label="Confirm Password"
+              placeholder="Re-enter your password"
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              isPassword
+              leftIcon="lock-closed-outline"
+              error={errors.confirmPassword}
+              returnKeyType="go"
+              onSubmitEditing={handleRegister}
+            />
 
-              <Button
-                title="Register"
-                onPress={handleRegister}
-                loading={isLoading}
-                size="lg"
-                style={styles.registerButton}
-              />
+            <Button
+              title="Create Account"
+              onPress={handleRegister}
+              loading={isLoading}
+              size="lg"
+              icon="person-add-outline"
+              style={styles.registerButton}
+            />
 
-              <Button
-                title="Already have an account? Login"
-                onPress={() => navigation.navigate('Login')}
-                variant="ghost"
-                style={styles.loginLink}
-              />
-      </View>
-    </ScrollView>
+            <Button
+              title="Already have an account? Login"
+              onPress={() => navigation.navigate('Login')}
+              variant="ghost"
+              style={styles.loginLink}
+            />
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
@@ -197,7 +213,8 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     justifyContent: 'center',
-    padding: SPACING.xl,
+    paddingHorizontal: SPACING.xxl,
+    paddingVertical: SPACING.xl,
   },
   header: {
     alignItems: 'center',
@@ -207,29 +224,39 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: 'rgba(200,162,77,0.1)',
+    backgroundColor: COLORS.green,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: SPACING.lg,
-    borderWidth: 2,
-    borderColor: 'rgba(200,162,77,0.3)',
+    borderWidth: 1,
+    borderColor: 'rgba(194,173,144,0.2)',
   },
   title: {
     fontSize: FONTS.sizes.xxl,
-    fontWeight: '700',
-    color: COLORS.text,
-    letterSpacing: 1,
+    fontWeight: '600',
+    color: COLORS.champagne,
+    letterSpacing: 3,
+    textTransform: 'uppercase',
   },
   subtitle: {
-    fontSize: FONTS.sizes.md,
+    fontSize: FONTS.sizes.sm,
     color: COLORS.textSecondary,
-    marginTop: SPACING.xs,
+    marginTop: SPACING.sm,
+    letterSpacing: 1.5,
+    textTransform: 'uppercase',
   },
   form: {
     width: '100%',
   },
+  nameRow: {
+    flexDirection: 'row',
+    gap: SPACING.sm,
+  },
+  nameField: {
+    flex: 1,
+  },
   registerButton: {
-    marginTop: SPACING.sm,
+    marginTop: SPACING.md,
   },
   loginLink: {
     marginTop: SPACING.md,

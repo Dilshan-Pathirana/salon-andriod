@@ -35,7 +35,7 @@ export const Input = forwardRef<TextInput, InputProps>(function Input(
 
   const borderColor = focusAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: [error ? COLORS.danger : 'rgba(255,255,255,0.08)', COLORS.primary],
+    outputRange: [error ? COLORS.danger : 'rgba(93,68,41,0.25)', COLORS.champagne],
   });
 
   const handleFocus = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
@@ -110,21 +110,22 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.lg,
   },
   label: {
-    fontSize: FONTS.sizes.sm,
-    fontWeight: '600',
-    color: COLORS.textSecondary,
-    marginBottom: SPACING.xs,
+    fontSize: FONTS.sizes.xs,
+    fontWeight: '500',
+    color: COLORS.champagne,
+    marginBottom: SPACING.xs + 2,
     textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    letterSpacing: 1.5,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1.5,
-    borderColor: 'rgba(255,255,255,0.08)',
-    borderRadius: 12,
+    borderColor: 'rgba(93,68,41,0.25)',
+    borderRadius: 14,
     backgroundColor: COLORS.surface,
     paddingHorizontal: SPACING.md,
+    minHeight: 52,
   },
   error: {
     borderColor: COLORS.danger,

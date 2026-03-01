@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { SOCKET_URL } from '../constants';
 import { getAccessToken } from '../utils/storage';
@@ -6,6 +6,7 @@ import { useQueueStore } from '../store';
 
 export function useSocket() {
   const socketRef = useRef<Socket | null>(null);
+  const [isConnected, setIsConnected] = useState(false);
   const { fetchQueue, liveQueue } = useQueueStore();
 
   const connect = useCallback(async () => {
@@ -25,6 +26,7 @@ export function useSocket() {
 
     socket.on('connect', () => {
       console.log('Socket connected:', socket.id);
+      setIsConnected(true);
     });
 
     socket.on('queue_updated', (data: { date: string }) => {
@@ -44,6 +46,7 @@ export function useSocket() {
 
     socket.on('disconnect', (reason) => {
       console.log('Socket disconnected:', reason);
+      setIsConnected(false);
     });
 
     socket.on('connect_error', (error) => {
@@ -57,6 +60,7 @@ export function useSocket() {
     if (socketRef.current) {
       socketRef.current.disconnect();
       socketRef.current = null;
+      setIsConnected(false);
     }
   }, []);
 
@@ -79,6 +83,6 @@ export function useSocket() {
     disconnect,
     joinQueue,
     leaveQueue,
-    isConnected: socketRef.current?.connected ?? false,
+    isConnected,
   };
 }

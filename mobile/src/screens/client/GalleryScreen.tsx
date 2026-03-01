@@ -173,22 +173,23 @@ const styles = StyleSheet.create({
   categoryChip: {
     paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.sm,
-    borderRadius: 20,
-    backgroundColor: COLORS.surfaceSecondary,
+    borderRadius: 9999,
+    backgroundColor: 'transparent',
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: 'rgba(194,173,144,0.3)',
   },
   categoryChipActive: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
+    backgroundColor: COLORS.champagne,
+    borderColor: COLORS.champagne,
   },
   categoryChipText: {
     fontSize: FONTS.sizes.sm,
-    fontWeight: '600',
-    color: COLORS.textSecondary,
+    fontWeight: '500',
+    color: COLORS.champagne,
+    letterSpacing: 0.5,
   },
   categoryChipTextActive: {
-    color: '#0F0F0F',
+    color: '#0C100E',
   },
   listContent: {
     padding: SPACING.lg,
@@ -202,16 +203,16 @@ const styles = StyleSheet.create({
   },
   card: {
     width: CARD_WIDTH,
-    borderRadius: 12,
+    borderRadius: 16,
     overflow: 'hidden',
     backgroundColor: COLORS.surface,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
+    borderColor: 'rgba(93,68,41,0.2)',
     elevation: 2,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowRadius: 6,
   },
   image: {
     width: '100%',
@@ -249,7 +250,7 @@ const styles = StyleSheet.create({
   modalImage: {
     width: SCREEN_WIDTH - 40,
     height: SCREEN_WIDTH - 40,
-    borderRadius: 12,
+    borderRadius: 16,
   },
   modalTitle: {
     fontSize: FONTS.sizes.lg,

@@ -141,15 +141,16 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: COLORS.surface,
-    borderRadius: 12,
+    borderRadius: 16,
     padding: SPACING.lg,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
+    borderColor: 'rgba(93,68,41,0.2)',
     elevation: 2,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
+    overflow: 'hidden',
   },
   cardHeader: {
     flexDirection: 'row',
@@ -159,8 +160,9 @@ const styles = StyleSheet.create({
   },
   dateText: {
     fontSize: FONTS.sizes.md,
-    fontWeight: '700',
+    fontWeight: '500',
     color: COLORS.text,
+    letterSpacing: 0.3,
   },
   cardBody: {
     gap: SPACING.sm,
@@ -171,8 +173,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   label: {
-    fontSize: FONTS.sizes.sm,
-    color: COLORS.textSecondary,
+    fontSize: FONTS.sizes.xs,
+    color: COLORS.champagne,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
   value: {
     fontSize: FONTS.sizes.sm,
