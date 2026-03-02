@@ -234,7 +234,7 @@ export function App() {
   const isAdminPage = activePage.startsWith('admin-')
 const getPageTitle = (page: AppPage) => {
     switch(page) {
-      case 'home': return 'Salon Home';
+      case 'home': return 'Salon Ru Zero One';
       case 'book': return 'Book Appointment';
       case 'queue': return 'Live Queue';
       case 'profile': return 'My Profile';

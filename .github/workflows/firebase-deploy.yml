@@ -4,14 +4,6 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths:
-      - 'functions/**'
-      - 'web/**'
-      - 'firestore.rules'
-      - 'firestore.indexes.json'
-      - 'firebase.json'
-      - '.firebaserc'
-      - '.github/workflows/firebase-deploy.yml'
 
 jobs:
   deploy-hosting-rules:
@@ -40,7 +32,7 @@ jobs:
       - name: Create production env file for web
         run: |
           @"
-          VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }}
+          VITE_API_BASE_URL=/api/v1
           VITE_FIREBASE_API_KEY=${{ secrets.VITE_FIREBASE_API_KEY }}
           VITE_FIREBASE_AUTH_DOMAIN=${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
           VITE_FIREBASE_PROJECT_ID=${{ secrets.VITE_FIREBASE_PROJECT_ID }}
@@ -94,4 +86,5 @@ jobs:
       - name: Deploy Cloud Functions
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          FUNCTIONS_DISCOVERY_TIMEOUT: 60
         run: firebase deploy --non-interactive --only functions

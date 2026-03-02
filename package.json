@@ -7,7 +7,7 @@
     "functions:build": "npm --prefix functions run build",
     "deploy:rules": "firebase deploy --non-interactive --only firestore:rules,firestore:indexes",
     "deploy:functions": "firebase deploy --non-interactive --only functions",
-    "deploy:hosting": "firebase deploy --non-interactive --only hosting",
+    "deploy:hosting": "npm --prefix web run build && firebase deploy --non-interactive --only hosting",
     "deploy:firebase": "firebase deploy --non-interactive --only firestore:rules,firestore:indexes,hosting",
     "deploy:firebase:full": "firebase deploy --non-interactive --only firestore:rules,firestore:indexes,functions,hosting"
   },

@@ -7,13 +7,18 @@ export default defineConfig({
         VitePWA({
             registerType: 'autoUpdate',
             includeAssets: ['favicon.svg'],
+            workbox: {
+                cleanupOutdatedCaches: true,
+                clientsClaim: true,
+                skipWaiting: true,
+            },
             manifest: {
-                name: 'Salon Andriod',
-                short_name: 'Salon',
+                name: 'Salon Ru Zero One',
+                short_name: 'Ru Zero One',
                 start_url: '/',
                 display: 'standalone',
-                background_color: '#0C100E',
-                theme_color: '#0C100E',
+                background_color: '#F0FDFA',
+                theme_color: '#0D9488',
                 icons: [
                     {
                         src: '/pwa-192.png',
