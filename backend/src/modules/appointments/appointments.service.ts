@@ -15,9 +15,15 @@ import { getSocketIO } from '../../socket/socket.server';
 export async function createAppointment(userId: string, data: CreateAppointmentInput) {
   const date = parseDateString(data.date);
   const today = getTodayDate();
+  const maxAdvanceDate = new Date(today);
+  maxAdvanceDate.setDate(maxAdvanceDate.getDate() + 2);
 
   if (date < today) {
     throw new BadRequestError('Cannot book appointments in the past');
+  }
+
+  if (date > maxAdvanceDate) {
+    throw new BadRequestError('You can only book for today and the next 2 days');
   }
 
   // Use a serializable transaction to prevent race conditions
@@ -68,17 +74,17 @@ export async function createAppointment(userId: string, data: CreateAppointmentI
       throw new ConflictError('This time slot is already booked');
     }
 
-    // 5. Check user doesn't already have an active booking on this date
-    const userBooking = await tx.appointment.findFirst({
+    // 5. Enforce max two active bookings per user
+    const activeBookingCount = await tx.appointment.count({
       where: {
         userId,
-        date,
+        date: { gte: today },
         status: { in: ['BOOKED', 'IN_SERVICE'] },
       },
     });
 
-    if (userBooking) {
-      throw new ConflictError('You already have an active booking on this date');
+    if (activeBookingCount >= 2) {
+      throw new ConflictError('You can only hold a maximum of 2 active bookings');
     }
 
     // 6. Calculate queue position

@@ -1,5 +1,5 @@
 $ErrorActionPreference = "Continue"
-$base = "http://localhost:3000/api/v1"
+$base = "http://localhost:3001/api/v1"
 
 Write-Output "========================================="
 Write-Output "  API Endpoint Tests"

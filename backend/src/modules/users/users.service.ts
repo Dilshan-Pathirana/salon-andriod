@@ -8,9 +8,10 @@ import {
   NotFoundError,
 } from '../../utils';
 import { UserSanitized } from '../../types';
-import { CreateUserInput, UpdateProfileInput } from './users.validation';
+import { AdminUpdateUserInput, CreateUserInput, UpdateProfileInput } from './users.validation';
 
 const SALT_ROUNDS = 12;
+const PRIMARY_ADMIN_PHONE = '0712345678';
 
 function sanitizeUser(user: {
   id: string;
@@ -50,6 +51,10 @@ export async function getUserById(id: string): Promise<UserSanitized> {
 }
 
 export async function createUser(data: CreateUserInput): Promise<UserSanitized> {
+  if (data.role === 'ADMIN') {
+    throw new BadRequestError('Only the default admin account is allowed');
+  }
+
   const existing = await prisma.user.findUnique({
     where: { phoneNumber: data.phoneNumber },
   });
@@ -111,6 +116,10 @@ export async function deactivateUser(
     throw new NotFoundError('User not found');
   }
 
+  if (user.role === 'ADMIN' || user.phoneNumber === PRIMARY_ADMIN_PHONE) {
+    throw new ForbiddenError('Cannot deactivate the primary admin');
+  }
+
   const updated = await prisma.user.update({
     where: { id: targetId },
     data: { isActive: false },
@@ -164,6 +173,61 @@ export async function updateProfile(
     where: { id: userId },
     data: updateData,
   });
+
+  return sanitizeUser(updated);
+}
+
+export async function updateUserByAdmin(
+  targetId: string,
+  requesterId: string,
+  data: AdminUpdateUserInput,
+): Promise<UserSanitized> {
+  const targetUser = await prisma.user.findUnique({ where: { id: targetId } });
+  if (!targetUser) {
+    throw new NotFoundError('User not found');
+  }
+
+  if (targetId === requesterId && data.role && data.role !== targetUser.role) {
+    throw new BadRequestError('Cannot change your own role');
+  }
+
+  if (targetUser.phoneNumber === PRIMARY_ADMIN_PHONE || targetUser.role === 'ADMIN') {
+    if (data.role && data.role !== 'ADMIN') {
+      throw new ForbiddenError('Cannot change primary admin role');
+    }
+    if (data.phoneNumber && data.phoneNumber !== PRIMARY_ADMIN_PHONE) {
+      throw new ForbiddenError('Cannot change primary admin phone number');
+    }
+    if (data.isActive === false) {
+      throw new ForbiddenError('Cannot deactivate primary admin');
+    }
+  }
+
+  if (data.role === 'ADMIN' && targetUser.phoneNumber !== PRIMARY_ADMIN_PHONE) {
+    throw new ForbiddenError('Only the default admin account is allowed');
+  }
+
+  if (data.phoneNumber && data.phoneNumber !== targetUser.phoneNumber) {
+    const existing = await prisma.user.findUnique({ where: { phoneNumber: data.phoneNumber } });
+    if (existing && existing.id !== targetId) {
+      throw new ConflictError('A user with this phone number already exists');
+    }
+  }
+
+  const updated = await prisma.user.update({
+    where: { id: targetId },
+    data: {
+      phoneNumber: data.phoneNumber,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      role: data.role,
+      isActive: data.isActive,
+    },
+  });
+
+  if (data.isActive === false) {
+    await prisma.refreshToken.deleteMany({ where: { userId: targetId } });
+  }
 
   return sanitizeUser(updated);
 }

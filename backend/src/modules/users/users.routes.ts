@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import * as usersController from './users.controller';
 import { authenticate, authorize, validate } from '../../middleware';
-import { createUserSchema, updateProfileSchema, userIdParamSchema } from './users.validation';
+import { adminUpdateUserSchema, createUserSchema, updateProfileSchema, userIdParamSchema } from './users.validation';
 
 const router = Router();
 
@@ -16,6 +16,7 @@ router.put('/profile', validate(updateProfileSchema), usersController.updateProf
 router.get('/', authorize('ADMIN'), usersController.getAllUsers);
 router.get('/:id', authorize('ADMIN'), validate(userIdParamSchema, 'params'), usersController.getUserById);
 router.post('/', authorize('ADMIN'), validate(createUserSchema), usersController.createUser);
+router.put('/:id', authorize('ADMIN'), validate(userIdParamSchema, 'params'), validate(adminUpdateUserSchema), usersController.updateUserByAdmin);
 router.delete('/:id', authorize('ADMIN'), validate(userIdParamSchema, 'params'), usersController.deleteUser);
 router.put('/:id/deactivate', authorize('ADMIN'), validate(userIdParamSchema, 'params'), usersController.deactivateUser);
 router.put('/:id/activate', authorize('ADMIN'), validate(userIdParamSchema, 'params'), usersController.activateUser);

@@ -83,6 +83,20 @@ export async function activateUser(
   }
 }
 
+export async function updateUserByAdmin(
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    if (!req.user) throw new Error('Auth required');
+    const user = await usersService.updateUserByAdmin(req.params.id, req.user.userId, req.body);
+    sendSuccess(res, user, 'User updated successfully');
+  } catch (error) {
+    next(error);
+  }
+}
+
 export async function updateProfile(
   req: AuthenticatedRequest,
   res: Response,

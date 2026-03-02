@@ -1,366 +1,478 @@
-SOFTWARE REQUIREMENTS SPECIFICATION (SRS)
+Below is a **complete Software Requirements Specification (SRS)** and **API Design Document** for your Progressive Web Application (PWA) for a high-luxury hair salon.
 
-Project Name: Premium Men’s Salon App
-Platform:  Android (Expo / React Native)
-Backend Hosting: Railway
-Database: PostgreSQL
+---
 
-1. INTRODUCTION
-1.1 Purpose
+# SOFTWARE REQUIREMENTS SPECIFICATION (SRS)
 
-This document defines the full requirements for a luxury men’s salon mobile application that provides appointment booking, live queue tracking, service catalog, reviews, work showcase, and customer engagement tools.
+## 1. Introduction
 
-The system must be scalable to support:
+### 1.1 Purpose
 
-Single salon
+This document defines the functional and non-functional requirements for a **Luxury Hair Salon Progressive Web Application (PWA)** built with:
 
-Multiple branches (future SaaS expansion)
+* **Frontend**: React.js
+* **Backend**: Node.js + Express.js
+* **Database**: Firebase (Firestore)
+* **Hosting**: Firebase Hosting
+* **Authentication**: Firebase Authentication
+* **Deployment**: PWA (Installable on Android & iOS)
 
-High daily booking volume
+The system supports customer appointment booking, queue handling, and administrative salon operations.
 
-1.2 Scope
+---
 
-The application will:
+## 2. System Overview
 
-Allow customers to book appointments
+### 2.1 Product Perspective
 
-Display real-time queue
+The application is:
 
-Show service price list
+* A Progressive Web App (PWA)
+* Installable on Android & iOS
+* Hosted on Firebase
+* Uses RESTful APIs
+* Role-based (Admin / User)
 
-Display work gallery (haircuts, beard styles)
+### 2.2 System Architecture
 
-Collect and display reviews
+**Architecture Pattern:**
+Client–Server + Firebase-managed services.
 
-Provide business contact & about information
+```
+React PWA (Frontend)
+        ↓
+Node + Express API (Firebase Cloud Functions or Express Server)
+        ↓
+Firebase Firestore Database
+        ↓
+Firebase Authentication
+        ↓
+Firebase Hosting
+```
 
-Provide admin dashboard to manage everything
+---
 
-Support elegant luxury branding
+## 3. User Roles
 
-Be optimized for mobile UX
+### 3.1 Admin
 
-Be production scalable
+* Manages users
+* Manages services
+* Controls session calendar
+* Manages appointments
+* Manages live queue
+* Uploads before/after client stories
 
-2. USER TYPES
-2.1 Client (Customer)
+### 3.2 Customer (User)
 
-Register / Login
- - IMPORTANT - Clients can login or register without admin creating client accounts)
-Book appointment
+* Registers via mobile number + password
+* Books appointments
+* Reschedules or cancels
+* Views profile & booking history
 
-View live queue
+---
 
-View price list
+# 4. Functional Requirements
 
-View gallery
+---
 
-Leave reviews
+## 4.1 Common Features
 
-Edit profile
+### 4.1.1 Landing Page
 
-Cancel appointment
+* Elegant luxury theme
+* Hero section
+* Featured services
+* Before/After gallery
+* Testimonials
+* CTA: “Book Now”
+* Install PWA prompt
 
-Receive booking confirmation
+### 4.1.2 UI/UX Requirements
 
-2.2 Admin
+* Mobile-first design
+* Dark luxury theme (black, gold accents)
+* Smooth animations
+* Minimalist typography
+* Fast loading (lazy loading images)
 
-Manage bookings
+### 4.1.3 PWA Requirements
 
-Manage queue
+* Offline support (view cached data)
+* Installable
+* Push notifications
+* Background sync (optional)
 
-Manage price list
+---
 
-Manage gallery
+# 4.2 Admin Functional Requirements
 
-Manage reviews
+---
 
-Manage users
-
-Manage business info (About / Contact)
-
-Open/close daily schedule
-
-Define slot duration
-
-3. FUNCTIONAL REQUIREMENTS
-3.1 AUTHENTICATION
-FR-1 Registration
-
-Username: 10-digit phone number (unique)
-
-Password (min 8 chars)
-
-First name
-
-Last name
-
-Profile image (optional)
-
-FR-2 Login
-
-JWT authentication
-
-Role-based routing
-
-FR-3 Profile
-
-Users can:
-
-Update name
-
-Update password
-
-Upload profile image
-Phone number cannot be changed.
-
-3.2 APPOINTMENT MANAGEMENT
-FR-4 Booking
-
-Client can:
-
-Select date
-
-View available time slots
-
-Select service
-
-Confirm booking
-
-System must:
-
-Prevent double booking
-
-Lock transaction during booking
-
-Assign queue position
-
-FR-5 Appointment Cancellation
-
-Client can cancel future appointment
-
-Admin can cancel any appointment
-
-Optional cancellation time limit
-
-FR-6 Live Queue
-
-Client can:
-
-See currently serving
-
-See own queue position
-
-See estimated wait time
+## 4.2.1 User Management
 
 Admin can:
 
-Mark in service
+* View users
+* Add new user
+* Edit user
+* Delete user
+* Activate/Deactivate account
 
-Mark completed
+---
 
-Mark no-show
-
-Reorder queue (drag & drop)
-
-3.3 PRICE LIST MODULE
-FR-7 Services Management
-
-Admin can:
-
-Add service
-
-Edit service
-
-Delete service
-
-Each service contains:
-
-Name
-
-Description
-
-Duration
-
-Price
-
-Category (Haircut / Beard / Combo / Premium)
-
-Client can:
-
-View services
-
-Filter by category
-
-3.4 REVIEW SYSTEM
-FR-8 Reviews
-
-Clients can:
-
-Leave rating (1–5 stars)
-
-Write comment
-
-Only after completed appointment
+## 4.2.2 Service Management
 
 Admin can:
 
-Delete inappropriate reviews
+* Add service (name, price, duration, description)
+* Edit service
+* Delete service
+* Enable/Disable service
 
-System:
+---
 
-Display average rating
-
-Display total review count
-
-3.5 WORK SHOWCASE (GALLERY)
-FR-9 Gallery
+## 4.2.3 User Story Management (Before & After)
 
 Admin can:
 
-Upload images
+* Upload 2 images per story
+* Add caption
+* Add service reference
+* Delete story
 
-Add title
+Images stored in:
 
-Add description
+* Firebase Storage
 
-Categorize (Haircut / Beard / Fade / Styling)
+---
 
-Client can:
+## 4.2.4 Session Management (Calendar System)
 
-View gallery
+### Flow:
 
-Tap to enlarge
+1. Admin selects date
+2. Marks day as Open/Closed (default = open)
+3. Sets open time & close time
+4. Clicks "Initiate"
+5. System generates time slots
 
-Swipe through images
+Rules:
 
-Images optimized for mobile.
+* Time slot duration = configurable (default 30 mins)
+* Prevent overlapping bookings
+* Closed days not bookable
 
-3.6 ABOUT & CONTACT
-FR-10 About Page
+---
 
-Admin can edit:
+## 4.2.5 Appointment Management
 
-Salon story
+Admin can:
 
-Mission
+* View all appointments
+* Add manual appointment
+* Reschedule
+* Cancel
+* Change appointment order
+* Move appointment up/down
 
-Experience years
+Appointment Status:
 
-Opening hours
+* Pending
+* Confirmed
+* Completed
+* Cancelled
+* No-show
 
-FR-11 Contact Page
+---
 
-Display:
+## 4.2.6 Queue Management
 
-Phone number (tap to call)
+Admin can:
 
-WhatsApp link
+* View today's live queue
+* Change order (drag/drop)
+* Mark appointment as completed
+* Remove appointment
+* Auto-remove when completed
 
-Instagram link
+---
 
-Facebook link
+# 4.3 User Functional Requirements
 
-Google Maps location
+---
 
-Email
+## 4.3.1 Authentication
 
-3.7 ADMIN FEATURES
+* Register using mobile number
+* Password-based authentication
+* OTP verification (recommended improvement)
+* JWT session handling
 
-Manage users
+---
 
-Manage bookings
+## 4.3.2 Booking Appointment
 
-Manage daily schedule
+User can:
 
-Manage queue
+* View open days
+* View available time slots
+* Select service
+* Book appointment
 
-Manage services
+Rules:
 
-Manage gallery
+* Cannot double book
+* Cannot book on closed days
+* Cannot book past time
 
-Moderate reviews
+---
 
-Close daily session
+## 4.3.3 Cancel Appointment
 
-4. DATABASE STRUCTURE
+User can:
 
-Tables:
+* Cancel before X hours (configurable)
+* System updates queue automatically
 
-Users
-Services
-Appointments
-Reviews
-Gallery
-Schedule
-Sessions
-BusinessInfo
+---
 
-Relationships:
+## 4.3.4 Reschedule Appointment
 
-User → Appointments (1:M)
+User can:
 
-Appointment → Review (1:1)
+* Reschedule within same day
+* Only if slot available
 
-Service → Appointments (1:M)
+---
 
-Indexes:
+## 4.3.5 Profile Management
 
-Unique (date + time_slot)
+User can:
 
-Index on queue_position
+* Upload profile picture
+* Edit personal details
+* Change password
+* View appointment history
 
-Index on service_id
+---
 
-5. NON-FUNCTIONAL REQUIREMENTS
-Performance
+# 5. Non-Functional Requirements
 
-Response < 500ms
+### 5.1 Performance
 
-Real-time queue update < 2 seconds
+* API response < 500ms
+* Page load < 3 seconds
 
-Support 500 concurrent users
+### 5.2 Security
+
+* Role-based access control
+* JWT authentication
+* Firebase security rules
+* HTTPS only
 
-Security
+### 5.3 Scalability
 
-JWT
+* Firebase auto-scaling
+* Stateless API
 
-bcrypt hashing
+### 5.4 Reliability
 
-Input validation
+* 99% uptime
+* Daily backups
 
-HTTPS enforced
+### 5.5 Usability
 
-Rate limiting
+* Mobile-first design
+* Minimal booking steps (≤ 3 clicks)
 
-Scalability
+---
 
-Multi-branch ready architecture
+# 6. Database Design (Firestore Collections)
 
-Modular backend
+---
 
-Cloud-ready
+## Users
 
-Availability
+```
+{
+  userId,
+  name,
+  mobile,
+  email,
+  role (admin/user),
+  profileImage,
+  createdAt,
+  isActive
+}
+```
 
-99% uptime
+## Services
 
-Daily backup
+```
+{
+  serviceId,
+  name,
+  description,
+  price,
+  duration,
+  isActive
+}
+```
 
-6. FUTURE FEATURES (PHASE 2)
+## Sessions
 
-Online payments
+```
+{
+  sessionId,
+  date,
+  isOpen,
+  openTime,
+  closeTime,
+  timeSlots: [
+    {
+      time,
+      isBooked
+    }
+  ]
+}
+```
 
-Loyalty program
+## Appointments
 
-Membership packages
+```
+{
+  appointmentId,
+  userId,
+  serviceId,
+  date,
+  time,
+  status,
+  queuePosition,
+  createdAt
+}
+```
 
-Barber selection
+## Stories
 
-Push notifications
+```
+{
+  storyId,
+  beforeImageURL,
+  afterImageURL,
+  caption,
+  serviceId,
+  createdAt
+}
+```
 
-SMS reminders
+---
 
-Analytics dashboard
+# COMPLETE API TABLE
 
-Referral rewards
+---
+
+## Authentication APIs
+
+| Method | Endpoint | Description | Role |
+| ------ | ------------------------- | --------------- | ------ |
+| POST | /api/auth/register | Register user | Public |
+| POST | /api/auth/login | Login | Public |
+| POST | /api/auth/logout | Logout | User |
+| POST | /api/auth/change-password | Change password | User |
+
+---
+
+## User APIs
+
+| Method | Endpoint | Description | Role |
+| ------ | ------------------ | -------------- | ----- |
+| GET | /api/users | Get all users | Admin |
+| GET | /api/users/:id | Get user | Admin |
+| PUT | /api/users/:id | Update user | Admin |
+| DELETE | /api/users/:id | Delete user | Admin |
+| PUT | /api/users/profile | Update profile | User |
+
+---
+
+## Service APIs
+
+| Method | Endpoint | Description | Role |
+| ------ | ----------------- | ---------------- | ------ |
+| POST | /api/services | Add service | Admin |
+| GET | /api/services | Get all services | Public |
+| PUT | /api/services/:id | Update service | Admin |
+| DELETE | /api/services/:id | Delete service | Admin |
+
+---
+
+## Story APIs
+
+| Method | Endpoint | Description | Role |
+| ------ | ---------------- | ------------ | ------ |
+| POST | /api/stories | Upload story | Admin |
+| GET | /api/stories | Get stories | Public |
+| DELETE | /api/stories/:id | Delete story | Admin |
+
+---
+
+## Session APIs
+
+| Method | Endpoint | Description | Role |
+| ------ | ---------------------- | ----------------- | ----- |
+| POST | /api/sessions/initiate | Create session | Admin |
+| GET | /api/sessions | Get sessions | Admin |
+| GET | /api/sessions/open | Get open sessions | User |
+| PUT | /api/sessions/:id | Update session | Admin |
+
+---
+
+## Appointment APIs
+
+| Method | Endpoint | Description | Role |
+| ------ | ------------------------- | -------------------- | ---------- |
+| POST | /api/appointments | Book appointment | User |
+| GET | /api/appointments | Get all appointments | Admin |
+| GET | /api/appointments/my | My appointments | User |
+| PUT | /api/appointments/:id | Reschedule | User/Admin |
+| DELETE | /api/appointments/:id | Cancel | User/Admin |
+| PUT | /api/appointments/reorder | Change order | Admin |
+
+---
+
+## Queue APIs
+
+| Method | Endpoint | Description | Role |
+| ------ | ----------------------- | ----------------- | ----- |
+| GET | /api/queue/today | Get live queue | Admin |
+| PUT | /api/queue/:id/complete | Mark complete | Admin |
+| PUT | /api/queue/reorder | Reorder queue | Admin |
+| DELETE | /api/queue/:id | Remove from queue | Admin |
+
+---
+
+# Suggested Advanced Improvements
+
+To elevate the luxury experience:
+
+1. SMS reminders (Twilio integration)
+2. Push notifications (Firebase Cloud Messaging)
+3. Loyalty points system
+4. Online payment integration (Stripe)
+5. Admin analytics dashboard (Revenue, bookings)
+6. Multi-stylist support
+7. AI hairstyle preview (future enhancement)
+8. Waitlist auto-fill system
+9. Admin performance dashboard
+
+---
+
+# Conclusion
+
+This document provides:
+
+* Complete system architecture
+* Functional & non-functional requirements
+* Database schema
+* Full API specification
+* Scalability roadmap

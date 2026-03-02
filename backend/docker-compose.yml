@@ -6,7 +6,7 @@ services:
       POSTGRES_PASSWORD: salon_password
       POSTGRES_DB: salon_db
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -20,7 +20,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - "${BACKEND_PORT:-3000}:3000"
     environment:
       DATABASE_URL: "postgresql://salon_user:salon_password@db:5432/salon_db?schema=public"
       JWT_ACCESS_SECRET: "super-secret-access-key-change-me-in-production"

@@ -1,4 +1,16 @@
 {
+  "scripts": {
+    "web:install": "npm --prefix web install",
+    "web:dev": "npm --prefix web run dev",
+    "web:build": "npm --prefix web run build",
+    "functions:install": "npm --prefix functions install",
+    "functions:build": "npm --prefix functions run build",
+    "deploy:rules": "firebase deploy --non-interactive --only firestore:rules,firestore:indexes",
+    "deploy:functions": "firebase deploy --non-interactive --only functions",
+    "deploy:hosting": "firebase deploy --non-interactive --only hosting",
+    "deploy:firebase": "firebase deploy --non-interactive --only firestore:rules,firestore:indexes,hosting",
+    "deploy:firebase:full": "firebase deploy --non-interactive --only firestore:rules,firestore:indexes,functions,hosting"
+  },
   "dependencies": {
     "firebase": "^12.10.0"
   }

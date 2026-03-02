@@ -114,6 +114,15 @@ export async function closeSession(dateStr?: string) {
 
 export async function getDashboardStats(dateStr?: string) {
   const date = dateStr ? parseDateString(dateStr) : getTodayDate();
+  const todayString = dateStr || formatDate(getTodayDate());
+
+  const trendDates = Array.from({ length: 7 }, (_, index) => {
+    const d = new Date(date);
+    d.setDate(d.getDate() - (6 - index));
+    return d;
+  });
+
+  const trendStart = trendDates[0];
 
   const [
     totalAppointments,
@@ -123,6 +132,10 @@ export async function getDashboardStats(dateStr?: string) {
     noShow,
     session,
     schedule,
+    registeredUsers,
+    activeServices,
+    registrationRows,
+    todayAppointmentsWithSchedule,
   ] = await Promise.all([
     prisma.appointment.count({ where: { date } }),
     prisma.appointment.count({
@@ -133,15 +146,71 @@ export async function getDashboardStats(dateStr?: string) {
     prisma.appointment.count({ where: { date, status: 'NO_SHOW' } }),
     prisma.session.findUnique({ where: { date } }),
     prisma.schedule.findUnique({ where: { date } }),
+    prisma.user.count({ where: { role: 'CLIENT' } }),
+    prisma.service.count({ where: { isActive: true } }),
+    prisma.user.findMany({
+      where: {
+        role: 'CLIENT',
+        createdAt: {
+          gte: trendStart,
+          lte: new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59, 999),
+        },
+      },
+      select: {
+        createdAt: true,
+      },
+    }),
+    prisma.appointment.findMany({
+      where: {
+        date,
+      },
+      include: {
+        schedule: {
+          select: {
+            slotDurationMins: true,
+          },
+        },
+      },
+    }),
   ]);
 
+  const registrationMap = new Map<string, number>();
+  trendDates.forEach((d) => {
+    registrationMap.set(d.toISOString().split('T')[0], 0);
+  });
+
+  registrationRows.forEach((row) => {
+    const key = row.createdAt.toISOString().split('T')[0];
+    if (registrationMap.has(key)) {
+      registrationMap.set(key, (registrationMap.get(key) ?? 0) + 1);
+    }
+  });
+
+  const registrationTrend = Array.from(registrationMap.entries()).map(([day, count]) => ({
+    day,
+    count,
+  }));
+
+  const totalDuration = todayAppointmentsWithSchedule.reduce(
+    (sum, item) => sum + (item.schedule?.slotDurationMins ?? 0),
+    0,
+  );
+  const averageAppointmentTime = todayAppointmentsWithSchedule.length
+    ? Math.round((totalDuration / todayAppointmentsWithSchedule.length) * 10) / 10
+    : 0;
+
   return {
-    date: dateStr || formatDate(getTodayDate()),
+    date: todayString,
     sessionStatus: session?.isClosed ? 'CLOSED' : schedule?.status === 'OPEN' ? 'OPEN' : 'NO_SCHEDULE',
     totalAppointments,
     inQueue,
     completed,
     cancelled,
     noShow,
+    registeredUsers,
+    activeServices,
+    appointmentsToday: totalAppointments,
+    userRegistrationTrend: registrationTrend,
+    averageAppointmentTime,
   };
 }

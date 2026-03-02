@@ -37,9 +37,30 @@ export const updateProfileSchema = z.object({
   profileImageUrl: z.string().url('Must be a valid URL').optional().nullable(),
 });
 
+export const adminUpdateUserSchema = z.object({
+  phoneNumber: z
+    .string()
+    .length(10, 'Phone number must be exactly 10 digits')
+    .regex(/^\d{10}$/, 'Phone number must contain only digits')
+    .optional(),
+  firstName: z
+    .string()
+    .min(1, 'First name is required')
+    .max(50, 'First name must be at most 50 characters')
+    .optional(),
+  lastName: z
+    .string()
+    .min(1, 'Last name is required')
+    .max(50, 'Last name must be at most 50 characters')
+    .optional(),
+  role: z.enum(['ADMIN', 'CLIENT']).optional(),
+  isActive: z.boolean().optional(),
+});
+
 export const userIdParamSchema = z.object({
   id: z.string().uuid('Invalid user ID'),
 });
 
 export type CreateUserInput = z.infer<typeof createUserSchema>;
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
+export type AdminUpdateUserInput = z.infer<typeof adminUpdateUserSchema>;
