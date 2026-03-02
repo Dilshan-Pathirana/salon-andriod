@@ -256,8 +256,8 @@ export function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-teal-50 via-white to-emerald-50 flex justify-center font-inter text-slate-800">
-      <div className="w-full max-w-md min-h-screen bg-white relative overflow-hidden flex flex-col border-x border-teal-100/60 shadow-xl">
+    <div className="min-h-screen bg-luxury-black flex justify-center font-inter text-luxury-white bg-noise">
+      <div className="w-full max-w-md min-h-screen bg-luxury-black relative overflow-hidden flex flex-col border-x border-luxury-brown/30 shadow-2xl">
         <TopBar
           title={getPageTitle(activePage)}
           onMenuClick={() => setIsMenuOpen(true)}
@@ -270,7 +270,7 @@ export function App() {
           onClose={() => setIsMenuOpen(false)}
         />
 
-        <div className="flex-1 pb-24 overflow-y-auto">
+        <div className="flex-1 pb-24 overflow-y-auto bg-luxury-black">
           <AnimatePresence mode="wait">{renderPage()}</AnimatePresence>
         </div>
 

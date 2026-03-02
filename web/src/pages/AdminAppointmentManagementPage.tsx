@@ -106,21 +106,21 @@ export function AdminAppointmentManagementPage() {
 
   const Section = ({ title, items }: { title: string; items: ManagedAppointment[] }) => (
     <section className="mb-8">
-      <h2 className="font-playfair text-xl text-slate-800 mb-3">{title}</h2>
+      <h2 className="font-playfair text-xl text-luxury-white mb-3">{title}</h2>
       {items.length === 0 ? (
-        <p className="font-inter text-sm text-slate-400">No appointments</p>
+        <p className="font-inter text-sm text-luxury-muted">No appointments</p>
       ) : (
         <div className="space-y-3">
           {items.map((item) => (
-            <div key={item.id} className="border border-teal-100/40 rounded-lg p-4">
+            <div key={item.id} className="border border-luxury-brown/40 rounded-lg p-4 bg-luxury-green/20">
               <div className="flex justify-between items-start gap-3">
                 <div>
-                  <p className="text-slate-800 text-sm">{item.userName || 'Reserved'}</p>
-                  <p className="text-slate-400 text-xs">{item.phoneNumber || '-'}</p>
-                  <p className="text-slate-400 text-xs mt-1">{item.date} · {item.timeSlot}</p>
+                  <p className="text-luxury-white text-sm">{item.userName || 'Reserved'}</p>
+                  <p className="text-luxury-muted text-xs">{item.phoneNumber || '-'}</p>
+                  <p className="text-luxury-muted text-xs mt-1">{item.date} · {item.timeSlot}</p>
                 </div>
                 <div className="text-right">
-                  <span className="text-xs text-emerald-600 tracking-wider block">{item.isReserved ? 'RESERVED' : item.status}</span>
+                  <span className="text-xs text-luxury-champagne tracking-wider block">{item.isReserved ? 'RESERVED' : item.status}</span>
                   <button
                     onClick={() => void deleteAppointment(item.id)}
                     className="mt-2 px-3 py-2 border border-red-400/50 rounded-lg text-xs tracking-widest uppercase text-red-300"
@@ -137,22 +137,22 @@ export function AdminAppointmentManagementPage() {
   )
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.35 }} className="px-6 pt-12 pb-24">
-      <h1 className="font-playfair text-3xl text-slate-800 text-center mb-8">Appointment Management</h1>
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.35 }} className="px-4 py-6">
+      <h1 className="font-playfair text-3xl text-luxury-white text-center mb-8">Appointment Management</h1>
 
-      <div className="border border-teal-100/40 rounded-xl p-4 mb-8 bg-teal-50/10 space-y-3">
-        <p className="text-xs tracking-widest uppercase text-slate-400">Add Reserved Appointment</p>
+      <div className="border border-luxury-brown/40 rounded-xl p-4 mb-8 bg-luxury-green/25 space-y-3">
+        <p className="text-xs tracking-widest uppercase text-luxury-muted">Add Reserved Appointment</p>
         <div className="grid grid-cols-2 gap-3">
-          <input type="date" value={reservedDate} onChange={(event) => setReservedDate(event.target.value)} className="bg-white border border-teal-100/40 rounded-lg p-3 text-sm" />
-          <input type="time" value={reservedTime} onChange={(event) => setReservedTime(event.target.value)} className="bg-white border border-teal-100/40 rounded-lg p-3 text-sm" />
+          <input type="date" value={reservedDate} onChange={(event) => setReservedDate(event.target.value)} className="bg-luxury-black border border-luxury-brown/40 rounded-lg p-3 text-sm text-luxury-white" />
+          <input type="time" value={reservedTime} onChange={(event) => setReservedTime(event.target.value)} className="bg-luxury-black border border-luxury-brown/40 rounded-lg p-3 text-sm text-luxury-white" />
         </div>
-        <button onClick={() => void createReserved()} className="w-full py-3 bg-emerald-500 text-white rounded-lg text-xs tracking-widest uppercase font-semibold">
+        <button onClick={() => void createReserved()} className="w-full py-3 bg-luxury-gold text-luxury-black rounded-lg text-xs tracking-widest uppercase font-semibold">
           Save Reserved Slot
         </button>
       </div>
 
-      {message ? <p className="text-xs text-emerald-600 mb-4">{message}</p> : null}
-      {isLoading ? <p className="text-sm text-slate-400">Loading appointments...</p> : null}
+      {message ? <p className="text-xs text-luxury-champagne mb-4">{message}</p> : null}
+      {isLoading ? <p className="text-sm text-luxury-muted">Loading appointments...</p> : null}
 
       {!isLoading ? (
         <>

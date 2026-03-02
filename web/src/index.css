@@ -10,16 +10,24 @@
 
 @layer base {
   body {
-    @apply bg-gradient-to-br from-teal-50 via-white to-emerald-50 text-slate-800 font-inter antialiased selection:bg-teal-200 selection:text-teal-900 min-h-screen;
+    @apply bg-luxury-black text-luxury-white font-inter antialiased selection:bg-luxury-gold selection:text-luxury-black min-h-screen;
   }
   h1, h2, h3, h4, h5, h6 {
-    @apply font-playfair tracking-wide text-teal-900;
+    @apply font-playfair tracking-wide;
   }
 }
 @layer utilities {
   .bg-noise {
-    /* Removed noise for cleaner look */
-    display: none; 
+    position: relative;
+  }
+  .bg-noise::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 50;
+    mix-blend-mode: overlay;
   }
   .hide-scrollbar::-webkit-scrollbar {
     display: none;

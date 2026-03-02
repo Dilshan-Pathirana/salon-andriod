@@ -47,35 +47,35 @@ export function AdminDashboardPage() {
   }, [stats])
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.35 }} className="px-6 pt-12 pb-24">
-      <h1 className="font-playfair text-3xl text-slate-800 text-center mb-8">Admin Dashboard</h1>
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.35 }} className="px-4 py-6">
+      <h1 className="font-playfair text-3xl text-luxury-white text-center mb-8">Admin Dashboard</h1>
 
-      {isLoading ? <p className="text-sm text-slate-400">Loading dashboard...</p> : null}
-      {message ? <p className="text-sm text-emerald-600">{message}</p> : null}
+      {isLoading ? <p className="text-sm text-luxury-muted">Loading dashboard...</p> : null}
+      {message ? <p className="text-sm text-luxury-champagne">{message}</p> : null}
 
       {stats ? (
         <>
           <div className="grid grid-cols-2 gap-3 mb-8">
-            <div className="border border-teal-100/40 rounded-lg p-4 bg-teal-50/10">
-              <p className="text-xs tracking-widest uppercase text-slate-400">Registered Users</p>
-              <p className="text-3xl font-playfair text-slate-800 mt-2">{stats.registeredUsers}</p>
+            <div className="border border-luxury-brown/40 rounded-lg p-4 bg-luxury-green/25">
+              <p className="text-xs tracking-widest uppercase text-luxury-muted">Registered Users</p>
+              <p className="text-3xl font-playfair text-luxury-white mt-2">{stats.registeredUsers}</p>
             </div>
-            <div className="border border-teal-100/40 rounded-lg p-4 bg-teal-50/10">
-              <p className="text-xs tracking-widest uppercase text-slate-400">Active Services</p>
-              <p className="text-3xl font-playfair text-slate-800 mt-2">{stats.activeServices}</p>
+            <div className="border border-luxury-brown/40 rounded-lg p-4 bg-luxury-green/25">
+              <p className="text-xs tracking-widest uppercase text-luxury-muted">Active Services</p>
+              <p className="text-3xl font-playfair text-luxury-white mt-2">{stats.activeServices}</p>
             </div>
-            <div className="border border-teal-100/40 rounded-lg p-4 bg-teal-50/10">
-              <p className="text-xs tracking-widest uppercase text-slate-400">Appointments Today</p>
-              <p className="text-3xl font-playfair text-slate-800 mt-2">{stats.appointmentsToday}</p>
+            <div className="border border-luxury-brown/40 rounded-lg p-4 bg-luxury-green/25">
+              <p className="text-xs tracking-widest uppercase text-luxury-muted">Appointments Today</p>
+              <p className="text-3xl font-playfair text-luxury-white mt-2">{stats.appointmentsToday}</p>
             </div>
-            <div className="border border-teal-100/40 rounded-lg p-4 bg-teal-50/10">
-              <p className="text-xs tracking-widest uppercase text-slate-400">Average Appointment Time</p>
-              <p className="text-3xl font-playfair text-slate-800 mt-2">{stats.averageAppointmentTime} min</p>
+            <div className="border border-luxury-brown/40 rounded-lg p-4 bg-luxury-green/25">
+              <p className="text-xs tracking-widest uppercase text-luxury-muted">Average Appointment Time</p>
+              <p className="text-3xl font-playfair text-luxury-white mt-2">{stats.averageAppointmentTime} min</p>
             </div>
           </div>
 
-          <div className="border border-teal-100/40 rounded-xl p-4 bg-white/30 mb-8">
-            <p className="text-xs tracking-widest uppercase text-slate-400 mb-3">User Registration Trend</p>
+          <div className="border border-luxury-brown/40 rounded-xl p-4 bg-luxury-green/20 mb-8">
+            <p className="text-xs tracking-widest uppercase text-luxury-muted mb-3">User Registration Trend</p>
             <svg viewBox="0 0 300 120" className="w-full h-36">
               <polyline fill="none" stroke="rgba(194,173,144,1)" strokeWidth="3" points={trendPoints} />
               {(stats.userRegistrationTrend || []).map((item, index, arr) => {
@@ -87,7 +87,7 @@ export function AdminDashboardPage() {
                 return <circle key={item.day} cx={x} cy={y} r="3.5" fill="rgba(194,173,144,1)" />
               })}
             </svg>
-            <div className="grid grid-cols-7 text-[10px] text-slate-400 mt-2">
+            <div className="grid grid-cols-7 text-[10px] text-luxury-muted mt-2">
               {(stats.userRegistrationTrend || []).map((item) => (
                 <span key={item.day} className="text-center">{formatDayLabel(item.day)}</span>
               ))}
@@ -95,13 +95,13 @@ export function AdminDashboardPage() {
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <div className="border border-teal-100/40 rounded-lg p-3">
-              <p className="text-xs text-slate-400">In Queue</p>
-              <p className="text-xl font-playfair text-emerald-600">{stats.inQueue}</p>
+            <div className="border border-luxury-brown/40 rounded-lg p-3 bg-luxury-green/20">
+              <p className="text-xs text-luxury-muted">In Queue</p>
+              <p className="text-xl font-playfair text-luxury-champagne">{stats.inQueue}</p>
             </div>
-            <div className="border border-teal-100/40 rounded-lg p-3">
-              <p className="text-xs text-slate-400">Completed</p>
-              <p className="text-xl font-playfair text-emerald-600">{stats.completed}</p>
+            <div className="border border-luxury-brown/40 rounded-lg p-3 bg-luxury-green/20">
+              <p className="text-xs text-luxury-muted">Completed</p>
+              <p className="text-xl font-playfair text-luxury-champagne">{stats.completed}</p>
             </div>
           </div>
         </>

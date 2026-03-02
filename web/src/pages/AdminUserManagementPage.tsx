@@ -140,45 +140,45 @@ export function AdminUserManagementPage() {
   }
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.35 }} className="px-6 pt-12 pb-24">
-      <h1 className="font-playfair text-3xl text-slate-800 text-center mb-8">User Management</h1>
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.35 }} className="px-4 py-6">
+      <h1 className="font-playfair text-3xl text-luxury-white text-center mb-8">User Management</h1>
 
-      <div className="border border-teal-100/40 rounded-xl p-4 mb-8 bg-teal-50/10 space-y-3">
-        <p className="text-xs tracking-widest uppercase text-slate-400">Add User</p>
+      <div className="border border-luxury-brown/40 rounded-xl p-4 mb-8 bg-luxury-green/25 space-y-3">
+        <p className="text-xs tracking-widest uppercase text-luxury-muted">Add User</p>
         <div className="grid grid-cols-2 gap-3">
-          <input value={form.firstName} onChange={(event) => setForm((prev) => ({ ...prev, firstName: event.target.value }))} placeholder="First name" className="bg-white border border-teal-100/40 rounded-lg p-3 text-sm" />
-          <input value={form.lastName} onChange={(event) => setForm((prev) => ({ ...prev, lastName: event.target.value }))} placeholder="Last name" className="bg-white border border-teal-100/40 rounded-lg p-3 text-sm" />
-          <input value={form.phoneNumber} onChange={(event) => setForm((prev) => ({ ...prev, phoneNumber: event.target.value }))} placeholder="Phone (10 digits)" className="bg-white border border-teal-100/40 rounded-lg p-3 text-sm" />
-          <input type="password" value={form.password} onChange={(event) => setForm((prev) => ({ ...prev, password: event.target.value }))} placeholder="Password" className="bg-white border border-teal-100/40 rounded-lg p-3 text-sm" />
+          <input value={form.firstName} onChange={(event) => setForm((prev) => ({ ...prev, firstName: event.target.value }))} placeholder="First name" className="bg-luxury-black border border-luxury-brown/40 rounded-lg p-3 text-sm text-luxury-white" />
+          <input value={form.lastName} onChange={(event) => setForm((prev) => ({ ...prev, lastName: event.target.value }))} placeholder="Last name" className="bg-luxury-black border border-luxury-brown/40 rounded-lg p-3 text-sm text-luxury-white" />
+          <input value={form.phoneNumber} onChange={(event) => setForm((prev) => ({ ...prev, phoneNumber: event.target.value }))} placeholder="Phone (10 digits)" className="bg-luxury-black border border-luxury-brown/40 rounded-lg p-3 text-sm text-luxury-white" />
+          <input type="password" value={form.password} onChange={(event) => setForm((prev) => ({ ...prev, password: event.target.value }))} placeholder="Password" className="bg-luxury-black border border-luxury-brown/40 rounded-lg p-3 text-sm text-luxury-white" />
         </div>
-        <select value={form.role} onChange={(event) => setForm((prev) => ({ ...prev, role: event.target.value as 'ADMIN' | 'CLIENT' }))} className="w-full bg-white border border-teal-100/40 rounded-lg p-3 text-sm">
+        <select value={form.role} onChange={(event) => setForm((prev) => ({ ...prev, role: event.target.value as 'ADMIN' | 'CLIENT' }))} className="w-full bg-luxury-black border border-luxury-brown/40 rounded-lg p-3 text-sm text-luxury-white">
           <option value="CLIENT">CLIENT</option>
           <option value="ADMIN">ADMIN</option>
         </select>
-        <button onClick={() => void addUser()} className="w-full py-3 bg-emerald-500 text-white rounded-lg text-xs tracking-widest uppercase font-semibold">Add User</button>
+        <button onClick={() => void addUser()} className="w-full py-3 bg-luxury-gold text-luxury-black rounded-lg text-xs tracking-widest uppercase font-semibold">Add User</button>
       </div>
 
-      {message ? <p className="text-xs text-emerald-600 mb-4">{message}</p> : null}
-      {isLoading ? <p className="text-sm text-slate-400 mb-4">Loading users...</p> : null}
+      {message ? <p className="text-xs text-luxury-champagne mb-4">{message}</p> : null}
+      {isLoading ? <p className="text-sm text-luxury-muted mb-4">Loading users...</p> : null}
 
       <div className="space-y-3">
         {users.map((user) => (
           <div
             key={user.id}
             onClick={() => startEditUser(user)}
-            className="border border-teal-100/40 rounded-lg p-4 bg-white/30 space-y-3 cursor-pointer"
+            className="border border-luxury-brown/40 rounded-lg p-4 bg-luxury-green/20 space-y-3 cursor-pointer"
           >
             <div>
-              <p className="text-slate-800 text-sm">{user.firstName} {user.lastName}</p>
-              <p className="text-slate-400 text-xs">{user.phoneNumber}</p>
+              <p className="text-luxury-white text-sm">{user.firstName} {user.lastName}</p>
+              <p className="text-luxury-muted text-xs">{user.phoneNumber}</p>
             </div>
 
             <div className="flex items-center justify-between">
-              <span className="text-xs text-emerald-600 tracking-wider">{user.role}</span>
-              <span className="text-xs text-slate-400">{user.isActive ? 'Active' : 'Inactive'}</span>
+              <span className="text-xs text-luxury-champagne tracking-wider">{user.role}</span>
+              <span className="text-xs text-luxury-muted">{user.isActive ? 'Active' : 'Inactive'}</span>
             </div>
 
-            <p className="text-xs text-slate-400">Active since: {formatDate(user.createdAt)}</p>
+            <p className="text-xs text-luxury-muted">Active since: {formatDate(user.createdAt)}</p>
 
             <button
               onClick={(event) => {
@@ -191,35 +191,35 @@ export function AdminUserManagementPage() {
             </button>
 
             {selectedUserId === user.id ? (
-              <div className="border-t border-teal-100/30 pt-3 space-y-3" onClick={(event) => event.stopPropagation()}>
-                <p className="text-xs tracking-widest uppercase text-slate-400">Edit User</p>
+              <div className="border-t border-luxury-brown/30 pt-3 space-y-3" onClick={(event) => event.stopPropagation()}>
+                <p className="text-xs tracking-widest uppercase text-luxury-muted">Edit User</p>
                 <div className="grid grid-cols-2 gap-3">
                   <input
                     value={editForm.firstName}
                     onChange={(event) => setEditForm((prev) => ({ ...prev, firstName: event.target.value }))}
-                    className="bg-white border border-teal-100/40 rounded-lg p-2 text-sm"
+                    className="bg-luxury-black border border-luxury-brown/40 rounded-lg p-2 text-sm text-luxury-white"
                   />
                   <input
                     value={editForm.lastName}
                     onChange={(event) => setEditForm((prev) => ({ ...prev, lastName: event.target.value }))}
-                    className="bg-white border border-teal-100/40 rounded-lg p-2 text-sm"
+                    className="bg-luxury-black border border-luxury-brown/40 rounded-lg p-2 text-sm text-luxury-white"
                   />
                   <input
                     value={editForm.phoneNumber}
                     onChange={(event) => setEditForm((prev) => ({ ...prev, phoneNumber: event.target.value }))}
-                    className="bg-white border border-teal-100/40 rounded-lg p-2 text-sm"
+                    className="bg-luxury-black border border-luxury-brown/40 rounded-lg p-2 text-sm text-luxury-white"
                   />
                   <select
                     value={editForm.role}
                     onChange={(event) => setEditForm((prev) => ({ ...prev, role: event.target.value as 'ADMIN' | 'CLIENT' }))}
-                    className="bg-white border border-teal-100/40 rounded-lg p-2 text-sm"
+                    className="bg-luxury-black border border-luxury-brown/40 rounded-lg p-2 text-sm text-luxury-white"
                   >
                     <option value="CLIENT">CLIENT</option>
                     <option value="ADMIN">ADMIN</option>
                   </select>
                 </div>
 
-                <label className="text-xs text-slate-400 flex items-center gap-2">
+                <label className="text-xs text-luxury-muted flex items-center gap-2">
                   <input
                     type="checkbox"
                     checked={editForm.isActive}
@@ -231,13 +231,13 @@ export function AdminUserManagementPage() {
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     onClick={() => void updateSelectedUser()}
-                    className="py-2 bg-emerald-500 text-white rounded-lg text-xs tracking-widest uppercase font-semibold"
+                    className="py-2 bg-luxury-gold text-luxury-black rounded-lg text-xs tracking-widest uppercase font-semibold"
                   >
                     Update User
                   </button>
                   <button
                     onClick={() => setSelectedUserId(null)}
-                    className="py-2 border border-teal-100/40 rounded-lg text-xs tracking-widest uppercase text-slate-400"
+                    className="py-2 border border-luxury-brown/40 rounded-lg text-xs tracking-widest uppercase text-luxury-muted"
                   >
                     Cancel
                   </button>

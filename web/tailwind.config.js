@@ -12,13 +12,13 @@ export default {
     extend: {
       colors: {
         luxury: {
-          black: "#F0FDFA", // Teal-50 (Light Background)
-          green: "#CCFBF1", // Teal-100 (Light Accent)
-          champagne: "#0D9488", // Teal-600 (Primary Text/Icon)
-          gold: "#10B981", // Emerald-500 (Primary Action)
-          brown: "#E2E8F0", // Slate-200 (Borders/Separators)
-          white: "#0F172A", // Slate-900 (Main Text)
-          muted: "#64748B", // Slate-500 (Muted Text)
+          black: "#0C100E",
+          green: "#364442",
+          champagne: "#C2AD90",
+          gold: "#97754D",
+          brown: "#5D4429",
+          white: "#F2F1ED",
+          muted: "rgba(194, 173, 144, 0.7)",
         }
       },
       fontFamily: {
