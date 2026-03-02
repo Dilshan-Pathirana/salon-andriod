@@ -232,42 +232,51 @@ export function App() {
   }
 
   const isAdminPage = activePage.startsWith('admin-')
-const getPageTitle = (page: AppPage) => {
-    switch(page) {
-      case 'home': return 'Salon Ru Zero One';
-      case 'book': return 'Book Appointment';
-      case 'queue': return 'Live Queue';
-      case 'profile': return 'My Profile';
-      case 'services': return 'Our Services';
-      case 'work': return 'Our Work';
-      case 'appointments': return 'My Appointments';
-      case 'auth': return 'Sign In';
-      default: return page.replace('admin-', '').replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+  const getPageTitle = (page: AppPage) => {
+    switch (page) {
+      case 'home':
+        return 'Salon Ru Zero One'
+      case 'book':
+        return 'Book Appointment'
+      case 'queue':
+        return 'Live Queue'
+      case 'profile':
+        return 'My Profile'
+      case 'services':
+        return 'Our Services'
+      case 'work':
+        return 'Our Work'
+      case 'appointments':
+        return 'My Appointments'
+      case 'auth':
+        return 'Sign In'
+      default:
+        return page.replace('admin-', '').replace(/-/g, ' ').replace(/\b\w/g, (label) => label.toUpperCase())
     }
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 flex justify-center font-inter text-slate-800">
-      <div className="w-full max-w-md bg-white min-h-screen shadow-2xl relative overflow-hidden flex flex-col">
-        <TopBar 
-          title={getPageTitle(activePage)} 
-          onMenuClick={() => setIsMenuOpen(true)} 
+    <div className="min-h-screen bg-gradient-to-b from-teal-50 via-white to-emerald-50 flex justify-center font-inter text-slate-800">
+      <div className="w-full max-w-md min-h-screen bg-white relative overflow-hidden flex flex-col border-x border-teal-100/60 shadow-xl">
+        <TopBar
+          title={getPageTitle(activePage)}
+          onMenuClick={() => setIsMenuOpen(true)}
         />
-        
-        <HamburgerMenu 
-          items={menuItems} 
-          onSelect={navigateFromMenu} 
+
+        <HamburgerMenu
+          items={menuItems}
+          onSelect={navigateFromMenu}
           isOpen={isMenuOpen}
           onClose={() => setIsMenuOpen(false)}
         />
-        
-        <div className="flex-1 pt-16 pb-24 overflow-y-auto bg-gradient-to-br from-teal-50/50 via-white to-emerald-50/50">
+
+        <div className="flex-1 pb-24 overflow-y-auto">
           <AnimatePresence mode="wait">{renderPage()}</AnimatePresence>
         </div>
 
         {!isAdmin && !isAdminPage ? (
-          <div className="absolute bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-100">
-             <BottomNav activePage={activePage as PageType} onChange={handleBottomNav} role={bottomNavRole} />
+          <div className="absolute bottom-0 left-0 right-0 z-40">
+            <BottomNav activePage={activePage as PageType} onChange={handleBottomNav} role={bottomNavRole} />
           </div>
         ) : null}
       </div>

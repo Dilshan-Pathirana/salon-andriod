@@ -170,9 +170,9 @@ export function BookingPage({ onRequireAuth, onBookingComplete }: BookingPagePro
       transition={{
         duration: 0.5,
       }}
-      className="px-6 pt-12 pb-32"
+      className="px-4 py-6"
     >
-      <h1 className="font-playfair text-3xl text-slate-800 mb-10 text-center">
+      <h1 className="font-playfair text-3xl text-slate-800 mb-6 text-center">
         Reserve Your Time
       </h1>
 
@@ -203,7 +203,7 @@ export function BookingPage({ onRequireAuth, onBookingComplete }: BookingPagePro
             <h3 className="font-playfair text-xl text-slate-800 mb-6">
               Select Service
             </h3>
-            <div className="space-y-4">
+            <div className="space-y-3">
               {serviceRows.map((service) => {
                 const isSelected = selectedService === service.id
                 return (
@@ -214,8 +214,8 @@ export function BookingPage({ onRequireAuth, onBookingComplete }: BookingPagePro
                     }}
                     onClick={() => setSelectedService(service.id)}
                     className={`
-                      w-full flex justify-between items-center p-5 rounded-[12px] border transition-all duration-300
-                      ${isSelected ? 'border-emerald-500 border-l-[4px] bg-teal-50/20' : 'border-teal-100/40 bg-transparent hover:border-teal-100'}
+                      w-full flex justify-between items-center p-4 rounded-xl border transition-all duration-300
+                      ${isSelected ? 'border-teal-500 border-l-[4px] bg-teal-50/60' : 'border-teal-100 bg-white hover:border-teal-200'}
                     `}
                   >
                     <span
@@ -223,7 +223,7 @@ export function BookingPage({ onRequireAuth, onBookingComplete }: BookingPagePro
                     >
                       {service.name}
                     </span>
-                    <span className="font-playfair text-emerald-500 text-lg">
+                    <span className="font-playfair text-teal-700 text-lg">
                       ${service.price}
                     </span>
                   </motion.button>
@@ -259,7 +259,7 @@ export function BookingPage({ onRequireAuth, onBookingComplete }: BookingPagePro
 
             <p className="text-xs text-slate-400 tracking-widest uppercase mb-3">Step 4 - Confirm booking</p>
 
-            {message ? <p className="text-sm text-emerald-600 mb-4">{message}</p> : null}
+            {message ? <p className="text-sm text-rose-600 mb-4">{message}</p> : null}
 
             <motion.button
               initial={{
@@ -277,7 +277,7 @@ export function BookingPage({ onRequireAuth, onBookingComplete }: BookingPagePro
               disabled={!selectedTime}
               className={`
                 w-full py-4 rounded-[14px] font-inter text-[13px] font-semibold tracking-widest uppercase transition-all duration-500
-                ${selectedTime && !isSubmitting ? 'bg-emerald-500 text-white shadow-[0_8px_30px_rgba(151,117,77,0.2)]' : 'bg-teal-100/20 text-slate-400 cursor-not-allowed'}
+                ${selectedTime && !isSubmitting ? 'bg-gradient-to-r from-teal-600 to-emerald-500 text-white shadow-lg' : 'bg-teal-100/50 text-slate-400 cursor-not-allowed'}
               `}
             >
               {isSubmitting ? 'Booking...' : 'Confirm Reservation'}

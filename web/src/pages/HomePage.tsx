@@ -41,13 +41,13 @@ export function HomePage({ onBookClick }: HomePageProps) {
       transition={{
         duration: 0.5,
       }}
-      className="pb-24"
+      className="pb-6"
     >
       <HeroSection onBookClick={onBookClick} />
 
       <Divider />
 
-      <section className="px-6 py-8 mb-12">
+      <section className="px-4 py-6 mb-8">
         <motion.h2
           initial={{
             opacity: 0,
@@ -58,11 +58,11 @@ export function HomePage({ onBookClick }: HomePageProps) {
           viewport={{
             once: true,
           }}
-          className="font-playfair text-2xl text-slate-800 mb-10 text-center"
+          className="font-playfair text-2xl text-slate-800 mb-6 text-center"
         >
           What Our Clients Say
         </motion.h2>
-        <div className="space-y-8">
+        <div className="space-y-4">
           {testimonials.map((test, idx) => (
             <TestimonialCard key={idx} {...test} delay={idx * 0.2} />
           ))}

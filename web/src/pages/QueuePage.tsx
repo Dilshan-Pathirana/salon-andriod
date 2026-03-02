@@ -51,9 +51,9 @@ export function QueuePage() {
       transition={{
         duration: 0.6,
       }}
-      className="px-6 pt-12 pb-32 min-h-screen flex flex-col"
+      className="px-4 py-6 min-h-screen flex flex-col"
     >
-      <h1 className="font-playfair text-3xl text-slate-800 mb-16 text-center">
+      <h1 className="font-playfair text-3xl text-slate-800 mb-8 text-center">
         Live Queue
       </h1>
 
@@ -66,14 +66,14 @@ export function QueuePage() {
       ) : (
         <>
           {myQueueItem ? (
-            <div className="mb-8 border border-emerald-500/40 rounded-xl p-4 bg-teal-50/20 text-center">
+            <div className="mb-6 border border-teal-200 rounded-xl p-4 bg-teal-50/70 text-center">
               <p className="text-xs tracking-widest uppercase text-slate-400">Your Slot Number</p>
-              <p className="font-playfair text-4xl text-emerald-600 mt-2">{myQueueItem.position}</p>
+              <p className="font-playfair text-4xl text-teal-700 mt-2">{myQueueItem.position}</p>
               <p className="text-xs text-slate-400 mt-2">Approx wait: {myQueueItem.estimatedWaitMins} mins</p>
             </div>
           ) : null}
 
-          <div className="flex flex-col items-center mb-16">
+          <div className="flex flex-col items-center mb-8">
             <span className="font-inter text-xs tracking-widest text-slate-400 uppercase mb-4">
               Now Serving
             </span>
@@ -112,11 +112,11 @@ export function QueuePage() {
               duration: 0.6,
               ease: 'easeOut',
             }}
-            className="flex flex-col items-center justify-center mb-16"
+            className="flex flex-col items-center justify-center mb-8"
           >
-            <div className="w-32 h-32 rounded-full border border-emerald-600/30 flex flex-col items-center justify-center relative">
-              <div className="absolute inset-2 rounded-full border border-emerald-600/10" />
-              <span className="font-playfair text-5xl text-emerald-600 mb-1">
+            <div className="w-28 h-28 rounded-full border border-teal-400/30 flex flex-col items-center justify-center relative bg-white">
+              <div className="absolute inset-2 rounded-full border border-teal-400/10" />
+              <span className="font-playfair text-4xl text-teal-700 mb-1">
                 {queue.length}
               </span>
             </div>
@@ -146,7 +146,7 @@ export function QueuePage() {
                     }}
                     className={`
                       flex items-center py-5 border-b border-teal-100/30
-                      ${isYou ? 'bg-teal-50/10 -mx-4 px-4 rounded-lg border-transparent' : ''}
+                      ${isYou ? 'bg-teal-50 -mx-2 px-3 rounded-lg border-transparent' : ''}
                     `}
                   >
                     <span

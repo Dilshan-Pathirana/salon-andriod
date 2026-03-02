@@ -44,7 +44,7 @@ export function ServicesPage() {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.4 }}
-      className="px-6 pt-12 pb-28"
+      className="px-4 py-6"
     >
       <h1 className="font-playfair text-3xl text-center mb-8">Services</h1>
 
@@ -52,12 +52,12 @@ export function ServicesPage() {
 
       <div className="space-y-3">
         {rows.map((service) => (
-          <div key={service.id} className="border border-teal-100/40 rounded-lg p-4 flex justify-between items-start gap-4">
+          <div key={service.id} className="border border-teal-100 rounded-xl bg-white p-4 flex justify-between items-start gap-4 shadow-sm">
             <div>
-              <p className="text-slate-800 text-base">{service.name}</p>
-              <p className="text-slate-400 text-xs mt-1">{service.description || 'Premium salon service'}</p>
+              <p className="text-slate-800 text-base font-medium">{service.name}</p>
+              <p className="text-slate-500 text-xs mt-1 leading-relaxed">{service.description || 'Premium salon service'}</p>
             </div>
-            <p className="font-playfair text-emerald-500 text-lg">${service.price}</p>
+            <p className="font-playfair text-teal-700 text-lg">${service.price}</p>
           </div>
         ))}
       </div>

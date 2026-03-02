@@ -31,7 +31,7 @@ export function TestimonialCard({
         delay,
         ease: [0.25, 0.1, 0.25, 1],
       }}
-      className="flex flex-col items-center text-center py-8 px-4"
+      className="flex flex-col items-center text-center py-6 px-4 rounded-2xl border border-teal-100/60 bg-white/80"
     >
       <div className="flex space-x-1 mb-6">
         {[...Array(rating)].map((_, i) => (
@@ -41,11 +41,11 @@ export function TestimonialCard({
           />
         ))}
       </div>
-      <p className="font-playfair text-lg md:text-xl text-slate-800 leading-relaxed mb-6 italic opacity-90">
+      <p className="font-playfair text-lg text-slate-800 leading-relaxed mb-5 italic opacity-90">
         "{quote}"
       </p>
       <span className="font-inter text-slate-400 text-xs tracking-widest uppercase">
-        â€” {name}
+        — {name}
       </span>
     </motion.div>
   )
