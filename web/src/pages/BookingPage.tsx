@@ -40,6 +40,8 @@ export function BookingPage({ onRequireAuth, onBookingComplete }: BookingPagePro
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [message, setMessage] = useState('')
   const [slots, setSlots] = useState<Array<{ time: string; available: boolean }>>([])
+  const [loadingSlots, setLoadingSlots] = useState(false)
+  const [noSchedule, setNoSchedule] = useState(false)
   const [serviceRows, setServiceRows] = useState(services)
 
   React.useEffect(() => {
@@ -65,16 +67,27 @@ export function BookingPage({ onRequireAuth, onBookingComplete }: BookingPagePro
 
   React.useEffect(() => {
     const loadSlots = async () => {
-      if (!selectedDate || !isSessionAuthenticated()) {
+      if (!selectedDate) {
         setSlots([])
+        setNoSchedule(false)
         return
       }
 
+      setLoadingSlots(true)
+      setNoSchedule(false)
       try {
         const schedule = await getClientScheduleByDate(selectedDate)
-        setSlots(schedule?.slots || [])
+        if (!schedule) {
+          setNoSchedule(true)
+          setSlots([])
+        } else {
+          setSlots(schedule.slots)
+        }
       } catch {
         setSlots([])
+        setNoSchedule(true)
+      } finally {
+        setLoadingSlots(false)
       }
     }
 
@@ -251,11 +264,23 @@ export function BookingPage({ onRequireAuth, onBookingComplete }: BookingPagePro
             className="overflow-hidden"
           >
             <p className="text-xs text-slate-400 tracking-widest uppercase mb-3">Step 3 - Pick a time slot</p>
-            <TimeSlots
-              selectedTime={selectedTime}
-              onSelectTime={setSelectedTime}
-              slots={slots}
-            />
+            {loadingSlots ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="w-6 h-6 border-2 border-teal-500 border-t-transparent rounded-full animate-spin" />
+                <span className="ml-3 text-sm text-slate-400">Loading available times…</span>
+              </div>
+            ) : noSchedule ? (
+              <div className="py-8 text-center">
+                <p className="text-slate-400 text-sm">No availability for this date.</p>
+                <p className="text-slate-300 text-xs mt-1">Please choose another date.</p>
+              </div>
+            ) : (
+              <TimeSlots
+                selectedTime={selectedTime}
+                onSelectTime={setSelectedTime}
+                slots={slots}
+              />
+            )}
 
             <p className="text-xs text-slate-400 tracking-widest uppercase mb-3">Step 4 - Confirm booking</p>
 

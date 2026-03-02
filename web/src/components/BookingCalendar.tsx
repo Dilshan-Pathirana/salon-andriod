@@ -28,7 +28,7 @@ export function BookingCalendar({
 
   const maxBookDate = useMemo(() => {
     const max = new Date(today)
-    max.setDate(max.getDate() + 2)
+    max.setDate(max.getDate() + 30)
     return max
   }, [today])
 

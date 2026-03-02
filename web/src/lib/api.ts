@@ -358,20 +358,27 @@ export async function getClientScheduleByDate(date: string): Promise<{
   slotDurationMins: number;
   slots: Array<{ time: string; available: boolean }>;
 } | null> {
-  await ensureAuth();
+  // schedules are public-read; no auth needed
   const snap = await getDoc(doc(firebaseDb, 'schedules', date));
   if (!snap.exists()) return null;
   const d = snap.data()!;
+  if (d.status !== 'OPEN') return null;
   const allSlots = generateTimeSlots(d.startTime, d.endTime, d.slotDurationMins);
 
-  const appointmentsSnap = await getDocs(
-    query(collection(firebaseDb, 'appointments'), where('date', '==', date)),
-  );
-  const takenSlots = new Set(
-    appointmentsSnap.docs
-      .filter((a) => ['BOOKED', 'IN_SERVICE'].includes(a.data().status))
-      .map((a) => a.data().timeSlot),
-  );
+  // Try to check taken slots; appointments require auth so fall back to all-available for anonymous users
+  let takenSlots = new Set<string>();
+  try {
+    const appointmentsSnap = await getDocs(
+      query(collection(firebaseDb, 'appointments'), where('date', '==', date)),
+    );
+    takenSlots = new Set(
+      appointmentsSnap.docs
+        .filter((a) => ['BOOKED', 'IN_SERVICE'].includes(a.data().status))
+        .map((a) => a.data().timeSlot),
+    );
+  } catch {
+    // anonymous user — show all slots as available; server validates on booking
+  }
 
   return {
     date,

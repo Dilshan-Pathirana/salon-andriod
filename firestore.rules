@@ -48,9 +48,9 @@ service cloud.firestore {
       allow write: if false;
     }
 
-    // ── Schedules (authenticated read) ──
+    // ── Schedules (public read – just opening hours & slot config) ──
     match /schedules/{date} {
-      allow read: if isSignedIn();
+      allow read: if true;
       allow write: if false;
     }
 
