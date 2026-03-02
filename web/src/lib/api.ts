@@ -1,5 +1,9 @@
 import axios from 'axios';
 import { Appointment, Service, Story } from './types';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
+import { httpsCallable } from 'firebase/functions';
+import { firebaseAuth, firebaseDb, firebaseFunctions } from './firebase';
 
 const configuredApiBaseUrl = (import.meta.env.VITE_API_BASE_URL || '').trim();
 const fallbackApiBaseUrl = import.meta.env.DEV ? 'http://localhost:3001/api/v1' : '/api/v1';
@@ -127,6 +131,41 @@ function setStoredSession(session: SessionState): void {
   localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
 }
 
+function toFirebaseEmail(phoneNumber: string): string {
+  return `${phoneNumber}@salon.app`;
+}
+
+async function loginWithFirebaseAuth(phoneNumber: string, password: string): Promise<SessionState> {
+  const credential = await signInWithEmailAndPassword(firebaseAuth, toFirebaseEmail(phoneNumber), password);
+  const accessToken = await credential.user.getIdToken();
+  const refreshToken = credential.user.refreshToken;
+
+  const profileRef = doc(firebaseDb, 'users', credential.user.uid);
+  const profileSnap = await getDoc(profileRef);
+
+  if (!profileSnap.exists()) {
+    throw new Error('User profile not found');
+  }
+
+  const profile = profileSnap.data() as Record<string, any>;
+
+  const session: SessionState = {
+    accessToken,
+    refreshToken,
+    user: {
+      id: credential.user.uid,
+      firstName: profile.firstName || '',
+      lastName: profile.lastName || '',
+      phoneNumber: profile.phoneNumber || phoneNumber,
+      role: profile.role === 'ADMIN' ? 'ADMIN' : 'CLIENT',
+      profileImageUrl: profile.profileImageUrl || null,
+    },
+  };
+
+  setStoredSession(session);
+  return session;
+}
+
 export type { SessionState, SessionUser };
 
 export function getCurrentSession(): SessionState | null {
@@ -142,19 +181,23 @@ export function clearStoredSession(): void {
 }
 
 export async function loginWithPhone(phoneNumber: string, password: string): Promise<SessionState> {
-  const { data } = await api.post('/auth/login', {
-    phoneNumber,
-    password,
-  });
+  try {
+    const { data } = await api.post('/auth/login', {
+      phoneNumber,
+      password,
+    });
 
-  const session: SessionState = {
-    accessToken: data.data.accessToken,
-    refreshToken: data.data.refreshToken,
-    user: data.data.user,
-  };
+    const session: SessionState = {
+      accessToken: data.data.accessToken,
+      refreshToken: data.data.refreshToken,
+      user: data.data.user,
+    };
 
-  setStoredSession(session);
-  return session;
+    setStoredSession(session);
+    return session;
+  } catch {
+    return loginWithFirebaseAuth(phoneNumber, password);
+  }
 }
 
 export async function ensureSession(): Promise<SessionState> {
@@ -234,19 +277,31 @@ export async function registerClient(payload: {
   phoneNumber: string;
   password: string;
 }): Promise<SessionState> {
-  const { data } = await api.post('/auth/register', {
-    ...payload,
-    role: 'CLIENT',
-  });
+  try {
+    const { data } = await api.post('/auth/register', {
+      ...payload,
+      role: 'CLIENT',
+    });
 
-  const session: SessionState = {
-    accessToken: data.data.accessToken,
-    refreshToken: data.data.refreshToken,
-    user: data.data.user,
-  };
+    const session: SessionState = {
+      accessToken: data.data.accessToken,
+      refreshToken: data.data.refreshToken,
+      user: data.data.user,
+    };
 
-  setStoredSession(session);
-  return session;
+    setStoredSession(session);
+    return session;
+  } catch {
+    const registerUser = httpsCallable(firebaseFunctions, 'registerUser');
+    await registerUser({
+      phoneNumber: payload.phoneNumber,
+      password: payload.password,
+      firstName: payload.firstName,
+      lastName: payload.lastName,
+    });
+
+    return loginWithFirebaseAuth(payload.phoneNumber, payload.password);
+  }
 }
 
 export async function getScheduleByDate(date: string): Promise<{

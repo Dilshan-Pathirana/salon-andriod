@@ -26,7 +26,7 @@ export function AuthPage({ onAuthSuccess }: AuthPageProps) {
       }
       onAuthSuccess()
     } catch (error: any) {
-      setMessage(error?.response?.data?.message || 'Authentication failed')
+      setMessage(error?.response?.data?.message || error?.message || 'Authentication failed')
     } finally {
       setIsSubmitting(false)
     }
