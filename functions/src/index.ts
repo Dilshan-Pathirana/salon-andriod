@@ -198,6 +198,42 @@ export const adminManageUser = functions.https.onCall(async (data, context) => {
       return { id: userId, ...updated.data(), createdAt: tsToString(updated.data()?.createdAt), updatedAt: tsToString(updated.data()?.updatedAt) };
     }
 
+    case 'update': {
+      const { userId, firstName, lastName, phoneNumber, role, isActive } = data;
+      if (!userId) throw new functions.https.HttpsError('invalid-argument', 'User ID is required');
+
+      const userDoc = await db.collection('users').doc(userId).get();
+      if (!userDoc.exists) throw new functions.https.HttpsError('not-found', 'User not found');
+
+      const updates: Record<string, any> = { updatedAt: admin.firestore.FieldValue.serverTimestamp() };
+      if (firstName !== undefined) updates.firstName = firstName;
+      if (lastName !== undefined) updates.lastName = lastName;
+      if (phoneNumber !== undefined) updates.phoneNumber = phoneNumber;
+      if (role !== undefined) updates.role = role;
+      if (isActive !== undefined) {
+        updates.isActive = isActive;
+        await auth.updateUser(userId, { disabled: !isActive });
+      }
+
+      await db.collection('users').doc(userId).update(updates);
+
+      const authUpdates: Record<string, any> = {};
+      if (firstName !== undefined || lastName !== undefined) {
+        const refreshed = await db.collection('users').doc(userId).get();
+        const d = refreshed.data()!;
+        authUpdates.displayName = `${d.firstName} ${d.lastName}`;
+      }
+      if (phoneNumber !== undefined) {
+        authUpdates.email = `${phoneNumber}@salon.app`;
+      }
+      if (Object.keys(authUpdates).length > 0) {
+        await auth.updateUser(userId, authUpdates);
+      }
+
+      const doc = await db.collection('users').doc(userId).get();
+      return { id: userId, ...doc.data(), createdAt: tsToString(doc.data()?.createdAt), updatedAt: tsToString(doc.data()?.updatedAt) };
+    }
+
     default:
       throw new functions.https.HttpsError('invalid-argument', `Unknown action: ${action}`);
   }

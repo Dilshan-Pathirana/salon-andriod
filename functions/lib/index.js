@@ -148,7 +148,7 @@ exports.updateProfile = functions.https.onCall(async (data, context) => {
     return { id: uid, ...doc.data(), createdAt: tsToString((_a = doc.data()) === null || _a === void 0 ? void 0 : _a.createdAt), updatedAt: tsToString((_b = doc.data()) === null || _b === void 0 ? void 0 : _b.updatedAt) };
 });
 exports.adminManageUser = functions.https.onCall(async (data, context) => {
-    var _a, _b, _c, _d, _e, _f;
+    var _a, _b, _c, _d, _e, _f, _g, _h;
     const adminUid = await assertAdmin(context);
     const { action } = data;
     switch (action) {
@@ -211,6 +211,42 @@ exports.adminManageUser = functions.https.onCall(async (data, context) => {
             await auth.updateUser(userId, { disabled: false });
             const updated = await db.collection('users').doc(userId).get();
             return { id: userId, ...updated.data(), createdAt: tsToString((_e = updated.data()) === null || _e === void 0 ? void 0 : _e.createdAt), updatedAt: tsToString((_f = updated.data()) === null || _f === void 0 ? void 0 : _f.updatedAt) };
+        }
+        case 'update': {
+            const { userId, firstName, lastName, phoneNumber, role, isActive } = data;
+            if (!userId)
+                throw new functions.https.HttpsError('invalid-argument', 'User ID is required');
+            const userDoc = await db.collection('users').doc(userId).get();
+            if (!userDoc.exists)
+                throw new functions.https.HttpsError('not-found', 'User not found');
+            const updates = { updatedAt: admin.firestore.FieldValue.serverTimestamp() };
+            if (firstName !== undefined)
+                updates.firstName = firstName;
+            if (lastName !== undefined)
+                updates.lastName = lastName;
+            if (phoneNumber !== undefined)
+                updates.phoneNumber = phoneNumber;
+            if (role !== undefined)
+                updates.role = role;
+            if (isActive !== undefined) {
+                updates.isActive = isActive;
+                await auth.updateUser(userId, { disabled: !isActive });
+            }
+            await db.collection('users').doc(userId).update(updates);
+            const authUpdates = {};
+            if (firstName !== undefined || lastName !== undefined) {
+                const refreshed = await db.collection('users').doc(userId).get();
+                const d = refreshed.data();
+                authUpdates.displayName = `${d.firstName} ${d.lastName}`;
+            }
+            if (phoneNumber !== undefined) {
+                authUpdates.email = `${phoneNumber}@salon.app`;
+            }
+            if (Object.keys(authUpdates).length > 0) {
+                await auth.updateUser(userId, authUpdates);
+            }
+            const doc = await db.collection('users').doc(userId).get();
+            return { id: userId, ...doc.data(), createdAt: tsToString((_g = doc.data()) === null || _g === void 0 ? void 0 : _g.createdAt), updatedAt: tsToString((_h = doc.data()) === null || _h === void 0 ? void 0 : _h.updatedAt) };
         }
         default:
             throw new functions.https.HttpsError('invalid-argument', `Unknown action: ${action}`);

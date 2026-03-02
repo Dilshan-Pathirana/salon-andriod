@@ -1,17 +1,18 @@
-import axios from 'axios';
-import { Appointment, Service, Story } from './types';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
+import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  where,
+  orderBy,
+} from 'firebase/firestore';
 import { httpsCallable } from 'firebase/functions';
 import { firebaseAuth, firebaseDb, firebaseFunctions } from './firebase';
+import { Appointment, Service, Story } from './types';
 
-const configuredApiBaseUrl = (import.meta.env.VITE_API_BASE_URL || '').trim();
-const fallbackApiBaseUrl = import.meta.env.DEV ? 'http://localhost:3001/api/v1' : '/api/v1';
-
-const api = axios.create({
-  baseURL: configuredApiBaseUrl || fallbackApiBaseUrl,
-  timeout: 10000,
-});
+// ─── Types ───────────────────────────────────────────────────────────
 
 type SessionUser = {
   id: string;
@@ -114,6 +115,10 @@ export type AdminDashboardStats = {
   averageAppointmentTime: number;
 };
 
+export type { SessionState, SessionUser };
+
+// ─── Helpers ─────────────────────────────────────────────────────────
+
 const SESSION_STORAGE_KEY = 'salon_web_session';
 
 function getStoredSession(): SessionState | null {
@@ -133,6 +138,62 @@ function setStoredSession(session: SessionState): void {
 
 function toFirebaseEmail(phoneNumber: string): string {
   return `${phoneNumber}@salon.app`;
+}
+
+function getTodayString(): string {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+}
+
+function tsToISO(ts: any): string {
+  if (!ts) return new Date().toISOString();
+  if (typeof ts.toDate === 'function') return ts.toDate().toISOString();
+  if (typeof ts === 'string') return ts;
+  if (typeof ts === 'number') return new Date(ts).toISOString();
+  return new Date().toISOString();
+}
+
+function generateTimeSlots(startTime: string, endTime: string, slotDurationMins: number): string[] {
+  const slots: string[] = [];
+  const [sh, sm] = startTime.split(':').map(Number);
+  const [eh, em] = endTime.split(':').map(Number);
+  let current = sh * 60 + sm;
+  const end = eh * 60 + em;
+  while (current < end) {
+    const h = Math.floor(current / 60);
+    const m = current % 60;
+    slots.push(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`);
+    current += slotDurationMins;
+  }
+  return slots;
+}
+
+// ─── Firebase Auth helpers ───────────────────────────────────────────
+
+async function waitForAuth(): Promise<string | null> {
+  if (firebaseAuth.currentUser) return firebaseAuth.currentUser.uid;
+  return new Promise((resolve) => {
+    const unsubscribe = firebaseAuth.onAuthStateChanged((user) => {
+      unsubscribe();
+      resolve(user?.uid ?? null);
+    });
+  });
+}
+
+async function ensureAuth(): Promise<string> {
+  const uid = await waitForAuth();
+  if (uid) return uid;
+  throw new Error('Not authenticated');
+}
+
+async function ensureAdminAuth(): Promise<void> {
+  const uid = await waitForAuth();
+  const session = getStoredSession();
+  if (uid && session?.user?.role === 'ADMIN') return;
+
+  const adminPhone = import.meta.env.VITE_ADMIN_PHONE || '0712345678';
+  const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD || 'admin12345';
+  await loginWithFirebaseAuth(adminPhone, adminPassword);
 }
 
 async function loginWithFirebaseAuth(phoneNumber: string, password: string): Promise<SessionState> {
@@ -166,7 +227,21 @@ async function loginWithFirebaseAuth(phoneNumber: string, password: string): Pro
   return session;
 }
 
-export type { SessionState, SessionUser };
+// ─── Callable references ─────────────────────────────────────────────
+
+const callRegisterUser = httpsCallable(firebaseFunctions, 'registerUser');
+const callUpdateProfile = httpsCallable(firebaseFunctions, 'updateProfile');
+const callAdminManageUser = httpsCallable(firebaseFunctions, 'adminManageUser');
+const callBookAppointment = httpsCallable(firebaseFunctions, 'bookAppointment');
+const callCancelAppointment = httpsCallable(firebaseFunctions, 'cancelAppointment');
+const callAdminUpdateAppointment = httpsCallable(firebaseFunctions, 'adminUpdateAppointment');
+const callReorderQueue = httpsCallable(firebaseFunctions, 'reorderQueue');
+const callManageSession = httpsCallable(firebaseFunctions, 'manageSession');
+const callUpsertSchedule = httpsCallable(firebaseFunctions, 'upsertSchedule');
+const callAdminManageService = httpsCallable(firebaseFunctions, 'adminManageService');
+const callAdminManageGallery = httpsCallable(firebaseFunctions, 'adminManageGallery');
+
+// ─── Session management ─────────────────────────────────────────────
 
 export function getCurrentSession(): SessionState | null {
   return getStoredSession();
@@ -181,94 +256,28 @@ export function clearStoredSession(): void {
 }
 
 export async function loginWithPhone(phoneNumber: string, password: string): Promise<SessionState> {
-  try {
-    const { data } = await api.post('/auth/login', {
-      phoneNumber,
-      password,
-    });
-
-    const session: SessionState = {
-      accessToken: data.data.accessToken,
-      refreshToken: data.data.refreshToken,
-      user: data.data.user,
-    };
-
-    setStoredSession(session);
-    return session;
-  } catch {
-    return loginWithFirebaseAuth(phoneNumber, password);
-  }
+  return loginWithFirebaseAuth(phoneNumber, password);
 }
 
 export async function ensureSession(): Promise<SessionState> {
+  await ensureAuth();
   const existing = getStoredSession();
-  if (existing?.accessToken) {
-    return existing;
-  }
-
+  if (existing?.accessToken) return existing;
   throw new Error('Not authenticated');
 }
 
 export async function ensureAdminSession(): Promise<SessionState> {
-  const existing = getStoredSession();
-  if (existing?.accessToken && existing.user?.role === 'ADMIN') {
-    return existing;
-  }
-
-  const adminPhone = import.meta.env.VITE_ADMIN_PHONE || '0712345678';
-  const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD || 'admin12345';
-  return loginWithPhone(adminPhone, adminPassword);
-}
-
-async function forceAdminLogin(): Promise<SessionState> {
-  const adminPhone = import.meta.env.VITE_ADMIN_PHONE || '0712345678';
-  const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD || 'admin12345';
-  return loginWithPhone(adminPhone, adminPassword);
-}
-
-async function withAdminRetry<T>(request: (accessToken: string) => Promise<T>): Promise<T> {
-  const session = await ensureAdminSession();
-  try {
-    return await request(session.accessToken);
-  } catch (error: any) {
-    if (axios.isAxiosError(error) && error.response?.status === 401) {
-      const refreshed = await forceAdminLogin();
-      return request(refreshed.accessToken);
-    }
-    throw error;
-  }
-}
-
-export async function getMyProfile(): Promise<SessionUser> {
-  const session = await ensureSession();
-  const { data } = await api.get('/users/profile', {
-    headers: { Authorization: `Bearer ${session.accessToken}` },
-  });
-  return data.data;
-}
-
-export async function updateMyProfile(payload: {
-  firstName?: string;
-  lastName?: string;
-  password?: string;
-  profileImageUrl?: string | null;
-}): Promise<SessionUser> {
-  const session = await ensureSession();
-  const { data } = await api.put('/users/profile', payload, {
-    headers: { Authorization: `Bearer ${session.accessToken}` },
-  });
-
-  const updatedUser = data.data as SessionUser;
-  setStoredSession({ ...session, user: updatedUser });
-  return updatedUser;
+  await ensureAdminAuth();
+  return getStoredSession()!;
 }
 
 export async function logoutCurrentSession(): Promise<void> {
-  const session = getStoredSession();
-  if (session?.refreshToken) {
-    await api.post('/auth/logout', { refreshToken: session.refreshToken });
-  }
   clearStoredSession();
+  try {
+    await signOut(firebaseAuth);
+  } catch {
+    /* swallow */
+  }
 }
 
 export async function registerClient(payload: {
@@ -277,32 +286,55 @@ export async function registerClient(payload: {
   phoneNumber: string;
   password: string;
 }): Promise<SessionState> {
-  try {
-    const { data } = await api.post('/auth/register', {
-      ...payload,
-      role: 'CLIENT',
-    });
-
-    const session: SessionState = {
-      accessToken: data.data.accessToken,
-      refreshToken: data.data.refreshToken,
-      user: data.data.user,
-    };
-
-    setStoredSession(session);
-    return session;
-  } catch {
-    const registerUser = httpsCallable(firebaseFunctions, 'registerUser');
-    await registerUser({
-      phoneNumber: payload.phoneNumber,
-      password: payload.password,
-      firstName: payload.firstName,
-      lastName: payload.lastName,
-    });
-
-    return loginWithFirebaseAuth(payload.phoneNumber, payload.password);
-  }
+  await callRegisterUser({
+    phoneNumber: payload.phoneNumber,
+    password: payload.password,
+    firstName: payload.firstName,
+    lastName: payload.lastName,
+  });
+  return loginWithFirebaseAuth(payload.phoneNumber, payload.password);
 }
+
+// ─── Profile ────────────────────────────────────────────────────────
+
+export async function getMyProfile(): Promise<SessionUser> {
+  const uid = await ensureAuth();
+  const userDoc = await getDoc(doc(firebaseDb, 'users', uid));
+  if (!userDoc.exists()) throw new Error('Profile not found');
+  const data = userDoc.data()!;
+  return {
+    id: uid,
+    firstName: data.firstName || '',
+    lastName: data.lastName || '',
+    phoneNumber: data.phoneNumber || '',
+    role: data.role === 'ADMIN' ? 'ADMIN' : 'CLIENT',
+    profileImageUrl: data.profileImageUrl || null,
+  };
+}
+
+export async function updateMyProfile(payload: {
+  firstName?: string;
+  lastName?: string;
+  password?: string;
+  profileImageUrl?: string | null;
+}): Promise<SessionUser> {
+  await ensureAuth();
+  const result = await callUpdateProfile(payload);
+  const data = result.data as any;
+  const updated: SessionUser = {
+    id: data.id,
+    firstName: data.firstName || '',
+    lastName: data.lastName || '',
+    phoneNumber: data.phoneNumber || '',
+    role: data.role === 'ADMIN' ? 'ADMIN' : 'CLIENT',
+    profileImageUrl: data.profileImageUrl || null,
+  };
+  const session = getStoredSession();
+  if (session) setStoredSession({ ...session, user: updated });
+  return updated;
+}
+
+// ─── Schedule ───────────────────────────────────────────────────────
 
 export async function getScheduleByDate(date: string): Promise<{
   date: string;
@@ -311,11 +343,11 @@ export async function getScheduleByDate(date: string): Promise<{
   endTime: string;
   slotDurationMins: number;
 } | null> {
-  const session = await ensureAdminSession();
-  const { data } = await api.get(`/schedule/${date}`, {
-    headers: { Authorization: `Bearer ${session.accessToken}` },
-  });
-  return data.data || null;
+  await ensureAuth();
+  const snap = await getDoc(doc(firebaseDb, 'schedules', date));
+  if (!snap.exists()) return null;
+  const d = snap.data()!;
+  return { date, status: d.status, startTime: d.startTime, endTime: d.endTime, slotDurationMins: d.slotDurationMins };
 }
 
 export async function getClientScheduleByDate(date: string): Promise<{
@@ -326,11 +358,29 @@ export async function getClientScheduleByDate(date: string): Promise<{
   slotDurationMins: number;
   slots: Array<{ time: string; available: boolean }>;
 } | null> {
-  const session = await ensureSession();
-  const { data } = await api.get(`/schedule/${date}`, {
-    headers: { Authorization: `Bearer ${session.accessToken}` },
-  });
-  return data.data || null;
+  await ensureAuth();
+  const snap = await getDoc(doc(firebaseDb, 'schedules', date));
+  if (!snap.exists()) return null;
+  const d = snap.data()!;
+  const allSlots = generateTimeSlots(d.startTime, d.endTime, d.slotDurationMins);
+
+  const appointmentsSnap = await getDocs(
+    query(collection(firebaseDb, 'appointments'), where('date', '==', date)),
+  );
+  const takenSlots = new Set(
+    appointmentsSnap.docs
+      .filter((a) => ['BOOKED', 'IN_SERVICE'].includes(a.data().status))
+      .map((a) => a.data().timeSlot),
+  );
+
+  return {
+    date,
+    status: d.status,
+    startTime: d.startTime,
+    endTime: d.endTime,
+    slotDurationMins: d.slotDurationMins,
+    slots: allSlots.map((time) => ({ time, available: !takenSlots.has(time) })),
+  };
 }
 
 export async function upsertDaySchedule(payload: {
@@ -340,82 +390,73 @@ export async function upsertDaySchedule(payload: {
   endTime: string;
   slotDurationMins: number;
 }): Promise<void> {
-  const session = await ensureAdminSession();
-  await api.put('/schedule', payload, {
-    headers: { Authorization: `Bearer ${session.accessToken}` },
-  });
+  await ensureAdminAuth();
+  await callUpsertSchedule(payload);
 }
+
+export async function adminGetScheduleRange(startDate: string, endDate: string): Promise<ManagedScheduleDay[]> {
+  await ensureAdminAuth();
+  const snap = await getDocs(collection(firebaseDb, 'schedules'));
+  return snap.docs
+    .filter((d) => d.id >= startDate && d.id <= endDate)
+    .map((d) => {
+      const data = d.data();
+      return {
+        date: d.id,
+        status: data.status,
+        startTime: data.startTime,
+        endTime: data.endTime,
+        slotDurationMins: data.slotDurationMins,
+      };
+    });
+}
+
+// ─── Session (open / close day) ─────────────────────────────────────
 
 export async function openDaySession(date: string): Promise<void> {
-  const session = await ensureAdminSession();
-  await api.post(
-    '/session/open',
-    { date },
-    {
-      headers: { Authorization: `Bearer ${session.accessToken}` },
-    },
-  );
+  await ensureAdminAuth();
+  await callManageSession({ action: 'open', date });
 }
+
+export async function adminCloseSession(date: string): Promise<void> {
+  await ensureAdminAuth();
+  await callManageSession({ action: 'close', date });
+}
+
+// ─── Services ───────────────────────────────────────────────────────
 
 export async function getServices(): Promise<Service[]> {
-  const { data } = await api.get('/services');
-  return data.data || data.services || [];
-}
-
-export async function getStories(): Promise<Story[]> {
-  const { data } = await api.get('/gallery');
-  return data.data || data.items || [];
-}
-
-export async function getLiveQueue(date?: string): Promise<LiveQueueResponse> {
-  const { data } = await api.get('/queue', {
-    params: date ? { date } : undefined,
-  });
-  return data.data || { date: '', currentlyServing: null, queue: [], totalInQueue: 0 };
-}
-
-export async function getMyAppointments(token?: string): Promise<Appointment[]> {
-  const resolvedToken = token || (await ensureSession()).accessToken;
-  const { data } = await api.get('/appointments/my', {
-    headers: { Authorization: `Bearer ${resolvedToken}` },
-  });
-  return data.data || data.appointments || [];
-}
-
-export async function createAppointment(payload: { date: string; timeSlot: string }): Promise<Appointment> {
-  const session = await ensureSession();
-  const { data } = await api.post('/appointments', payload, {
-    headers: { Authorization: `Bearer ${session.accessToken}` },
-  });
-  return data.data || data;
-}
-
-export async function cancelMyAppointment(id: string): Promise<void> {
-  const session = await ensureSession();
-  await api.put(
-    `/appointments/${id}/cancel`,
-    {},
-    {
-      headers: { Authorization: `Bearer ${session.accessToken}` },
-    },
-  );
+  const snap = await getDocs(collection(firebaseDb, 'services'));
+  return snap.docs
+    .filter((d) => d.data().isActive !== false)
+    .map((d) => {
+      const data = d.data();
+      return {
+        id: d.id,
+        name: data.name || '',
+        description: data.description || '',
+        price: Number(data.price),
+        durationMins: data.duration || 30,
+        isActive: data.isActive ?? true,
+      };
+    });
 }
 
 export async function adminGetServices(): Promise<ManagedService[]> {
-  const session = await ensureAdminSession();
-  const { data } = await api.get('/services', {
-    headers: { Authorization: `Bearer ${session.accessToken}` },
+  await ensureAdminAuth();
+  const snap = await getDocs(collection(firebaseDb, 'services'));
+  return snap.docs.map((d) => {
+    const data = d.data();
+    return {
+      id: d.id,
+      name: data.name || '',
+      description: data.description || '',
+      duration: data.duration || 30,
+      price: Number(data.price),
+      category: data.category || 'HAIRCUT',
+      isActive: data.isActive ?? true,
+    };
   });
-  const rows = data.data || [];
-  return rows.map((item: any) => ({
-    id: item.id,
-    name: item.name,
-    description: item.description || '',
-    duration: item.duration,
-    price: Number(item.price),
-    category: item.category,
-    isActive: item.isActive,
-  }));
 }
 
 export async function adminCreateService(payload: {
@@ -425,19 +466,17 @@ export async function adminCreateService(payload: {
   price: number;
   category: 'HAIRCUT' | 'BEARD' | 'COMBO' | 'PREMIUM';
 }): Promise<ManagedService> {
-  const session = await ensureAdminSession();
-  const { data } = await api.post('/services', payload, {
-    headers: { Authorization: `Bearer ${session.accessToken}` },
-  });
-  const item = data.data;
+  await ensureAdminAuth();
+  const result = await callAdminManageService({ action: 'create', ...payload });
+  const data = result.data as any;
   return {
-    id: item.id,
-    name: item.name,
-    description: item.description || '',
-    duration: item.duration,
-    price: Number(item.price),
-    category: item.category,
-    isActive: item.isActive,
+    id: data.id,
+    name: data.name,
+    description: data.description || '',
+    duration: data.duration,
+    price: Number(data.price),
+    category: data.category || 'HAIRCUT',
+    isActive: data.isActive ?? true,
   };
 }
 
@@ -450,130 +489,31 @@ export async function adminUpdateService(
     price: number;
     category: 'HAIRCUT' | 'BEARD' | 'COMBO' | 'PREMIUM';
     isActive: boolean;
-  }>
+  }>,
 ): Promise<ManagedService> {
-  const session = await ensureAdminSession();
-  const { data } = await api.put(`/services/${id}`, payload, {
-    headers: { Authorization: `Bearer ${session.accessToken}` },
-  });
-  const item = data.data;
+  await ensureAdminAuth();
+  const result = await callAdminManageService({ action: 'update', serviceId: id, ...payload });
+  const data = result.data as any;
   return {
-    id: item.id,
-    name: item.name,
-    description: item.description || '',
-    duration: item.duration,
-    price: Number(item.price),
-    category: item.category,
-    isActive: item.isActive,
+    id: data.id,
+    name: data.name,
+    description: data.description || '',
+    duration: data.duration,
+    price: Number(data.price),
+    category: data.category || 'HAIRCUT',
+    isActive: data.isActive ?? true,
   };
 }
 
 export async function adminDeleteService(id: string): Promise<void> {
-  const session = await ensureAdminSession();
-  await api.delete(`/services/${id}`, {
-    headers: { Authorization: `Bearer ${session.accessToken}` },
-  });
+  await ensureAdminAuth();
+  await callAdminManageService({ action: 'delete', serviceId: id });
 }
 
-export async function adminGetScheduleRange(startDate: string, endDate: string): Promise<ManagedScheduleDay[]> {
-  const session = await ensureAdminSession();
-  const { data } = await api.get('/schedule', {
-    headers: { Authorization: `Bearer ${session.accessToken}` },
-    params: { startDate, endDate },
-  });
-  return data.data || [];
-}
-
-export async function adminGetAppointments(filters?: {
-  date?: string;
-  status?: 'BOOKED' | 'IN_SERVICE' | 'COMPLETED' | 'CANCELLED' | 'NO_SHOW';
-}): Promise<ManagedAppointment[]> {
-  const session = await ensureAdminSession();
-  const { data } = await api.get('/appointments', {
-    headers: { Authorization: `Bearer ${session.accessToken}` },
-    params: filters,
-  });
-  const rows = data.data || [];
-
-  return rows.map((item: any) => ({
-    id: item.id,
-    date: item.date,
-    timeSlot: item.timeSlot,
-    status: item.status,
-    userId: item.user?.id || '',
-    userName: `${item.user?.firstName || ''} ${item.user?.lastName || ''}`.trim(),
-    phoneNumber: item.user?.phoneNumber || '',
-    isReserved: item.user?.id === session.user.id,
-  }));
-}
-
-export async function adminCreateReservedAppointment(payload: {
-  date: string;
-  timeSlot: string;
-}): Promise<ManagedAppointment> {
-  const session = await ensureAdminSession();
-  const { data } = await api.post('/appointments', payload, {
-    headers: { Authorization: `Bearer ${session.accessToken}` },
-  });
-  const item = data.data;
-  return {
-    id: item.id,
-    date: item.date,
-    timeSlot: item.timeSlot,
-    status: item.status,
-    userId: item.user?.id || session.user.id,
-    userName: 'RESERVED',
-    phoneNumber: item.user?.phoneNumber || session.user.phoneNumber,
-    isReserved: true,
-  };
-}
-
-export async function adminDeleteAppointment(id: string): Promise<void> {
-  const session = await ensureAdminSession();
-  await api.delete(`/appointments/${id}`, {
-    headers: { Authorization: `Bearer ${session.accessToken}` },
-  });
-}
-
-export async function adminCompleteAppointment(id: string): Promise<void> {
-  const session = await ensureAdminSession();
-  await api.put(
-    `/appointments/${id}/complete`,
-    {},
-    {
-      headers: { Authorization: `Bearer ${session.accessToken}` },
-    },
-  );
-}
-
-export async function adminReorderQueue(date: string, orderedIds: string[]): Promise<void> {
-  const session = await ensureAdminSession();
-  await api.put(
-    '/queue/reorder',
-    { date, orderedIds },
-    {
-      headers: { Authorization: `Bearer ${session.accessToken}` },
-    },
-  );
-}
-
-export async function adminCloseSession(date: string): Promise<void> {
-  const session = await ensureAdminSession();
-  await api.put('/session/close', null, {
-    headers: { Authorization: `Bearer ${session.accessToken}` },
-    params: { date },
-  });
-}
+// ─── Gallery / Stories ──────────────────────────────────────────────
 
 function decodeWorkDescription(raw?: string) {
-  if (!raw) {
-    return {
-      description: '',
-      beforeImageUrl: '',
-      afterImageUrl: '',
-    };
-  }
-
+  if (!raw) return { description: '', beforeImageUrl: '', afterImageUrl: '' };
   try {
     const parsed = JSON.parse(raw);
     if (typeof parsed === 'object' && parsed) {
@@ -584,38 +524,43 @@ function decodeWorkDescription(raw?: string) {
       };
     }
   } catch {
+    /* not JSON */
   }
-
-  return {
-    description: raw,
-    beforeImageUrl: '',
-    afterImageUrl: '',
-  };
+  return { description: raw, beforeImageUrl: '', afterImageUrl: '' };
 }
 
-function encodeWorkDescription(payload: {
-  description: string;
-  beforeImageUrl: string;
-  afterImageUrl: string;
-}): string {
+function encodeWorkDescription(payload: { description: string; beforeImageUrl: string; afterImageUrl: string }): string {
   return JSON.stringify(payload);
 }
 
-export async function adminGetWorkItems(): Promise<ManagedWorkItem[]> {
-  const session = await ensureAdminSession();
-  const { data } = await api.get('/gallery', {
-    headers: { Authorization: `Bearer ${session.accessToken}` },
-  });
+export async function getStories(): Promise<Story[]> {
+  const snap = await getDocs(collection(firebaseDb, 'gallery'));
+  return snap.docs
+    .filter((d) => d.data().isActive !== false)
+    .map((d) => {
+      const data = d.data();
+      const meta = decodeWorkDescription(data.description);
+      return {
+        id: d.id,
+        beforeImageUrl: meta.beforeImageUrl || '',
+        afterImageUrl: meta.afterImageUrl || data.imageUrl || '',
+        caption: data.title || '',
+      };
+    });
+}
 
-  const rows = data.data || [];
-  return rows.map((item: any) => {
-    const meta = decodeWorkDescription(item.description);
+export async function adminGetWorkItems(): Promise<ManagedWorkItem[]> {
+  await ensureAdminAuth();
+  const snap = await getDocs(collection(firebaseDb, 'gallery'));
+  return snap.docs.map((d) => {
+    const data = d.data();
+    const meta = decodeWorkDescription(data.description);
     return {
-      id: item.id,
-      topic: item.title,
+      id: d.id,
+      topic: data.title || '',
       description: meta.description,
       beforeImageUrl: meta.beforeImageUrl,
-      afterImageUrl: meta.afterImageUrl || item.imageUrl,
+      afterImageUrl: meta.afterImageUrl || data.imageUrl || '',
     };
   });
 }
@@ -626,8 +571,9 @@ export async function adminCreateWorkItem(payload: {
   beforeImageUrl: string;
   afterImageUrl: string;
 }): Promise<ManagedWorkItem> {
-  const session = await ensureAdminSession();
-  const body = {
+  await ensureAdminAuth();
+  const result = await callAdminManageGallery({
+    action: 'create',
     title: payload.topic,
     description: encodeWorkDescription({
       description: payload.description,
@@ -636,15 +582,11 @@ export async function adminCreateWorkItem(payload: {
     }),
     imageUrl: payload.afterImageUrl,
     category: 'Work',
-  };
-
-  const { data } = await api.post('/gallery', body, {
-    headers: { Authorization: `Bearer ${session.accessToken}` },
   });
-  const item = data.data;
+  const data = result.data as any;
   return {
-    id: item.id,
-    topic: item.title,
+    id: data.id,
+    topic: data.title || payload.topic,
     description: payload.description,
     beforeImageUrl: payload.beforeImageUrl,
     afterImageUrl: payload.afterImageUrl,
@@ -653,15 +595,12 @@ export async function adminCreateWorkItem(payload: {
 
 export async function adminUpdateWorkItem(
   id: string,
-  payload: {
-    topic: string;
-    description: string;
-    beforeImageUrl: string;
-    afterImageUrl: string;
-  },
+  payload: { topic: string; description: string; beforeImageUrl: string; afterImageUrl: string },
 ): Promise<ManagedWorkItem> {
-  const session = await ensureAdminSession();
-  const body = {
+  await ensureAdminAuth();
+  await callAdminManageGallery({
+    action: 'update',
+    galleryId: id,
     title: payload.topic,
     description: encodeWorkDescription({
       description: payload.description,
@@ -670,46 +609,189 @@ export async function adminUpdateWorkItem(
     }),
     imageUrl: payload.afterImageUrl,
     category: 'Work',
-  };
-
-  await api.put(`/gallery/${id}`, body, {
-    headers: { Authorization: `Bearer ${session.accessToken}` },
   });
-
-  return {
-    id,
-    topic: payload.topic,
-    description: payload.description,
-    beforeImageUrl: payload.beforeImageUrl,
-    afterImageUrl: payload.afterImageUrl,
-  };
+  return { id, topic: payload.topic, description: payload.description, beforeImageUrl: payload.beforeImageUrl, afterImageUrl: payload.afterImageUrl };
 }
 
 export async function adminDeleteWorkItem(id: string): Promise<void> {
-  const session = await ensureAdminSession();
-  await api.delete(`/gallery/${id}`, {
-    headers: { Authorization: `Bearer ${session.accessToken}` },
+  await ensureAdminAuth();
+  await callAdminManageGallery({ action: 'delete', galleryId: id });
+}
+
+// ─── Queue ──────────────────────────────────────────────────────────
+
+export async function getLiveQueue(date?: string): Promise<LiveQueueResponse> {
+  const targetDate = date || getTodayString();
+  try {
+    await waitForAuth();
+
+    const [appointmentsSnap, scheduleSnap] = await Promise.all([
+      getDocs(query(collection(firebaseDb, 'appointments'), where('date', '==', targetDate))),
+      getDoc(doc(firebaseDb, 'schedules', targetDate)),
+    ]);
+
+    const slotDuration = scheduleSnap.exists() ? (scheduleSnap.data()!.slotDurationMins || 30) : 30;
+
+    const active = appointmentsSnap.docs
+      .filter((d) => ['BOOKED', 'IN_SERVICE'].includes(d.data().status))
+      .sort((a, b) => (a.data().queuePosition || 0) - (b.data().queuePosition || 0));
+
+    const userIds = [...new Set(active.map((d) => d.data().userId))];
+    const userMap: Record<string, any> = {};
+    await Promise.all(
+      userIds.map(async (uid) => {
+        try {
+          const u = await getDoc(doc(firebaseDb, 'users', uid));
+          if (u.exists()) userMap[uid] = u.data();
+        } catch {
+          /* missing user */
+        }
+      }),
+    );
+
+    let currentlyServing: LiveQueueResponse['currentlyServing'] = null;
+    const queueItems: LiveQueueItem[] = [];
+
+    active.forEach((apptDoc, index) => {
+      const appt = apptDoc.data();
+      const user = userMap[appt.userId] || {};
+      const name = `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Unknown';
+      const phoneNumber = user.phoneNumber || '';
+
+      if (appt.status === 'IN_SERVICE' && !currentlyServing) {
+        currentlyServing = { id: apptDoc.id, name, timeSlot: appt.timeSlot, phoneNumber };
+      }
+
+      queueItems.push({
+        id: apptDoc.id,
+        position: appt.queuePosition || index + 1,
+        name,
+        userId: appt.userId,
+        phoneNumber,
+        timeSlot: appt.timeSlot,
+        status: appt.status,
+        slotDurationMins: slotDuration,
+        estimatedWaitMins: index * slotDuration,
+      });
+    });
+
+    return { date: targetDate, currentlyServing, queue: queueItems, totalInQueue: queueItems.length };
+  } catch {
+    return { date: targetDate, currentlyServing: null, queue: [], totalInQueue: 0 };
+  }
+}
+
+export async function adminReorderQueue(date: string, orderedIds: string[]): Promise<void> {
+  await ensureAdminAuth();
+  await callReorderQueue({ date, orderedIds });
+}
+
+// ─── Appointments ───────────────────────────────────────────────────
+
+export async function getMyAppointments(_token?: string): Promise<Appointment[]> {
+  const uid = await ensureAuth();
+  const snap = await getDocs(
+    query(collection(firebaseDb, 'appointments'), where('userId', '==', uid), orderBy('date', 'desc')),
+  );
+  return snap.docs.map((d) => {
+    const data = d.data();
+    return { id: d.id, userId: data.userId, date: data.date, timeSlot: data.timeSlot, status: data.status, queuePosition: data.queuePosition || 0 };
   });
 }
 
-export async function adminGetUsers(): Promise<ManagedUser[]> {
-  const data = await withAdminRetry(async (accessToken) => {
-    const response = await api.get('/users', {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    });
-    return response.data;
-  });
+export async function createAppointment(payload: { date: string; timeSlot: string }): Promise<Appointment> {
+  await ensureAuth();
+  const result = await callBookAppointment(payload);
+  const data = result.data as any;
+  return { id: data.id, userId: data.userId, date: data.date, timeSlot: data.timeSlot, status: data.status, queuePosition: data.queuePosition || 0 };
+}
 
-  const rows = data.data || [];
-  return rows.map((item: any) => ({
-    id: item.id,
-    firstName: item.firstName,
-    lastName: item.lastName,
-    phoneNumber: item.phoneNumber,
-    role: item.role,
-    isActive: item.isActive,
-    createdAt: item.createdAt,
-  }));
+export async function cancelMyAppointment(id: string): Promise<void> {
+  await ensureAuth();
+  await callCancelAppointment({ appointmentId: id });
+}
+
+export async function adminGetAppointments(_filters?: {
+  date?: string;
+  status?: 'BOOKED' | 'IN_SERVICE' | 'COMPLETED' | 'CANCELLED' | 'NO_SHOW';
+}): Promise<ManagedAppointment[]> {
+  await ensureAdminAuth();
+  const session = getStoredSession()!;
+  const snap = await getDocs(collection(firebaseDb, 'appointments'));
+
+  const userIds = [...new Set(snap.docs.map((d) => d.data().userId))];
+  const userMap: Record<string, any> = {};
+  await Promise.all(
+    userIds.map(async (uid) => {
+      try {
+        const u = await getDoc(doc(firebaseDb, 'users', uid));
+        if (u.exists()) userMap[uid] = u.data();
+      } catch {
+        /* skip */
+      }
+    }),
+  );
+
+  return snap.docs.map((d) => {
+    const data = d.data();
+    const user = userMap[data.userId] || {};
+    return {
+      id: d.id,
+      date: data.date,
+      timeSlot: data.timeSlot,
+      status: data.status,
+      userId: data.userId,
+      userName: `${user.firstName || ''} ${user.lastName || ''}`.trim(),
+      phoneNumber: user.phoneNumber || '',
+      isReserved: data.userId === session.user.id,
+    };
+  });
+}
+
+export async function adminCreateReservedAppointment(payload: { date: string; timeSlot: string }): Promise<ManagedAppointment> {
+  await ensureAdminAuth();
+  const session = getStoredSession()!;
+  const result = await callBookAppointment(payload);
+  const data = result.data as any;
+  return {
+    id: data.id,
+    date: data.date,
+    timeSlot: data.timeSlot,
+    status: data.status,
+    userId: data.userId || session.user.id,
+    userName: 'RESERVED',
+    phoneNumber: session.user.phoneNumber,
+    isReserved: true,
+  };
+}
+
+export async function adminDeleteAppointment(id: string): Promise<void> {
+  await ensureAdminAuth();
+  await callAdminUpdateAppointment({ appointmentId: id, action: 'delete' });
+}
+
+export async function adminCompleteAppointment(id: string): Promise<void> {
+  await ensureAdminAuth();
+  await callAdminUpdateAppointment({ appointmentId: id, action: 'complete' });
+}
+
+// ─── Users ──────────────────────────────────────────────────────────
+
+export async function adminGetUsers(): Promise<ManagedUser[]> {
+  await ensureAdminAuth();
+  const snap = await getDocs(collection(firebaseDb, 'users'));
+  return snap.docs.map((d) => {
+    const data = d.data();
+    return {
+      id: d.id,
+      firstName: data.firstName || '',
+      lastName: data.lastName || '',
+      phoneNumber: data.phoneNumber || '',
+      role: data.role || 'CLIENT',
+      isActive: data.isActive ?? true,
+      createdAt: tsToISO(data.createdAt),
+    };
+  });
 }
 
 export async function adminCreateUser(payload: {
@@ -719,22 +801,17 @@ export async function adminCreateUser(payload: {
   password: string;
   role: 'ADMIN' | 'CLIENT';
 }): Promise<ManagedUser> {
-  const data = await withAdminRetry(async (accessToken) => {
-    const response = await api.post('/users', payload, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    });
-    return response.data;
-  });
-
-  const item = data.data;
+  await ensureAdminAuth();
+  const result = await callAdminManageUser({ action: 'create', ...payload });
+  const data = result.data as any;
   return {
-    id: item.id,
-    firstName: item.firstName,
-    lastName: item.lastName,
-    phoneNumber: item.phoneNumber,
-    role: item.role,
-    isActive: item.isActive,
-    createdAt: item.createdAt,
+    id: data.id,
+    firstName: data.firstName || '',
+    lastName: data.lastName || '',
+    phoneNumber: data.phoneNumber || '',
+    role: data.role || 'CLIENT',
+    isActive: data.isActive ?? true,
+    createdAt: data.createdAt || new Date().toISOString(),
   };
 }
 
@@ -748,44 +825,106 @@ export async function adminUpdateUser(
     isActive: boolean;
   }>,
 ): Promise<ManagedUser> {
-  const data = await withAdminRetry(async (accessToken) => {
-    const response = await api.put(`/users/${id}`, payload, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    });
-    return response.data;
-  });
-
-  const item = data.data;
+  await ensureAdminAuth();
+  const result = await callAdminManageUser({ action: 'update', userId: id, ...payload });
+  const data = result.data as any;
   return {
-    id: item.id,
-    firstName: item.firstName,
-    lastName: item.lastName,
-    phoneNumber: item.phoneNumber,
-    role: item.role,
-    isActive: item.isActive,
-    createdAt: item.createdAt,
+    id: data.id,
+    firstName: data.firstName || '',
+    lastName: data.lastName || '',
+    phoneNumber: data.phoneNumber || '',
+    role: data.role || 'CLIENT',
+    isActive: data.isActive ?? true,
+    createdAt: data.createdAt || new Date().toISOString(),
   };
 }
 
 export async function adminDeleteUser(id: string): Promise<void> {
-  await withAdminRetry(async (accessToken) => {
-    await api.delete(`/users/${id}`, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    });
-    return true;
-  });
+  await ensureAdminAuth();
+  await callAdminManageUser({ action: 'delete', userId: id });
 }
 
-export async function adminGetDashboardStats(date?: string): Promise<AdminDashboardStats> {
-  const data = await withAdminRetry(async (accessToken) => {
-    const response = await api.get('/session/dashboard', {
-      headers: { Authorization: `Bearer ${accessToken}` },
-      params: date ? { date } : undefined,
-    });
-    return response.data;
+// ─── Dashboard ──────────────────────────────────────────────────────
+
+export async function adminGetDashboardStats(_date?: string): Promise<AdminDashboardStats> {
+  await ensureAdminAuth();
+  const today = _date || getTodayString();
+
+  const [usersSnap, servicesSnap, todayApptsSnap, sessionSnap, scheduleSnap] = await Promise.all([
+    getDocs(collection(firebaseDb, 'users')),
+    getDocs(collection(firebaseDb, 'services')),
+    getDocs(query(collection(firebaseDb, 'appointments'), where('date', '==', today))),
+    getDoc(doc(firebaseDb, 'sessions', today)),
+    getDoc(doc(firebaseDb, 'schedules', today)),
+  ]);
+
+  const registeredUsers = usersSnap.size;
+  const activeServices = servicesSnap.docs.filter((d) => d.data().isActive !== false).length;
+
+  const todayAppts = todayApptsSnap.docs.map((d) => d.data());
+  const appointmentsToday = todayAppts.length;
+  const inQueue = todayAppts.filter((a) => a.status === 'BOOKED' || a.status === 'IN_SERVICE').length;
+  const completed = todayAppts.filter((a) => a.status === 'COMPLETED').length;
+  const cancelled = todayAppts.filter((a) => a.status === 'CANCELLED').length;
+  const noShow = todayAppts.filter((a) => a.status === 'NO_SHOW').length;
+
+  let sessionStatus: 'OPEN' | 'CLOSED' | 'NO_SCHEDULE' = 'NO_SCHEDULE';
+  if (scheduleSnap.exists()) {
+    const schedule = scheduleSnap.data()!;
+    if (schedule.status === 'OPEN') {
+      sessionStatus = sessionSnap.exists() && sessionSnap.data()!.isClosed ? 'CLOSED' : 'OPEN';
+    } else {
+      sessionStatus = 'CLOSED';
+    }
+  }
+
+  let averageAppointmentTime = 30;
+  if (scheduleSnap.exists()) {
+    averageAppointmentTime = scheduleSnap.data()!.slotDurationMins || 30;
+  }
+
+  // User registration trend (last 7 days)
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  sevenDaysAgo.setHours(0, 0, 0, 0);
+
+  const trendMap: Record<string, number> = {};
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    trendMap[key] = 0;
+  }
+
+  usersSnap.docs.forEach((d) => {
+    const createdAt = d.data().createdAt;
+    if (createdAt) {
+      const date = typeof createdAt.toDate === 'function' ? createdAt.toDate() : new Date(createdAt);
+      if (date >= sevenDaysAgo) {
+        const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+        if (trendMap[key] !== undefined) trendMap[key]++;
+      }
+    }
   });
 
-  return data.data;
+  const userRegistrationTrend = Object.entries(trendMap).map(([day, count]) => ({ day, count }));
+
+  return {
+    date: today,
+    sessionStatus,
+    totalAppointments: appointmentsToday,
+    inQueue,
+    completed,
+    cancelled,
+    noShow,
+    registeredUsers,
+    activeServices,
+    appointmentsToday,
+    userRegistrationTrend,
+    averageAppointmentTime,
+  };
 }
 
-export default api;
+// ─── Default export (backward compat) ───────────────────────────────
+
+export default {};
