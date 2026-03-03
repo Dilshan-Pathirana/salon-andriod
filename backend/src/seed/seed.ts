@@ -3,6 +3,7 @@ import { TeamMember } from '../models/TeamMember';
 import { User } from '../models/User';
 import bcrypt from 'bcryptjs';
 import { connectDatabase, disconnectDatabase } from '../config/db';
+import { env } from '../config/env';
 
 const serviceSeeds = [
   {
@@ -77,23 +78,46 @@ export async function seedInitialData(): Promise<void> {
     await TeamMember.insertMany(teamSeeds);
   }
 
-  const adminPhone = process.env.ADMIN_PHONE ?? '0712345678';
-  const adminPassword = process.env.ADMIN_PASSWORD ?? 'admin12345';
-  const passwordHash = await bcrypt.hash(adminPassword, 10);
+  await ensureAdminUser();
+}
 
-  await User.findOneAndUpdate(
-    { phoneNumber: adminPhone },
-    {
-      phoneNumber: adminPhone,
-      passwordHash,
-      firstName: 'Salon',
-      lastName: 'Admin',
+export async function ensureAdminUser(): Promise<void> {
+  const existingAdmin = await User.findOne({ phoneNumber: env.adminPhone }).lean();
+
+  if (!existingAdmin) {
+    const initialPasswordHash = await bcrypt.hash(env.adminPassword || 'admin12345', 10);
+    await User.create({
+      phoneNumber: env.adminPhone,
+      passwordHash: initialPasswordHash,
+      firstName: env.adminFirstName,
+      lastName: env.adminLastName,
       role: 'ADMIN',
       isActive: true,
       profileImageUrl: null,
-    },
-    { upsert: true, new: true }
-  );
+    });
+    return;
+  }
+
+  const update: {
+    firstName: string;
+    lastName: string;
+    role: 'ADMIN';
+    isActive: boolean;
+    profileImageUrl: null;
+    passwordHash?: string;
+  } = {
+    firstName: env.adminFirstName,
+    lastName: env.adminLastName,
+    role: 'ADMIN',
+    isActive: true,
+    profileImageUrl: null,
+  };
+
+  if (env.adminPassword) {
+    update.passwordHash = await bcrypt.hash(env.adminPassword, 10);
+  }
+
+  await User.updateOne({ phoneNumber: env.adminPhone }, { $set: update });
 }
 
 async function runSeed(): Promise<void> {
