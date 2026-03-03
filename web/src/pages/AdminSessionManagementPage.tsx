@@ -130,8 +130,8 @@ export function AdminSessionManagementPage() {
         </div>
 
         <div className="grid grid-cols-7 gap-2 text-center text-xs mb-3 text-luxury-muted">
-          {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day) => (
-            <span key={day}>{day}</span>
+          {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, index) => (
+            <span key={`weekday-${index}`}>{day}</span>
           ))}
         </div>
 

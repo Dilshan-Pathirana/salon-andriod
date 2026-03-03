@@ -170,6 +170,16 @@ export function App() {
       return
     }
 
+    if (authTarget === 'appointments') {
+      setActivePage('appointments')
+      return
+    }
+
+    if (authTarget === 'book') {
+      setActivePage('book')
+      return
+    }
+
     setActivePage('home')
   }
 
@@ -189,25 +199,39 @@ export function App() {
       case 'appointments':
         return <AppointmentsPage key="appointments" />
       case 'admin-home':
-        if (!isAdmin || !sessionUser) return <HomePage key="home-admin-fallback" onBookClick={() => setActivePage('book')} />
+        if (!isAdmin || !sessionUser) {
+          return <HomePage key="home-admin-fallback" onBookClick={() => setActivePage('book')} />
+        }
         return <AdminDashboardPage key="admin-home" />
       case 'admin-services':
-        if (!isAdmin || !sessionUser) return <HomePage key="home-admin-fallback" onBookClick={() => setActivePage('book')} />
+        if (!isAdmin || !sessionUser) {
+          return <HomePage key="home-admin-fallback" onBookClick={() => setActivePage('book')} />
+        }
         return <AdminServiceManagementPage key="admin-services" />
       case 'admin-session':
-        if (!isAdmin || !sessionUser) return <HomePage key="home-admin-fallback" onBookClick={() => setActivePage('book')} />
+        if (!isAdmin || !sessionUser) {
+          return <HomePage key="home-admin-fallback" onBookClick={() => setActivePage('book')} />
+        }
         return <AdminSessionManagementPage key="admin-session" />
       case 'admin-appointments':
-        if (!isAdmin || !sessionUser) return <HomePage key="home-admin-fallback" onBookClick={() => setActivePage('book')} />
+        if (!isAdmin || !sessionUser) {
+          return <HomePage key="home-admin-fallback" onBookClick={() => setActivePage('book')} />
+        }
         return <AdminAppointmentManagementPage key="admin-appointments" />
       case 'admin-queue':
-        if (!isAdmin || !sessionUser) return <HomePage key="home-admin-fallback" onBookClick={() => setActivePage('book')} />
+        if (!isAdmin || !sessionUser) {
+          return <HomePage key="home-admin-fallback" onBookClick={() => setActivePage('book')} />
+        }
         return <AdminQueueManagementPage key="admin-queue" />
       case 'admin-work':
-        if (!isAdmin || !sessionUser) return <HomePage key="home-admin-fallback" onBookClick={() => setActivePage('book')} />
+        if (!isAdmin || !sessionUser) {
+          return <HomePage key="home-admin-fallback" onBookClick={() => setActivePage('book')} />
+        }
         return <AdminWorkManagementPage key="admin-work" />
       case 'admin-users':
-        if (!isAdmin || !sessionUser) return <HomePage key="home-admin-fallback" onBookClick={() => setActivePage('book')} />
+        if (!isAdmin || !sessionUser) {
+          return <HomePage key="home-admin-fallback" onBookClick={() => setActivePage('book')} />
+        }
         return <AdminUserManagementPage key="admin-users" />
       case 'book':
         return (
@@ -232,6 +256,7 @@ export function App() {
   }
 
   const isAdminPage = activePage.startsWith('admin-')
+
   const getPageTitle = (page: AppPage) => {
     switch (page) {
       case 'home':
@@ -251,17 +276,19 @@ export function App() {
       case 'auth':
         return 'Sign In'
       default:
-        return page.replace('admin-', '').replace(/-/g, ' ').replace(/\b\w/g, (label) => label.toUpperCase())
+        return page
+          .replace('admin-', '')
+          .replace(/-/g, ' ')
+          .replace(/\b\w/g, (label) => label.toUpperCase())
     }
   }
 
   return (
-    <div className="min-h-screen bg-luxury-black flex justify-center font-inter text-luxury-white bg-noise">
-      <div className="w-full max-w-md min-h-screen bg-luxury-black relative overflow-hidden flex flex-col border-x border-luxury-brown/30 shadow-2xl">
-        <TopBar
-          title={getPageTitle(activePage)}
-          onMenuClick={() => setIsMenuOpen(true)}
-        />
+    <div className="relative min-h-screen overflow-hidden bg-[#08100e] font-inter text-slate-100">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_0%,rgba(16,185,129,0.18),transparent_42%),radial-gradient(circle_at_85%_10%,rgba(194,173,144,0.2),transparent_36%)]" />
+
+      <div className="relative mx-auto w-full max-w-md min-h-screen overflow-hidden border-x border-white/10 bg-[#0b1110]/85 shadow-[0_20px_80px_rgba(0,0,0,0.55)] backdrop-blur-xl flex flex-col">
+        <TopBar title={getPageTitle(activePage)} onMenuClick={() => setIsMenuOpen(true)} />
 
         <HamburgerMenu
           items={menuItems}
@@ -270,7 +297,7 @@ export function App() {
           onClose={() => setIsMenuOpen(false)}
         />
 
-        <div className="flex-1 pb-24 overflow-y-auto bg-luxury-black">
+        <div className="flex-1 overflow-y-auto bg-transparent pb-24">
           <AnimatePresence mode="wait">{renderPage()}</AnimatePresence>
         </div>
 

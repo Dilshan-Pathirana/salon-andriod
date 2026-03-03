@@ -61,7 +61,7 @@ export function BottomNav({ activePage, onChange, role }: BottomNavProps) {
             },
           ]
   return (
-    <div className="w-full bg-luxury-black/95 backdrop-blur-md border-t border-luxury-brown/50 shadow-[0_-8px_24px_rgba(0,0,0,0.4)]">
+    <div className="w-full border-t border-white/10 bg-black/45 backdrop-blur-xl shadow-[0_-10px_26px_rgba(0,0,0,0.45)]">
       <div className="flex justify-around items-center h-16 px-2">
           {navItems.map(({ id, icon: Icon, label }) => {
             const isActive = activePage === id
@@ -75,7 +75,7 @@ export function BottomNav({ activePage, onChange, role }: BottomNavProps) {
                 <motion.div
                   animate={{
                     scale: isActive ? 1.05 : 1,
-                    color: isActive ? '#C2AD90' : 'rgba(242,241,237,0.45)',
+                    color: isActive ? '#a7f3d0' : 'rgba(226,232,240,0.5)',
                   }}
                   transition={{
                     duration: 0.2,
@@ -85,7 +85,7 @@ export function BottomNav({ activePage, onChange, role }: BottomNavProps) {
                 </motion.div>
                 <motion.span
                   animate={{
-                    color: isActive ? '#C2AD90' : 'rgba(242,241,237,0.45)',
+                    color: isActive ? '#a7f3d0' : 'rgba(226,232,240,0.55)',
                   }}
                   className="text-[10px] font-inter tracking-wide font-semibold"
                 >

@@ -81,7 +81,7 @@ function ServicesPanel() {
 function StoriesPanel() {
   return (
     <div className="space-y-3">
-      <p className="text-luxury-muted text-sm">Before/After story management is prepared for Firebase Storage integration.</p>
+      <p className="text-luxury-muted text-sm">Before/After story management is available directly in the web admin panel.</p>
       <button className="w-full py-3 bg-luxury-gold text-luxury-black rounded-lg text-xs tracking-widest uppercase font-semibold">Upload Story</button>
     </div>
   );

@@ -14,15 +14,15 @@
     "declarationMap": true,
     "sourceMap": true,
     "baseUrl": "./src",
-    "paths": {
-      "@config/*": ["config/*"],
-      "@modules/*": ["modules/*"],
-      "@middleware/*": ["middleware/*"],
-      "@utils/*": ["utils/*"],
-      "@socket/*": ["socket/*"]
-    },
     "typeRoots": ["./node_modules/@types", "./src/types"]
   },
-  "include": ["src/**/*"],
+  "include": [
+    "src/server.ts",
+    "src/app.ts",
+    "src/config/env.ts",
+    "src/config/db.ts",
+    "src/models/**/*.ts",
+    "src/seed/**/*.ts"
+  ],
   "exclude": ["node_modules", "dist"]
 }
