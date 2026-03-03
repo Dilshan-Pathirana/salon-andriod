@@ -11,7 +11,7 @@
       "config": {
         "buildCommand": "npm --prefix web run build",
         "installCommand": "npm install",
-        "distDir": "web/dist"
+        "distDir": "dist"
       }
     }
   ],
