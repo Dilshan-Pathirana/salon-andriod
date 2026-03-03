@@ -7,3 +7,5 @@
 /node_modules
 /salon-app-54d7b-firebase-adminsdk-fbsvc-74c9366290.json
 /web/node_modules
+
+.vercel
