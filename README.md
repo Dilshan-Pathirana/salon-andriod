@@ -15,6 +15,12 @@ This repository now includes root [vercel.json](vercel.json) that builds:
 - Output Directory: `.`
 - Install Command: `npm install`
 
+> If you see `Missing script: "vercel-build"`, your Vercel **Root Directory** is likely not `.`.
+>
+> - Root `.`: use `npm run vercel-build` and keep this root [vercel.json](vercel.json).
+> - Root `web`: use `npm run vercel-build` (now supported in `web/package.json`), Output Directory `dist`.
+> - Root `backend`: use `npm run vercel-build` (now supported in `backend/package.json`), no static Output Directory needed.
+
 #### Steps
 
 1. Create one Vercel project from this repo with **Root Directory = `.`** (repo root).
