@@ -1,28 +1,16 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "backend/api/index.ts",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "web/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "buildCommand": "npm --prefix web run build",
-        "installCommand": "npm install",
-        "distDir": "dist"
-      }
-    }
-  ],
+  "installCommand": "npm install && npm --prefix backend install && npm --prefix web install",
+  "buildCommand": "npm --prefix web run build",
+  "outputDirectory": "web/dist",
   "routes": [
     {
       "src": "/api",
-      "dest": "/backend/api/index"
+      "dest": "/api/[...all].ts"
     },
     {
       "src": "/api/(.*)",
-      "dest": "/backend/api/index"
+      "dest": "/api/[...all].ts"
     },
     {
       "handle": "filesystem"
