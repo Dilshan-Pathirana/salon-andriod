@@ -28,7 +28,7 @@ This repository now includes root [vercel.json](vercel.json) that builds:
 
 ```bash
 MONGODB_URI=mongodb+srv://<USER>:<PASSWORD>@<CLUSTER>/<DB_NAME>?retryWrites=true&w=majority
-JWT_SECRET=<LONG_RANDOM_SECRET>
+JWT_SECRET=<RANDOM_32_PLUS_CHAR_SECRET_WITHOUT_SPACES>
 CLIENT_URL=https://<your-single-project-domain>
 NODE_ENV=production
 VITE_API_BASE_URL=/api
