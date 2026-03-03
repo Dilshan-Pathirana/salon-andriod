@@ -5,6 +5,10 @@ on:
     branches: [main]
   workflow_dispatch:
 
+concurrency:
+  group: vercel-deploy-main
+  cancel-in-progress: true
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -26,5 +30,13 @@ jobs:
           echo "Using Vercel org: $VERCEL_ORG_ID"
           echo "Using Vercel project: $VERCEL_PROJECT_ID"
 
+      - name: Pin Vercel project mapping
+        shell: bash
+        run: |
+          mkdir -p .vercel
+          cat > .vercel/project.json <<EOF
+          {"orgId":"$VERCEL_ORG_ID","projectId":"$VERCEL_PROJECT_ID"}
+          EOF
+
       - name: Deploy to Vercel
-        run: npx vercel deploy --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
+        run: npx vercel deploy --prod --yes --token=${{ secrets.VERCEL_TOKEN }} --scope=${{ secrets.VERCEL_ORG_ID }}
