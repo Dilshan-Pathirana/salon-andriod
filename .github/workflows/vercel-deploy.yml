@@ -55,4 +55,18 @@ jobs:
         shell: bash
         run: |
           DEPLOYMENT_URL="${{ steps.deploy.outputs.deployment_url }}"
-          curl -fsS "$DEPLOYMENT_URL/api/health"
+          STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$DEPLOYMENT_URL/api/health")
+
+          if [ "$STATUS_CODE" = "200" ]; then
+            echo "Health check passed: $DEPLOYMENT_URL/api/health"
+            exit 0
+          fi
+
+          if [ "$STATUS_CODE" = "401" ] || [ "$STATUS_CODE" = "302" ]; then
+            echo "Health check skipped: deployment URL is protected (status $STATUS_CODE)."
+            echo "Deployment succeeded, but direct health probe requires auth/SSO."
+            exit 0
+          fi
+
+          echo "Health check failed with status $STATUS_CODE"
+          exit 1
