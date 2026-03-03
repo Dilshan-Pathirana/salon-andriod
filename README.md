@@ -76,3 +76,17 @@ curl https://<your-backend-domain>/api/services
 
 - Single project: simpler setup, shared deploy/rollback for web + API.
 - Two projects: better production safety, clearer blast radius, independent rollback.
+
+## GitHub Actions auto-deploy (on each push)
+
+Workflow file: [.github/workflows/vercel-deploy.yml](.github/workflows/vercel-deploy.yml)
+
+Add these repository secrets in GitHub:
+
+```bash
+VERCEL_TOKEN=<your_vercel_token>
+VERCEL_ORG_ID=<your_vercel_org_id>
+VERCEL_PROJECT_ID=<your_vercel_project_id>
+```
+
+After secrets are added, every push triggers a production deploy to Vercel.
