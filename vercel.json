@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "installCommand": "npm install && npm --prefix backend install && npm --prefix web install",
+  "installCommand": "npm install && npm --prefix backend install && npm --prefix web install --include=dev",
   "buildCommand": "npm --prefix web run build",
   "outputDirectory": "web/dist",
   "routes": [
