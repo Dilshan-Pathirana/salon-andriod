@@ -26,6 +26,9 @@ This repository now includes root [vercel.json](vercel.json) that builds:
 1. Create one Vercel project from this repo with **Root Directory = `.`** (repo root).
 1. Add these environment variables:
 
+
+
+
 ```bash
 MONGODB_URI=mongodb+srv://<USER>:<PASSWORD>@<CLUSTER>/<DB_NAME>?retryWrites=true&w=majority
 JWT_SECRET=<RANDOM_32_PLUS_CHAR_SECRET_WITHOUT_SPACES>
