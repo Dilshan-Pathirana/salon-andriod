@@ -1,4 +1,9 @@
-{
+Open the project currently using domain salon-ruwan.vercel.app.
+Set Root Directory to repository root . (not backend / web).
+Keep root config from vercel.json.
+In this same project, set env vars (MONGODB_URI, JWT_SECRET, CLIENT_URL, NODE_ENV, VITE_API_BASE_URL=/api).
+In Domains, attach salon-ruwan.vercel.app to this root project and remove it from backend-only project if attached there.
+Redeploy latest commit.{
   "version": 2,
   "builds": [
     {
