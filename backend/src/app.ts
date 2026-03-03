@@ -763,13 +763,22 @@ app.get('/api/session/dashboard', authenticate, requireAdmin, async (req, res, n
         ? 'OPEN'
         : 'CLOSED';
 
-    const trend = Array.from({ length: 7 }).map((_, index) => {
-      const day = new Date();
-      day.setDate(day.getDate() - (6 - index));
-      const key = `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}`;
-      const count = users.filter((user) => user.createdAt?.toISOString().slice(0, 10) === key).length;
-      return { day: key, count };
-    });
+    const trend = await Promise.all(
+      Array.from({ length: 7 }).map(async (_, index) => {
+        const day = new Date();
+        day.setDate(day.getDate() - (6 - index));
+
+        const start = new Date(day);
+        start.setHours(0, 0, 0, 0);
+        const end = new Date(start);
+        end.setDate(end.getDate() + 1);
+
+        const key = `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}`;
+        const count = await User.countDocuments({ createdAt: { $gte: start, $lt: end } });
+
+        return { day: key, count };
+      })
+    );
 
     const result = {
       date,

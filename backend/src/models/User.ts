@@ -8,6 +8,8 @@ export type UserDocument = {
   role: 'ADMIN' | 'CLIENT';
   profileImageUrl?: string | null;
   isActive: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
 };
 
 const userSchema = new Schema<UserDocument>(

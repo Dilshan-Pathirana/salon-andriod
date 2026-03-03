@@ -5,7 +5,8 @@
     "dev:web": "npm --prefix web run dev",
     "build:backend": "npm --prefix backend run build",
     "build:web": "npm --prefix web run build",
-    "build": "npm run build:backend && npm run build:web"
+    "build": "npm run build:backend && npm run build:web",
+    "vercel-build": "npm run build"
   },
   "dependencies": {
     "mongodb": "^7.1.0"
