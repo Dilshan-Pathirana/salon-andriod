@@ -10,23 +10,8 @@ export default {
   ],
   theme: {
     extend: {
-      colors: {
-        luxury: {
-          black: "#0C100E",
-          green: "#364442",
-          champagne: "#C2AD90",
-          gold: "#97754D",
-          brown: "#5D4429",
-          white: "#F2F1ED",
-          muted: "rgba(194, 173, 144, 0.7)",
-        }
-      },
       fontFamily: {
-        playfair: ['"Playfair Display"', 'serif'],
-        inter: ['Inter', 'sans-serif'],
-      },
-      letterSpacing: {
-        widest: '0.15em',
+        sans: ['Inter', 'sans-serif'],
       },
       animation: {
         'spin-slow': 'spin 3s linear infinite',

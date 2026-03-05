@@ -70,7 +70,7 @@ export function BookingCalendar({
         >
           <ChevronLeft className="w-5 h-5" />
         </button>
-        <span className="font-playfair text-lg text-slate-800">
+        <span className="font-sans font-semibold tracking-tight text-lg text-slate-800">
           {monthLabel}
         </span>
         <button

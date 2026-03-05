@@ -9,7 +9,7 @@ interface TimeSlotsProps {
 export function TimeSlots({ selectedTime, onSelectTime, slots }: TimeSlotsProps) {
   return (
     <div className="w-full mb-12">
-      <h3 className="font-playfair text-xl text-slate-800 mb-6">
+      <h3 className="font-sans font-semibold tracking-tight text-xl text-slate-800 mb-6">
         Select Your Time
       </h3>
       <div className="flex flex-wrap gap-3">

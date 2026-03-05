@@ -120,16 +120,16 @@ export function AdminSessionManagementPage() {
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.35 }} className="px-4 py-6">
-      <h1 className="font-playfair text-3xl text-luxury-white text-center mb-8">Session Management</h1>
+      <h1 className="font-sans font-semibold tracking-tight text-3xl text-slate-900 text-center mb-8">Session Management</h1>
 
-      <div className="border border-luxury-brown/40 rounded-xl p-4 bg-luxury-green/25 mb-8">
+      <div className="border border-slate-200 rounded-xl p-4 bg-white shadow-sm mb-8">
         <div className="flex items-center justify-between mb-4">
-          <button disabled={!canPrev} onClick={() => canPrev && setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1))} className="text-xs text-luxury-muted disabled:opacity-30">Prev</button>
-          <p className="font-playfair text-lg text-luxury-white">{monthLabel}</p>
-          <button disabled={!canNext} onClick={() => canNext && setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1))} className="text-xs text-luxury-muted disabled:opacity-30">Next</button>
+          <button disabled={!canPrev} onClick={() => canPrev && setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1))} className="text-xs text-slate-500 disabled:opacity-30">Prev</button>
+          <p className="font-sans font-semibold tracking-tight text-lg text-slate-900">{monthLabel}</p>
+          <button disabled={!canNext} onClick={() => canNext && setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1))} className="text-xs text-slate-500 disabled:opacity-30">Next</button>
         </div>
 
-        <div className="grid grid-cols-7 gap-2 text-center text-xs mb-3 text-luxury-muted">
+        <div className="grid grid-cols-7 gap-2 text-center text-xs mb-3 text-slate-500">
           {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, index) => (
             <span key={`weekday-${index}`}>{day}</span>
           ))}
@@ -147,17 +147,17 @@ export function AdminSessionManagementPage() {
             const isSelected = selectedDate === dateKey
 
             const statusClass = !schedule
-              ? 'bg-luxury-black/70 text-luxury-muted'
+              ? 'bg-white/70 text-slate-500'
               : schedule.status === 'OPEN'
-                ? 'bg-luxury-gold/70 text-luxury-black'
-                : 'bg-luxury-brown/80 text-luxury-white'
+                ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-colors/70 text-white'
+                : 'bg-luxury-brown/80 text-slate-900'
 
             return (
               <button
                 key={dateKey}
                 disabled={!inRange}
                 onClick={() => inRange && setSelectedDate(dateKey)}
-                className={`h-9 rounded-md text-xs border ${isSelected ? 'border-luxury-champagne' : 'border-transparent'} ${inRange ? statusClass : 'bg-luxury-black/40 text-luxury-muted/50 cursor-not-allowed'}`}
+                className={`h-9 rounded-md text-xs border ${isSelected ? 'border-luxury-champagne' : 'border-transparent'} ${inRange ? statusClass : 'bg-white/40 text-slate-500/50 cursor-not-allowed'}`}
               >
                 {day}
               </button>
@@ -166,30 +166,30 @@ export function AdminSessionManagementPage() {
         </div>
       </div>
 
-      <div className="border border-luxury-brown/40 rounded-xl p-4 bg-luxury-green/20 space-y-3">
-        <p className="text-xs tracking-widest uppercase text-luxury-muted">Selected day: {selectedDate}</p>
+      <div className="border border-slate-200 rounded-xl p-4 bg-white shadow-sm space-y-3">
+        <p className="text-xs tracking-widest uppercase text-slate-500">Selected day: {selectedDate}</p>
 
-        <select value={status} onChange={(event) => setStatus(event.target.value as DayStatus)} className="w-full bg-luxury-black border border-luxury-brown/40 rounded-lg p-3 text-sm text-luxury-white">
+        <select value={status} onChange={(event) => setStatus(event.target.value as DayStatus)} className="w-full bg-white border border-slate-200 rounded-lg p-3 text-sm text-slate-900">
           <option value="OPEN">OPEN</option>
           <option value="CLOSED">CLOSED</option>
         </select>
 
         <div className="grid grid-cols-2 gap-3">
-          <input type="time" value={startTime} onChange={(event) => setStartTime(event.target.value)} className="bg-luxury-black border border-luxury-brown/40 rounded-lg p-3 text-sm text-luxury-white" />
-          <input type="time" value={endTime} onChange={(event) => setEndTime(event.target.value)} className="bg-luxury-black border border-luxury-brown/40 rounded-lg p-3 text-sm text-luxury-white" />
+          <input type="time" value={startTime} onChange={(event) => setStartTime(event.target.value)} className="bg-white border border-slate-200 rounded-lg p-3 text-sm text-slate-900" />
+          <input type="time" value={endTime} onChange={(event) => setEndTime(event.target.value)} className="bg-white border border-slate-200 rounded-lg p-3 text-sm text-slate-900" />
         </div>
 
-        <div className="border border-luxury-brown/30 rounded-lg p-3">
-          <p className="text-xs text-luxury-muted">Approximate appointments (auto)</p>
-          <p className="text-2xl font-playfair text-luxury-champagne">{appointmentEstimate}</p>
-          <p className="text-xs text-luxury-muted">Calculated as total range minutes ÷ 30</p>
+        <div className="border border-slate-200 rounded-lg p-3">
+          <p className="text-xs text-slate-500">Approximate appointments (auto)</p>
+          <p className="text-2xl font-sans font-semibold tracking-tight text-blue-600">{appointmentEstimate}</p>
+          <p className="text-xs text-slate-500">Calculated as total range minutes ÷ 30</p>
         </div>
 
-        <button onClick={() => void saveDay()} disabled={isSaving} className="w-full py-3 bg-luxury-gold text-luxury-black rounded-lg text-xs tracking-widest uppercase font-semibold disabled:opacity-60">
+        <button onClick={() => void saveDay()} disabled={isSaving} className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-colors text-white rounded-lg text-xs tracking-widest uppercase font-semibold disabled:opacity-60">
           {isSaving ? 'Saving...' : 'Save Day'}
         </button>
 
-        {message ? <p className="text-xs text-luxury-champagne">{message}</p> : null}
+        {message ? <p className="text-xs text-blue-600">{message}</p> : null}
       </div>
     </motion.div>
   )

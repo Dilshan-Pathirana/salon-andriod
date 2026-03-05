@@ -71,14 +71,14 @@ export function HamburgerMenu({ isOpen, onClose, onSelect, items }: HamburgerMen
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="h-24 px-6 flex items-end justify-between pb-6 bg-gradient-to-br from-teal-500 to-emerald-600">
+            <div className="h-28 px-6 flex items-end justify-between pb-6 bg-gradient-to-br from-blue-600 to-indigo-700">
               <div>
-                <h2 className="font-playfair text-2xl font-bold text-white tracking-wide">Menu</h2>
-                <p className="text-teal-100 text-xs mt-1 font-inter opacity-90">Manage your salon experience</p>
+                <h2 className="font-sans text-2xl font-bold tracking-tight text-white mb-1">Menu</h2>
+                <p className="text-blue-100/90 text-sm font-medium">Manage your dashboard</p>
               </div>
-              <button 
-                onClick={onClose} 
-                className="p-2 -mr-2 text-teal-100 hover:text-white rounded-full transition-colors bg-white/10 hover:bg-white/20 backdrop-blur-sm"
+              <button
+                onClick={onClose}
+                className="p-2 -mr-2 text-blue-100 hover:text-white rounded-xl transition-colors bg-white/10 hover:bg-white/20 backdrop-blur-sm"
                 aria-label="Close menu"
               >
                 <X className="w-5 h-5" />
@@ -86,7 +86,7 @@ export function HamburgerMenu({ isOpen, onClose, onSelect, items }: HamburgerMen
             </div>
 
             {/* Items */}
-            <div className="flex-1 overflow-y-auto py-6 px-4 space-y-2">
+            <div className="flex-1 overflow-y-auto py-6 px-4 space-y-1">
               {items.map((item, i) => (
                 <motion.button
                   custom={i}
@@ -95,13 +95,16 @@ export function HamburgerMenu({ isOpen, onClose, onSelect, items }: HamburgerMen
                   animate="open"
                   key={item.id}
                   onClick={() => handleSelect(item.id)}
-                  className="group w-full flex items-center justify-between p-4 rounded-xl hover:bg-teal-50 active:bg-teal-100 transition-all duration-200 border border-transparent hover:border-teal-100"
+                  className="group w-full flex items-center gap-3 p-3.5 rounded-xl hover:bg-blue-50 active:bg-blue-100 transition-all duration-200"
                 >
-                  <span className="font-inter text-slate-700 font-medium text-lg group-hover:text-teal-800 transition-colors">
+                  <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-blue-100 group-hover:text-blue-600 transition-colors">
+                    {item.icon ? <item.icon className="w-4 h-4" /> : <List className="w-4 h-4" />}
+                  </div>
+                  <span className="font-sans font-medium text-slate-700 text-base flex-1 text-left group-hover:text-blue-900 transition-colors">
                     {item.label}
                   </span>
-                  <ChevronRight className="w-5 h-5 text-slate-300 group-hover:text-teal-500 transition-colors transform group-hover:translate-x-1" />
-                </motion.button>
+                  <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-blue-500 transition-all transform group-hover:translate-x-1" />
+</motion.button>
               ))}
             </div>
 

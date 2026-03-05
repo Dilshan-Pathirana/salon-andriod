@@ -31,21 +31,21 @@ export function TestimonialCard({
         delay,
         ease: [0.25, 0.1, 0.25, 1],
       }}
-      className="flex flex-col items-center text-center py-6 px-4 rounded-2xl border border-teal-100/60 bg-white/80"
+      className="flex flex-col items-center text-center p-6 rounded-2xl border border-slate-200 bg-white shadow-sm hover:shadow-md transition-shadow"
     >
-      <div className="flex space-x-1 mb-6">
+      <div className="flex space-x-1 mb-4">
         {[...Array(rating)].map((_, i) => (
           <Star
             key={i}
-            className="w-4 h-4 fill-emerald-600 text-emerald-600"
+            className="w-4 h-4 fill-blue-500 text-blue-500"
           />
         ))}
       </div>
-      <p className="font-playfair text-lg text-slate-800 leading-relaxed mb-5 italic opacity-90">
+      <p className="font-sans text-[15px] font-medium text-slate-700 leading-relaxed mb-6">
         "{quote}"
       </p>
-      <span className="font-inter text-slate-400 text-xs tracking-widest uppercase">
-        — {name}
+      <span className="font-sans font-semibold text-slate-900 text-xs tracking-wider uppercase">
+        {name}
       </span>
     </motion.div>
   )

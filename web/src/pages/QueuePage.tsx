@@ -53,7 +53,7 @@ export function QueuePage() {
       }}
       className="px-4 py-6 min-h-screen flex flex-col"
     >
-      <h1 className="font-playfair text-3xl text-slate-800 mb-8 text-center">
+      <h1 className="font-sans font-semibold tracking-tight text-3xl text-slate-800 mb-8 text-center">
         Live Queue
       </h1>
 
@@ -68,7 +68,7 @@ export function QueuePage() {
           {myQueueItem ? (
             <div className="mb-6 border border-teal-200 rounded-xl p-4 bg-teal-50/70 text-center">
               <p className="text-xs tracking-widest uppercase text-slate-400">Your Slot Number</p>
-              <p className="font-playfair text-4xl text-teal-700 mt-2">{myQueueItem.position}</p>
+              <p className="font-sans font-semibold tracking-tight text-4xl text-teal-700 mt-2">{myQueueItem.position}</p>
               <p className="text-xs text-slate-400 mt-2">Approx wait: {myQueueItem.estimatedWaitMins} mins</p>
             </div>
           ) : null}
@@ -91,7 +91,7 @@ export function QueuePage() {
               }}
               className="relative"
             >
-              <h2 className="font-playfair text-4xl text-slate-800 pb-2">
+              <h2 className="font-sans font-semibold tracking-tight text-4xl text-slate-800 pb-2">
                 {currentlyServing || queue[0].name}
               </h2>
               <div className="absolute bottom-0 left-1/4 right-1/4 h-[1px] bg-emerald-500/50" />
@@ -116,7 +116,7 @@ export function QueuePage() {
           >
             <div className="w-28 h-28 rounded-full border border-teal-400/30 flex flex-col items-center justify-center relative bg-white">
               <div className="absolute inset-2 rounded-full border border-teal-400/10" />
-              <span className="font-playfair text-4xl text-teal-700 mb-1">
+              <span className="font-sans font-semibold tracking-tight text-4xl text-teal-700 mb-1">
                 {queue.length}
               </span>
             </div>

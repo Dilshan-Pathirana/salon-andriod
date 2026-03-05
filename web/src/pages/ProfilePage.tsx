@@ -14,6 +14,40 @@ import {
   updateMyProfile,
 } from '../lib/api'
 
+function parseDate(date: string): Date {
+  const [year, month, day] = date.split('-').map(Number)
+  return new Date(year, (month || 1) - 1, day || 1)
+}
+
+function parseTimeToMinutes(timeSlot: string): number {
+  const value = timeSlot.trim()
+  const twelveHourMatch = value.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i)
+
+  if (twelveHourMatch) {
+    let hours = Number(twelveHourMatch[1])
+    const minutes = Number(twelveHourMatch[2])
+    const meridiem = twelveHourMatch[3].toUpperCase()
+
+    if (meridiem === 'PM' && hours < 12) hours += 12
+    if (meridiem === 'AM' && hours === 12) hours = 0
+
+    return hours * 60 + minutes
+  }
+
+  const [hoursRaw, minutesRaw] = value.split(':')
+  const hours = Number(hoursRaw)
+  const minutes = Number(minutesRaw)
+
+  if (Number.isNaN(hours) || Number.isNaN(minutes)) return 0
+  return hours * 60 + minutes
+}
+
+function toTimestamp(dateStr: string, timeStr: string): number {
+  const date = parseDate(dateStr)
+  const minutes = parseTimeToMinutes(timeStr)
+  return date.getTime() + minutes * 60_000
+}
+
 type ProfileAction = 'appointments' | 'edit' | 'preferences' | null
 
 interface ProfilePageProps {
@@ -138,14 +172,29 @@ export function ProfilePage({ onSignedOut }: ProfilePageProps) {
       setIsLoading(true)
       try {
         const rows = await getMyAppointments()
-        setAppointments(
-          rows.map((row) => ({
-            id: row.id,
-            date: row.date,
-            timeSlot: row.timeSlot,
-            status: row.status,
-          })),
-        )
+        
+        const nowMs = new Date().getTime()
+        const mapped = rows.map((row) => ({
+          id: row.id,
+          date: row.date,
+          timeSlot: row.timeSlot,
+          status: row.status,
+        }))
+
+        mapped.sort((a, b) => {
+          const aTime = toTimestamp(a.date, a.timeSlot)
+          const bTime = toTimestamp(b.date, b.timeSlot)
+          const aIsUpcoming = aTime >= nowMs
+          const bIsUpcoming = bTime >= nowMs
+
+          if (aIsUpcoming && !bIsUpcoming) return -1
+          if (!aIsUpcoming && bIsUpcoming) return 1
+
+          if (aIsUpcoming && bIsUpcoming) return aTime - bTime
+          return bTime - aTime
+        })
+
+        setAppointments(mapped)
       } catch {
         setStatusMessage('Could not load appointments from backend')
       } finally {
@@ -234,7 +283,7 @@ export function ProfilePage({ onSignedOut }: ProfilePageProps) {
             {profileImageUrl ? (
               <img src={profileImageUrl} alt="Profile" className="w-full h-full object-cover" />
             ) : (
-              <span className="font-playfair text-3xl text-emerald-600">
+              <span className="font-sans font-semibold tracking-tight text-3xl text-emerald-600">
                 {initials}
               </span>
             )}
@@ -253,7 +302,7 @@ export function ProfilePage({ onSignedOut }: ProfilePageProps) {
           transition={{
             delay: 0.2,
           }}
-          className="font-playfair text-2xl text-slate-800 mb-2"
+          className="font-sans font-semibold tracking-tight text-2xl text-slate-800 mb-2"
         >
           {profileName || 'Profile'}
         </motion.h2>

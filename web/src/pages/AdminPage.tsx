@@ -24,30 +24,30 @@ export function AdminPage({ user, initialTab = 'services' }: { user: AuthUser; i
   if (user.role !== 'ADMIN') {
     return (
       <div className="px-4 py-6 text-center">
-        <h2 className="font-playfair text-2xl text-luxury-white mb-4">Access Restricted</h2>
-        <p className="font-inter text-luxury-muted">Admin privileges are required.</p>
+        <h2 className="font-sans font-semibold tracking-tight text-2xl text-slate-900 mb-4">Access Restricted</h2>
+        <p className="font-inter text-slate-500">Admin privileges are required.</p>
       </div>
     );
   }
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.4 }} className="px-4 py-6">
-      <h1 className="font-playfair text-3xl text-center text-luxury-white mb-8">Admin Control</h1>
+      <h1 className="font-sans font-semibold tracking-tight text-3xl text-center text-slate-900 mb-8">Admin Control</h1>
 
       <div className="grid grid-cols-2 gap-2 mb-8">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`py-2 px-3 rounded-lg text-xs tracking-widest uppercase border ${activeTab === tab.id ? 'border-luxury-champagne bg-luxury-green/30 text-luxury-champagne' : 'border-luxury-brown/40 text-luxury-muted'}`}
+            className={`py-2 px-3 rounded-lg text-xs tracking-widest uppercase border ${activeTab === tab.id ? 'border-luxury-champagne bg-white shadow-sm text-blue-600' : 'border-slate-200 text-slate-500'}`}
           >
             {tab.label}
           </button>
         ))}
       </div>
 
-      <div className="rounded-xl border border-luxury-brown/30 p-4 bg-luxury-green/20">
-        <h2 className="font-playfair text-2xl text-luxury-white mb-4">{title}</h2>
+      <div className="rounded-xl border border-slate-200 p-4 bg-white shadow-sm">
+        <h2 className="font-sans font-semibold tracking-tight text-2xl text-slate-900 mb-4">{title}</h2>
         {activeTab === 'services' && <ServicesPanel />}
         {activeTab === 'stories' && <StoriesPanel />}
         {activeTab === 'appointments' && <AppointmentsPanel />}
@@ -66,12 +66,12 @@ function ServicesPanel() {
   return (
     <div className="space-y-4">
       {services.map((s) => (
-        <div key={s.name} className="border border-luxury-brown/40 rounded-lg p-3 flex justify-between items-center bg-luxury-black/20">
+        <div key={s.name} className="border border-slate-200 rounded-lg p-3 flex justify-between items-center bg-white/20">
           <div>
-            <p className="text-luxury-white font-inter">{s.name}</p>
-            <p className="text-luxury-muted text-sm">{s.duration} mins</p>
+            <p className="text-slate-900 font-inter">{s.name}</p>
+            <p className="text-slate-500 text-sm">{s.duration} mins</p>
           </div>
-          <p className="font-playfair text-luxury-champagne">${s.price}</p>
+          <p className="font-sans font-semibold tracking-tight text-blue-600">${s.price}</p>
         </div>
       ))}
     </div>
@@ -81,8 +81,8 @@ function ServicesPanel() {
 function StoriesPanel() {
   return (
     <div className="space-y-3">
-      <p className="text-luxury-muted text-sm">Before/After story management is available directly in the web admin panel.</p>
-      <button className="w-full py-3 bg-luxury-gold text-luxury-black rounded-lg text-xs tracking-widest uppercase font-semibold">Upload Story</button>
+      <p className="text-slate-500 text-sm">Before/After story management is available directly in the web admin panel.</p>
+      <button className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-colors text-white rounded-lg text-xs tracking-widest uppercase font-semibold">Upload Story</button>
     </div>
   );
 }
@@ -152,14 +152,14 @@ function AppointmentsPanel() {
     <div className="space-y-3">
       <div className="grid grid-cols-1 gap-3">
         <input
-          className="bg-luxury-black border border-luxury-brown/40 rounded-lg p-3 text-sm text-luxury-white"
+          className="bg-white border border-slate-200 rounded-lg p-3 text-sm text-slate-900"
           type="date"
           value={form.date}
           onChange={(event) => void handleDateChange(event.target.value)}
         />
 
         <select
-          className="bg-luxury-black border border-luxury-brown/40 rounded-lg p-3 text-sm text-luxury-white"
+          className="bg-white border border-slate-200 rounded-lg p-3 text-sm text-slate-900"
           value={form.status}
           onChange={(event) => setForm((prev) => ({ ...prev, status: event.target.value as 'OPEN' | 'CLOSED' }))}
         >
@@ -169,13 +169,13 @@ function AppointmentsPanel() {
 
         <div className="grid grid-cols-2 gap-3">
           <input
-            className="bg-luxury-black border border-luxury-brown/40 rounded-lg p-3 text-sm text-luxury-white"
+            className="bg-white border border-slate-200 rounded-lg p-3 text-sm text-slate-900"
             type="time"
             value={form.startTime}
             onChange={(event) => setForm((prev) => ({ ...prev, startTime: event.target.value }))}
           />
           <input
-            className="bg-luxury-black border border-luxury-brown/40 rounded-lg p-3 text-sm text-luxury-white"
+            className="bg-white border border-slate-200 rounded-lg p-3 text-sm text-slate-900"
             type="time"
             value={form.endTime}
             onChange={(event) => setForm((prev) => ({ ...prev, endTime: event.target.value }))}
@@ -183,7 +183,7 @@ function AppointmentsPanel() {
         </div>
 
         <input
-            className="bg-luxury-black border border-luxury-brown/40 rounded-lg p-3 text-sm text-luxury-white"
+            className="bg-white border border-slate-200 rounded-lg p-3 text-sm text-slate-900"
           type="number"
           min={5}
           max={120}
@@ -195,12 +195,12 @@ function AppointmentsPanel() {
         <button
           onClick={() => void handleSave()}
           disabled={isSaving}
-          className="w-full py-3 bg-luxury-gold text-luxury-black rounded-lg text-xs tracking-widest uppercase font-semibold disabled:opacity-60"
+          className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-colors text-white rounded-lg text-xs tracking-widest uppercase font-semibold disabled:opacity-60"
         >
           {isSaving ? 'Saving...' : 'Save'}
         </button>
 
-        {message ? <p className="text-luxury-champagne text-xs">{message}</p> : null}
+        {message ? <p className="text-blue-600 text-xs">{message}</p> : null}
       </div>
     </div>
   );
@@ -216,10 +216,10 @@ function QueuePanel() {
   return (
     <div className="space-y-3">
       {rows.map((r) => (
-        <div key={r.position} className="border border-luxury-brown/40 rounded-lg p-3 flex justify-between items-center bg-luxury-black/20">
-          <p className="text-luxury-champagne">#{r.position}</p>
-          <p className="text-luxury-white">{r.name}</p>
-          <button className="text-xs tracking-wide uppercase text-luxury-champagne">Complete</button>
+        <div key={r.position} className="border border-slate-200 rounded-lg p-3 flex justify-between items-center bg-white/20">
+          <p className="text-blue-600">#{r.position}</p>
+          <p className="text-slate-900">{r.name}</p>
+          <button className="text-xs tracking-wide uppercase text-blue-600">Complete</button>
         </div>
       ))}
     </div>

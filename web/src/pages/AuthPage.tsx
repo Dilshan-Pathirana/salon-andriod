@@ -39,7 +39,7 @@ export function AuthPage({ onAuthSuccess }: AuthPageProps) {
       exit={{ opacity: 0 }}
       className="px-4 py-6"
     >
-      <h1 className="font-playfair text-3xl text-slate-800 mb-6 text-center">
+      <h1 className="font-sans font-semibold tracking-tight text-3xl text-slate-800 mb-6 text-center">
         {mode === 'login' ? 'Login' : 'Sign Up'}
       </h1>
 

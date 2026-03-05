@@ -14,6 +14,35 @@ function parseDate(date: string): Date {
   return new Date(year, (month || 1) - 1, day || 1)
 }
 
+function parseTimeToMinutes(timeSlot: string): number {
+  const value = timeSlot.trim()
+  const twelveHourMatch = value.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i)
+
+  if (twelveHourMatch) {
+    let hours = Number(twelveHourMatch[1])
+    const minutes = Number(twelveHourMatch[2])
+    const meridiem = twelveHourMatch[3].toUpperCase()
+
+    if (meridiem === 'PM' && hours < 12) hours += 12
+    if (meridiem === 'AM' && hours === 12) hours = 0
+
+    return hours * 60 + minutes
+  }
+
+  const [hoursRaw, minutesRaw] = value.split(':')
+  const hours = Number(hoursRaw)
+  const minutes = Number(minutesRaw)
+
+  if (Number.isNaN(hours) || Number.isNaN(minutes)) return 0
+  return hours * 60 + minutes
+}
+
+function toTimestamp(item: AppointmentRow): number {
+  const date = parseDate(item.date)
+  const minutes = parseTimeToMinutes(item.timeSlot)
+  return date.getTime() + minutes * 60_000
+}
+
 function getTodayStart(): Date {
   const now = new Date()
   return new Date(now.getFullYear(), now.getMonth(), now.getDate())
@@ -49,6 +78,8 @@ export function AppointmentsPage() {
   }, [])
 
   const grouped = useMemo(() => {
+    const now = new Date()
+    const nowMs = now.getTime()
     const today = getTodayStart()
 
     const todayItems: AppointmentRow[] = []
@@ -66,14 +97,24 @@ export function AppointmentsPage() {
       }
     })
 
-    const sortAsc = (a: AppointmentRow, b: AppointmentRow) =>
-      parseDate(a.date).getTime() - parseDate(b.date).getTime() || a.timeSlot.localeCompare(b.timeSlot)
+    const sortAsc = (a: AppointmentRow, b: AppointmentRow) => toTimestamp(a) - toTimestamp(b)
+    const sortDesc = (a: AppointmentRow, b: AppointmentRow) => toTimestamp(b) - toTimestamp(a)
+    
+    const sortTodayNearest = (a: AppointmentRow, b: AppointmentRow) => {
+      const aTime = toTimestamp(a)
+      const bTime = toTimestamp(b)
+      const aIsUpcoming = aTime >= nowMs
+      const bIsUpcoming = bTime >= nowMs
 
-    const sortDesc = (a: AppointmentRow, b: AppointmentRow) =>
-      parseDate(b.date).getTime() - parseDate(a.date).getTime() || b.timeSlot.localeCompare(a.timeSlot)
+      if (aIsUpcoming && !bIsUpcoming) return -1
+      if (!aIsUpcoming && bIsUpcoming) return 1
+
+      if (aIsUpcoming && bIsUpcoming) return aTime - bTime
+      return bTime - aTime
+    }
 
     return {
-      today: todayItems.sort(sortAsc),
+      today: todayItems.sort(sortTodayNearest),
       upcoming: upcomingItems.sort(sortAsc),
       past: pastItems.sort(sortDesc),
     }
@@ -94,7 +135,7 @@ export function AppointmentsPage() {
 
   const Section = ({ title, items, canCancel }: { title: string; items: AppointmentRow[]; canCancel?: boolean }) => (
     <section className="mb-8">
-      <h2 className="font-playfair text-xl text-slate-800 mb-3">{title}</h2>
+      <h2 className="font-sans font-semibold tracking-tight text-xl text-slate-800 mb-3">{title}</h2>
       {items.length === 0 ? (
         <p className="font-inter text-sm text-slate-400">No appointments</p>
       ) : (
@@ -131,7 +172,7 @@ export function AppointmentsPage() {
       transition={{ duration: 0.4 }}
       className="px-6 pt-12 pb-32"
     >
-      <h1 className="font-playfair text-3xl text-slate-800 mb-8 text-center">Appointments</h1>
+      <h1 className="font-sans font-semibold tracking-tight text-3xl text-slate-800 mb-8 text-center">Appointments</h1>
 
       {isLoading ? <p className="font-inter text-sm text-slate-400">Loading appointments...</p> : null}
       {message ? <p className="font-inter text-sm text-emerald-600">{message}</p> : null}

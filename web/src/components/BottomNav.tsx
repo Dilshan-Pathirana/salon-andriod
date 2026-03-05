@@ -61,7 +61,7 @@ export function BottomNav({ activePage, onChange, role }: BottomNavProps) {
             },
           ]
   return (
-    <div className="w-full border-t border-white/10 bg-black/45 backdrop-blur-xl shadow-[0_-10px_26px_rgba(0,0,0,0.45)]">
+    <div className="w-full border-t border-slate-200 bg-white/80 backdrop-blur-xl shadow-[0_-4px_12px_rgba(0,0,0,0.03)]">
       <div className="flex justify-around items-center h-16 px-2">
           {navItems.map(({ id, icon: Icon, label }) => {
             const isActive = activePage === id
@@ -69,28 +69,33 @@ export function BottomNav({ activePage, onChange, role }: BottomNavProps) {
               <button
                 key={id}
                 onClick={() => onChange(id as PageType)}
-                className="flex flex-col items-center justify-center min-w-[64px] h-full space-y-1 focus:outline-none"
+                className="flex flex-col items-center justify-center min-w-[64px] h-full space-y-1 focus:outline-none relative group"
                 aria-label={label}
               >
+                {isActive && (
+                  <motion.div 
+                    layoutId="bottomNavIndicator"
+                    className="absolute top-0 w-8 h-[3px] bg-blue-600 rounded-b-full"
+                    transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                  />
+                )}
                 <motion.div
                   animate={{
                     scale: isActive ? 1.05 : 1,
-                    color: isActive ? '#a7f3d0' : 'rgba(226,232,240,0.5)',
+                    color: isActive ? '#2563eb' : '#64748b',
+                    y: isActive ? 2 : 0
                   }}
                   transition={{
                     duration: 0.2,
                   }}
                 >
-                  <Icon strokeWidth={isActive ? 2 : 1.75} className="w-5 h-5" />
+                  <Icon strokeWidth={isActive ? 2.5 : 2} className="w-[22px] h-[22px]" />
                 </motion.div>
-                <motion.span
-                  animate={{
-                    color: isActive ? '#a7f3d0' : 'rgba(226,232,240,0.55)',
-                  }}
-                  className="text-[10px] font-inter tracking-wide font-semibold"
+                <div
+                  className={`text-[10px] font-sans tracking-wide font-semibold mt-1 transition-colors ${isActive ? 'text-blue-600' : 'text-slate-500'}`}
                 >
                   {label}
-                </motion.span>
+                </div>
               </button>
             )
           })}

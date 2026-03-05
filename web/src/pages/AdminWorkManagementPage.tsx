@@ -189,13 +189,13 @@ export function AdminWorkManagementPage() {
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.35 }} className="px-4 py-6">
-      <h1 className="font-playfair text-3xl text-luxury-white text-center mb-8">Work Management</h1>
+      <h1 className="font-sans font-semibold tracking-tight text-3xl text-slate-900 text-center mb-8">Work Management</h1>
 
-      <div className="border border-luxury-brown/40 rounded-xl p-4 mb-8 bg-luxury-green/25 space-y-3">
-        <p className="text-xs tracking-widest uppercase text-luxury-muted">Add Work</p>
-        <input value={form.topic} onChange={(event) => setForm((prev) => ({ ...prev, topic: event.target.value }))} placeholder="Topic" className="w-full bg-luxury-black border border-luxury-brown/40 rounded-lg p-3 text-sm text-luxury-white" />
-        <textarea value={form.description} onChange={(event) => setForm((prev) => ({ ...prev, description: event.target.value }))} placeholder="Description" className="w-full bg-luxury-black border border-luxury-brown/40 rounded-lg p-3 text-sm min-h-20 text-luxury-white" />
-        <label className="block border border-luxury-brown/40 rounded-lg p-3 text-sm text-luxury-muted cursor-pointer">
+      <div className="border border-slate-200 rounded-xl p-4 mb-8 bg-white shadow-sm space-y-3">
+        <p className="text-xs tracking-widest uppercase text-slate-500">Add Work</p>
+        <input value={form.topic} onChange={(event) => setForm((prev) => ({ ...prev, topic: event.target.value }))} placeholder="Topic" className="w-full bg-white border border-slate-200 rounded-lg p-3 text-sm text-slate-900" />
+        <textarea value={form.description} onChange={(event) => setForm((prev) => ({ ...prev, description: event.target.value }))} placeholder="Description" className="w-full bg-white border border-slate-200 rounded-lg p-3 text-sm min-h-20 text-slate-900" />
+        <label className="block border border-slate-200 rounded-lg p-3 text-sm text-slate-500 cursor-pointer">
           Before image
           <input
             type="file"
@@ -204,7 +204,7 @@ export function AdminWorkManagementPage() {
             className="block mt-2 text-xs"
           />
         </label>
-        <label className="block border border-luxury-brown/40 rounded-lg p-3 text-sm text-luxury-muted cursor-pointer">
+        <label className="block border border-slate-200 rounded-lg p-3 text-sm text-slate-500 cursor-pointer">
           After image
           <input
             type="file"
@@ -213,32 +213,32 @@ export function AdminWorkManagementPage() {
             className="block mt-2 text-xs"
           />
         </label>
-        {form.beforeImageUrl ? <img src={form.beforeImageUrl} alt="Before preview" className="w-full h-28 object-cover rounded-lg border border-luxury-brown/30" /> : null}
-        {form.afterImageUrl ? <img src={form.afterImageUrl} alt="After preview" className="w-full h-28 object-cover rounded-lg border border-luxury-brown/30" /> : null}
-        <button onClick={() => void add()} className="w-full py-3 bg-luxury-gold text-luxury-black rounded-lg text-xs tracking-widest uppercase font-semibold">Add Work</button>
+        {form.beforeImageUrl ? <img src={form.beforeImageUrl} alt="Before preview" className="w-full h-28 object-cover rounded-lg border border-slate-200" /> : null}
+        {form.afterImageUrl ? <img src={form.afterImageUrl} alt="After preview" className="w-full h-28 object-cover rounded-lg border border-slate-200" /> : null}
+        <button onClick={() => void add()} className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-colors text-white rounded-lg text-xs tracking-widest uppercase font-semibold">Add Work</button>
       </div>
 
-      {message ? <p className="text-xs text-luxury-champagne mb-4">{message}</p> : null}
-      {isLoading ? <p className="text-sm text-luxury-muted mb-4">Loading work items...</p> : null}
+      {message ? <p className="text-xs text-blue-600 mb-4">{message}</p> : null}
+      {isLoading ? <p className="text-sm text-slate-500 mb-4">Loading work items...</p> : null}
 
       <div className="space-y-3">
         {items.map((item) => (
-          <div key={item.id} className="border border-luxury-brown/40 rounded-lg p-4 bg-luxury-green/20 space-y-3">
+          <div key={item.id} className="border border-slate-200 rounded-lg p-4 bg-white shadow-sm space-y-3">
             <input
               defaultValue={item.topic}
               onBlur={(event) => void save(item.id, { ...item, topic: event.target.value })}
-              className="w-full bg-luxury-black border border-luxury-brown/40 rounded-lg p-2 text-sm text-luxury-white"
+              className="w-full bg-white border border-slate-200 rounded-lg p-2 text-sm text-slate-900"
             />
             <textarea
               defaultValue={item.description}
               onBlur={(event) => void save(item.id, { ...item, description: event.target.value })}
-              className="w-full bg-luxury-black border border-luxury-brown/40 rounded-lg p-2 text-sm min-h-20 text-luxury-white"
+              className="w-full bg-white border border-slate-200 rounded-lg p-2 text-sm min-h-20 text-slate-900"
             />
             <div className="grid grid-cols-2 gap-2">
-              {item.beforeImageUrl ? <img src={item.beforeImageUrl} alt="Before" className="w-full h-24 object-cover rounded-md border border-luxury-brown/30" /> : <div className="h-24 rounded-md border border-luxury-brown/30 flex items-center justify-center text-xs text-luxury-muted">No before image</div>}
-              {item.afterImageUrl ? <img src={item.afterImageUrl} alt="After" className="w-full h-24 object-cover rounded-md border border-luxury-brown/30" /> : <div className="h-24 rounded-md border border-luxury-brown/30 flex items-center justify-center text-xs text-luxury-muted">No after image</div>}
+              {item.beforeImageUrl ? <img src={item.beforeImageUrl} alt="Before" className="w-full h-24 object-cover rounded-md border border-slate-200" /> : <div className="h-24 rounded-md border border-slate-200 flex items-center justify-center text-xs text-slate-500">No before image</div>}
+              {item.afterImageUrl ? <img src={item.afterImageUrl} alt="After" className="w-full h-24 object-cover rounded-md border border-slate-200" /> : <div className="h-24 rounded-md border border-slate-200 flex items-center justify-center text-xs text-slate-500">No after image</div>}
             </div>
-            <label className="block border border-luxury-brown/40 rounded-lg p-2 text-xs text-luxury-muted cursor-pointer">
+            <label className="block border border-slate-200 rounded-lg p-2 text-xs text-slate-500 cursor-pointer">
               Replace before image
               <input
                 type="file"
@@ -247,7 +247,7 @@ export function AdminWorkManagementPage() {
                 className="block mt-2 text-xs"
               />
             </label>
-            <label className="block border border-luxury-brown/40 rounded-lg p-2 text-xs text-luxury-muted cursor-pointer">
+            <label className="block border border-slate-200 rounded-lg p-2 text-xs text-slate-500 cursor-pointer">
               Replace after image
               <input
                 type="file"

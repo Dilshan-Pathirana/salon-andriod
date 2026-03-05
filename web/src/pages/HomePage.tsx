@@ -58,7 +58,7 @@ export function HomePage({ onBookClick }: HomePageProps) {
           viewport={{
             once: true,
           }}
-          className="font-playfair text-2xl text-slate-800 mb-6 text-center"
+          className="font-sans font-semibold tracking-tight text-2xl text-slate-800 mb-6 text-center"
         >
           What Our Clients Say
         </motion.h2>

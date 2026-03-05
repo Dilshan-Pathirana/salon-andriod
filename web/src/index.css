@@ -10,7 +10,7 @@
 
 @layer base {
   :root {
-    color-scheme: dark;
+    color-scheme: light;
   }
 
   html {
@@ -18,28 +18,16 @@
   }
 
   body {
-    @apply m-0 min-h-screen bg-[#0b1110] font-inter text-slate-100 antialiased;
-    background-image:
-      radial-gradient(circle at 15% 10%, rgba(20, 89, 76, 0.25), transparent 38%),
-      radial-gradient(circle at 85% 0%, rgba(159, 125, 74, 0.17), transparent 28%);
-  }
-
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    @apply font-playfair;
+    @apply m-0 min-h-screen bg-slate-50 font-sans text-slate-900 antialiased;
   }
 
   * {
-    @apply border-slate-800/50;
+    @apply border-slate-200;
   }
 }
 
 @layer utilities {
   .glass-card {
-    @apply border border-white/10 bg-white/[0.04] backdrop-blur-xl;
+    @apply border border-slate-200 bg-white/90 backdrop-blur-xl shadow-sm rounded-xl;
   }
 }

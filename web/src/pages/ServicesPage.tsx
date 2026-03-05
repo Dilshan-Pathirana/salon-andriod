@@ -46,7 +46,7 @@ export function ServicesPage() {
       transition={{ duration: 0.4 }}
       className="px-4 py-6"
     >
-      <h1 className="font-playfair text-3xl text-center mb-8">Services</h1>
+      <h1 className="font-sans font-semibold tracking-tight text-3xl text-center mb-8">Services</h1>
 
       {isLoading ? <p className="text-sm text-slate-400">Loading services...</p> : null}
 
@@ -57,7 +57,7 @@ export function ServicesPage() {
               <p className="text-slate-800 text-base font-medium">{service.name}</p>
               <p className="text-slate-500 text-xs mt-1 leading-relaxed">{service.description || 'Premium salon service'}</p>
             </div>
-            <p className="font-playfair text-teal-700 text-lg">${service.price}</p>
+            <p className="font-sans font-semibold tracking-tight text-teal-700 text-lg">${service.price}</p>
           </div>
         ))}
       </div>

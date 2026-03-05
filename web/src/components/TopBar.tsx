@@ -9,16 +9,16 @@ interface TopBarProps {
 
 export function TopBar({ title, onMenuClick }: TopBarProps) {
   return (
-    <div className="sticky top-0 z-40 h-16 border-b border-white/10 bg-black/30 backdrop-blur-xl grid grid-cols-[44px_1fr_44px] items-center px-3">
+    <div className="sticky top-0 z-40 h-16 border-b border-slate-200 bg-white/80 backdrop-blur-xl grid grid-cols-[44px_1fr_44px] items-center px-3 shadow-sm">
       <button
         onClick={onMenuClick}
-        className="h-10 w-10 flex items-center justify-center rounded-full border border-white/10 bg-white/[0.03] hover:bg-white/[0.08] transition-colors"
+        className="h-10 w-10 flex items-center justify-center rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 transition-colors shadow-sm focus:ring-2 focus:ring-blue-500 outline-none"
         aria-label="Open menu"
       >
-        <Menu className="w-5 h-5 text-emerald-200" />
+        <Menu className="w-5 h-5 flex-shrink-0" />
       </button>
 
-      <h1 className="font-playfair text-base text-white font-semibold tracking-wide text-center truncate px-2">
+      <h1 className="font-sans text-[15px] text-slate-900 font-semibold tracking-tight text-center truncate px-2">
         {title}
       </h1>
 

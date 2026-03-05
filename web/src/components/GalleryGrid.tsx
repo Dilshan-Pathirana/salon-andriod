@@ -23,7 +23,7 @@ export function GalleryGrid() {
         viewport={{
           once: true,
         }}
-        className="font-playfair text-2xl text-slate-800 mb-10 text-center"
+        className="font-sans font-semibold tracking-tight text-2xl text-slate-800 mb-10 text-center"
       >
         Our Work
       </motion.h2>

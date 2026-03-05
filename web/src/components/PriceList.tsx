@@ -70,7 +70,7 @@ export function PriceList() {
         viewport={{
           once: true,
         }}
-        className="font-playfair text-2xl text-slate-800 mb-10 text-center"
+        className="font-sans font-semibold tracking-tight text-2xl text-slate-800 mb-10 text-center"
       >
         Services & Pricing
       </motion.h2>
@@ -122,7 +122,7 @@ export function PriceList() {
                     <span className="font-inter text-slate-800 text-base">
                       {item.name}
                     </span>
-                    <span className="font-playfair text-emerald-500 text-lg">
+                    <span className="font-sans font-semibold tracking-tight text-emerald-500 text-lg">
                       ${item.price}
                     </span>
                   </div>

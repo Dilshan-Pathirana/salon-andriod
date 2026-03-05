@@ -157,7 +157,7 @@ export function BookingPage({ onRequireAuth, onBookingComplete }: BookingPagePro
               strokeWidth={1.5}
             />
           </div>
-          <h1 className="font-playfair text-3xl text-emerald-600 mb-4">
+          <h1 className="font-sans font-semibold tracking-tight text-3xl text-emerald-600 mb-4">
             Your Time Has Been Secured
           </h1>
           <p className="font-inter text-slate-400 text-sm tracking-wide">
@@ -185,7 +185,7 @@ export function BookingPage({ onRequireAuth, onBookingComplete }: BookingPagePro
       }}
       className="px-4 py-6"
     >
-      <h1 className="font-playfair text-3xl text-slate-800 mb-6 text-center">
+      <h1 className="font-sans font-semibold tracking-tight text-3xl text-slate-800 mb-6 text-center">
         Reserve Your Time
       </h1>
 
@@ -213,7 +213,7 @@ export function BookingPage({ onRequireAuth, onBookingComplete }: BookingPagePro
             className="mb-12 overflow-hidden"
           >
             <p className="text-xs text-slate-400 tracking-widest uppercase mb-3">Step 2 - Pick a service</p>
-            <h3 className="font-playfair text-xl text-slate-800 mb-6">
+            <h3 className="font-sans font-semibold tracking-tight text-xl text-slate-800 mb-6">
               Select Service
             </h3>
             <div className="space-y-3">
@@ -236,7 +236,7 @@ export function BookingPage({ onRequireAuth, onBookingComplete }: BookingPagePro
                     >
                       {service.name}
                     </span>
-                    <span className="font-playfair text-teal-700 text-lg">
+                    <span className="font-sans font-semibold tracking-tight text-teal-700 text-lg">
                       ${service.price}
                     </span>
                   </motion.button>

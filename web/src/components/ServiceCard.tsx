@@ -30,7 +30,7 @@ export function ServiceCard({ name, price, delay = 0 }: ServiceCardProps) {
       <span className="font-inter text-slate-800 text-base font-light tracking-wide">
         {name}
       </span>
-      <span className="font-playfair text-emerald-500 text-lg">${price}</span>
+      <span className="font-sans font-semibold tracking-tight text-emerald-500 text-lg">${price}</span>
     </motion.div>
   )
 }

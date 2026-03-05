@@ -284,10 +284,15 @@ export function App() {
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#08100e] font-inter text-slate-100">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_0%,rgba(16,185,129,0.18),transparent_42%),radial-gradient(circle_at_85%_10%,rgba(194,173,144,0.2),transparent_36%)]" />
+    <div className="relative h-screen w-full overflow-hidden bg-slate-50 font-sans text-slate-900 flex justify-center selection:bg-blue-100 selection:text-blue-900">
+      {/* Light subtle SaaS dashboard style background gradients */}
+      <div className="pointer-events-none absolute inset-0 flex justify-center">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-blue-400/10 blur-[80px]" />
+        <div className="absolute bottom-[10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-400/10 blur-[100px]" />
+      </div>
 
-      <div className="relative mx-auto w-full max-w-md min-h-screen overflow-hidden border-x border-white/10 bg-[#0b1110]/85 shadow-[0_20px_80px_rgba(0,0,0,0.55)] backdrop-blur-xl flex flex-col">
+      {/* Main App Container */}
+      <div className="relative w-full max-w-[480px] h-full flex flex-col overflow-hidden bg-white shadow-2xl shadow-indigo-100 sm:border-x sm:border-slate-200 z-10">
         <TopBar title={getPageTitle(activePage)} onMenuClick={() => setIsMenuOpen(true)} />
 
         <HamburgerMenu

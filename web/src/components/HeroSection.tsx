@@ -8,7 +8,7 @@ export function HeroSection({ onBookClick }: HeroSectionProps) {
     <section className="relative min-h-[62vh] w-full flex flex-col items-center justify-center overflow-hidden px-4 pt-8 pb-6">
       {/* Cinematic Background */}
       <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-teal-50/40 via-white to-white opacity-80" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-blue-50/70 via-white to-white opacity-80" />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/50 to-white" />
       </div>
 
@@ -28,40 +28,32 @@ export function HeroSection({ onBookClick }: HeroSectionProps) {
           }}
           className="mb-8"
         >
-          <h2 className="font-playfair text-teal-700 text-xl tracking-[0.16em] uppercase mb-4">
-            Salon Ru Zero One
-          </h2>
-          <h1 className="font-playfair text-4xl text-slate-800 leading-tight mb-3">
-            Style in
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 mb-6 rounded-full bg-blue-50 border border-blue-100/50">
+            <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
+            <span className="text-[10px] font-semibold tracking-widest text-blue-700 uppercase">Now Accepting Walk-ins</span>
+          </div>
+          
+          <h1 className="font-sans font-extrabold tracking-tight text-[2.75rem] text-slate-900 leading-[1.1] mb-5">
+            Modern grooming
             <br />
-            Every Detail
+            <span className="text-blue-600">redefined.</span>
           </h1>
-          <p className="font-inter text-slate-500 text-sm tracking-wide font-normal">
-            Premium modern grooming for everyday confidence
+          <p className="font-sans text-slate-500 text-base leading-relaxed max-w-xs mx-auto">
+            Experience premium service tailored for clarity, confidence, and precision.
           </p>
         </motion.div>
 
         <motion.button
-          initial={{
-            opacity: 0,
-            y: 20,
-          }}
-          animate={{
-            opacity: 1,
-            y: 0,
-          }}
-          transition={{
-            duration: 0.8,
-            delay: 0.2,
-            ease: [0.25, 0.1, 0.25, 1],
-          }}
-          whileTap={{
-            scale: 0.97,
-          }}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          whileHover={{ y: -2 }}
+          whileTap={{ scale: 0.98 }}
           onClick={onBookClick}
-          className="mt-8 w-full bg-gradient-to-r from-teal-600 to-emerald-500 text-white font-inter text-[13px] font-semibold tracking-wide uppercase py-4 rounded-xl shadow-lg"
+          className="w-full relative group overflow-hidden bg-blue-600 text-white font-sans text-[15px] font-medium py-4 px-6 rounded-xl shadow-sm hover:shadow-blue-500/25 transition-all"
         >
-          Reserve Your Time
+          <span className="relative z-10 font-semibold tracking-wide">Book Appointment</span>
+          <div className="absolute inset-0 h-full w-full bg-gradient-to-r from-blue-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         </motion.button>
       </div>
     </section>

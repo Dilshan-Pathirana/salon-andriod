@@ -42,7 +42,7 @@ export function WorkPage() {
       transition={{ duration: 0.4 }}
       className="px-6 pt-12 pb-28"
     >
-      <h1 className="font-playfair text-3xl text-center mb-8">Our Work</h1>
+      <h1 className="font-sans font-semibold tracking-tight text-3xl text-center mb-8">Our Work</h1>
 
       {isLoading ? <p className="text-sm text-slate-400">Loading gallery...</p> : null}
 
