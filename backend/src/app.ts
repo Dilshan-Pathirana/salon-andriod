@@ -24,12 +24,20 @@ type AuthPayload = {
 type AuthRequest = Request & { auth?: AuthPayload };
 
 const app = express();
+const allowAnyOrigin = env.corsOrigins.includes('*');
 
 app.use(helmet());
 app.use(
   cors({
-    origin: env.clientUrl,
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    origin(origin, callback) {
+      if (!origin || allowAnyOrigin || env.corsOrigins.includes(origin)) {
+        callback(null, true);
+        return;
+      }
+
+      callback(new Error(`Origin ${origin} is not allowed by CORS`));
+    },
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   })
 );
