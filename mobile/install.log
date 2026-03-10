@@ -1,0 +1,113 @@
+npm warn ERESOLVE overriding peer dependency
+npm warn While resolving: salon-mobile@1.0.0
+npm warn Found: react@18.2.0
+npm warn node_modules/react
+npm warn   react@"18.3.1" from the root project
+npm warn   21 more (@radix-ui/react-compose-refs, @radix-ui/react-slot, ...)
+npm warn
+npm warn Could not resolve dependency:
+npm warn peer react@"18.2.0" from react-native@0.74.5
+npm warn node_modules/react-native
+npm warn   react-native@"0.76.7" from the root project
+npm warn   16 more (@expo/metro-runtime, ...)
+npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+npm warn deprecated @babel/plugin-proposal-class-properties@7.18.6: This proposal has been merged to the ECMAScript standard and thus this plugin is no longer maintained. Please use @babel/plugin-transform-class-properties instead.
+npm warn deprecated @babel/plugin-proposal-nullish-coalescing-operator@7.18.6: This proposal has been merged to the ECMAScript standard and thus this plugin is no longer maintained. Please use @babel/plugin-transform-nullish-coalescing-operator instead.
+npm warn deprecated rimraf@2.6.3: Rimraf versions prior to v4 are no longer supported
+npm warn deprecated rimraf@3.0.2: Rimraf versions prior to v4 are no longer supported
+npm warn deprecated @babel/plugin-proposal-optional-chaining@7.21.0: This proposal has been merged to the ECMAScript standard and thus this plugin is no longer maintained. Please use @babel/plugin-transform-optional-chaining instead.
+npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+npm warn deprecated glob@7.1.6: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+npm warn deprecated glob@7.1.6: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+npm warn deprecated @xmldom/xmldom@0.7.13: this version is no longer supported, please update to at least 0.8.*
+npm warn deprecated @xmldom/xmldom@0.7.13: this version is no longer supported, please update to at least 0.8.*
+
+added 887 packages, removed 8 packages, changed 10 packages, and audited 904 packages in 2m
+
+80 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+env: load .env
+env: export API_BASE_URL
+› Installing 10 SDK 54.0.0 compatible native modules using npm
+> npm install
+npm warn ERESOLVE overriding peer dependency
+
+added 77 packages, removed 113 packages, changed 23 packages, and audited 868 packages in 33s
+
+71 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+DONE  
+env: load .env
+env: export API_BASE_URL
+› Installing 1 SDK 54.0.0 compatible native module using npm
+> npm install
+npm error code ERESOLVE
+npm error ERESOLVE could not resolve
+npm error
+npm error While resolving: react-dom@19.2.4
+npm error Found: react@18.3.1
+npm error node_modules/react
+npm error   react@"18.3.1" from the root project
+npm error   peerOptional react@"*" from @expo/devtools@0.1.8
+npm error   node_modules/@expo/devtools
+npm error     @expo/devtools@"0.1.8" from expo@54.0.33
+npm error     node_modules/expo
+npm error       expo@"~54.0.0" from the root project
+npm error       13 more (@expo/prebuild-config, expo-constants, expo-router, ...)
+npm error   59 more (@radix-ui/react-compose-refs, ...)
+npm error
+npm error Could not resolve dependency:
+npm error peer react@"^19.2.4" from react-dom@19.2.4
+npm error node_modules/react-dom
+npm error   peerOptional react-dom@"*" from expo-router@6.0.23
+npm error   node_modules/expo-router
+npm error     expo-router@"~6.0.23" from the root project
+npm error     1 more (@expo/cli)
+npm error   peerOptional react-dom@"*" from @expo/metro-runtime@6.1.2
+npm error   node_modules/expo-router/node_modules/@expo/metro-runtime
+npm error     @expo/metro-runtime@"^6.1.2" from expo-router@6.0.23
+npm error   12 more (@radix-ui/react-collection, ...)
+npm error
+npm error Conflicting peer dependency: react@19.2.4
+npm error node_modules/react
+npm error   peer react@"^19.2.4" from react-dom@19.2.4
+npm error   node_modules/react-dom
+npm error     peerOptional react-dom@"*" from expo-router@6.0.23
+npm error     node_modules/expo-router
+npm error       expo-router@"~6.0.23" from the root project
+npm error       1 more (@expo/cli)
+npm error     peerOptional react-dom@"*" from @expo/metro-runtime@6.1.2
+npm error     node_modules/expo-router/node_modules/@expo/metro-runtime
+npm error       @expo/metro-runtime@"^6.1.2" from expo-router@6.0.23
+npm error     12 more (@radix-ui/react-collection, ...)
+npm error
+npm error Fix the upstream dependency conflict, or retry
+npm error this command with --force or --legacy-peer-deps
+npm error to accept an incorrect (and potentially broken) dependency resolution.
+npm error
+npm error
+npm error For a full report see:
+npm error C:\Users\Dilshan\AppData\Local\npm-cache\_logs\2026-03-10T09_49_35_214Z-eresolve-report.txt
+npm error A complete log of this run can be found in: C:\Users\Dilshan\AppData\Local\npm-cache\_logs\2026-03-10T09_49_35_214Z-debug-0.log
+Error: npm install exited with non-zero code: 1
+Error: npm install exited with non-zero code: 1
+    at ChildProcess.completionListener (e:\new-web\salon-andriod\mobile\node_modules\@expo\spawn-async\build\spawnAsync.js:42:23)
+    at Object.onceWrapper (node:events:623:26)
+    at ChildProcess.emit (node:events:508:28)
+    at cp.emit (e:\new-web\salon-andriod\mobile\node_modules\cross-spawn\lib\enoent.js:34:29)
+    at maybeClose (node:internal/child_process:1101:16)
+    at ChildProcess._handle.onexit (node:internal/child_process:305:5)
+    ...
+    at spawnAsync (e:\new-web\salon-andriod\mobile\node_modules\@expo\spawn-async\build\spawnAsync.js:7:23)
+    at NpmPackageManager.runAsync (e:\new-web\salon-andriod\mobile\node_modules\@expo\package-manager\build\node\BasePackageManager.js:41:42)
+    at e:\new-web\salon-andriod\mobile\node_modules\@expo\package-manager\build\node\NpmPackageManager.js:36:20
+    at e:\new-web\salon-andriod\mobile\node_modules\@expo\package-manager\build\utils\spawn.js:14:34

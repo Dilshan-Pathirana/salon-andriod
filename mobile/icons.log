@@ -1,0 +1,73 @@
+npm error code ERESOLVE
+npm error ERESOLVE could not resolve
+npm error
+npm error While resolving: react-dom@19.2.4
+npm error Found: react@18.3.1
+npm error node_modules/react
+npm error   peerOptional react@"*" from @expo/devtools@0.1.8
+npm error   node_modules/@expo/devtools
+npm error     @expo/devtools@"0.1.8" from expo@54.0.33
+npm error     node_modules/expo
+npm error       peer expo@"*" from @expo/prebuild-config@54.0.8
+npm error       node_modules/@expo/prebuild-config
+npm error         @expo/prebuild-config@"^54.0.8" from expo-splash-screen@31.0.13
+npm error         node_modules/expo-splash-screen
+npm error         1 more (@expo/cli)
+npm error       13 more (expo-constants, expo-router, @expo/metro-runtime, ...)
+npm error   peer react@"^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc" from @radix-ui/react-compose-refs@1.1.2
+npm error   node_modules/@radix-ui/react-compose-refs
+npm error     @radix-ui/react-compose-refs@"1.1.2" from @radix-ui/react-slot@1.2.0
+npm error     node_modules/@radix-ui/react-slot
+npm error       @radix-ui/react-slot@"1.2.0" from expo-router@6.0.23
+npm error       node_modules/expo-router
+npm error         peerOptional expo-router@"*" from @expo/cli@54.0.23
+npm error         node_modules/expo/node_modules/@expo/cli
+npm error         1 more (the root project)
+npm error     @radix-ui/react-compose-refs@"1.1.2" from @radix-ui/react-collection@1.1.7
+npm error     node_modules/expo-router/node_modules/@radix-ui/react-collection
+npm error       @radix-ui/react-collection@"1.1.7" from @radix-ui/react-roving-focus@1.1.11
+npm error       node_modules/expo-router/node_modules/@radix-ui/react-roving-focus
+npm error         @radix-ui/react-roving-focus@"1.1.11" from @radix-ui/react-tabs@1.1.13
+npm error         node_modules/expo-router/node_modules/@radix-ui/react-tabs
+npm error     9 more (@radix-ui/react-slot, @radix-ui/react-presence, ...)
+npm error   59 more (@radix-ui/react-context, @radix-ui/react-direction, ...)
+npm error
+npm error Could not resolve dependency:
+npm error peer react@"^19.2.4" from react-dom@19.2.4
+npm error node_modules/react-dom
+npm error   peerOptional react-dom@"*" from expo-router@6.0.23
+npm error   node_modules/expo-router
+npm error     peerOptional expo-router@"*" from @expo/cli@54.0.23
+npm error     node_modules/expo/node_modules/@expo/cli
+npm error       @expo/cli@"54.0.23" from expo@54.0.33
+npm error       node_modules/expo
+npm error     1 more (the root project)
+npm error   peerOptional react-dom@"*" from @expo/metro-runtime@6.1.2
+npm error   node_modules/expo-router/node_modules/@expo/metro-runtime
+npm error     @expo/metro-runtime@"^6.1.2" from expo-router@6.0.23
+npm error   12 more (@radix-ui/react-collection, ...)
+npm error
+npm error Conflicting peer dependency: react@19.2.4
+npm error node_modules/react
+npm error   peer react@"^19.2.4" from react-dom@19.2.4
+npm error   node_modules/react-dom
+npm error     peerOptional react-dom@"*" from expo-router@6.0.23
+npm error     node_modules/expo-router
+npm error       peerOptional expo-router@"*" from @expo/cli@54.0.23
+npm error       node_modules/expo/node_modules/@expo/cli
+npm error         @expo/cli@"54.0.23" from expo@54.0.33
+npm error         node_modules/expo
+npm error       1 more (the root project)
+npm error     peerOptional react-dom@"*" from @expo/metro-runtime@6.1.2
+npm error     node_modules/expo-router/node_modules/@expo/metro-runtime
+npm error       @expo/metro-runtime@"^6.1.2" from expo-router@6.0.23
+npm error     12 more (@radix-ui/react-collection, ...)
+npm error
+npm error Fix the upstream dependency conflict, or retry
+npm error this command with --force or --legacy-peer-deps
+npm error to accept an incorrect (and potentially broken) dependency resolution.
+npm error
+npm error
+npm error For a full report see:
+npm error C:\Users\Dilshan\AppData\Local\npm-cache\_logs\2026-03-10T09_49_53_514Z-eresolve-report.txt
+npm error A complete log of this run can be found in: C:\Users\Dilshan\AppData\Local\npm-cache\_logs\2026-03-10T09_49_53_514Z-debug-0.log

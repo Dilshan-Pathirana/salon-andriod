@@ -3,6 +3,10 @@
 /mobile/expo-start.log
 /mobile/.env
 /mobile/.env.local
+/mobile/android
+/mobile/ios
+/mobile/dist
+/mobile/web-build
 /functions/node_modules
 /node_modules
 /salon-app-54d7b-firebase-adminsdk-fbsvc-74c9366290.json
