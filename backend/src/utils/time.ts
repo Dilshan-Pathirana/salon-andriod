@@ -36,11 +36,13 @@ export function generateTimeSlots(
 }
 
 /**
- * Get today's date as a Date object with time zeroed out (UTC).
+ * Get today's date as a Date object with time zeroed out, using IST (UTC+5:30).
+ * This ensures correct date boundary behaviour for the Sri Lanka timezone.
  */
 export function getTodayDate(): Date {
-  const now = new Date();
-  return new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+  const IST_OFFSET_MS = 5.5 * 60 * 60 * 1000;
+  const ist = new Date(Date.now() + IST_OFFSET_MS);
+  return new Date(Date.UTC(ist.getUTCFullYear(), ist.getUTCMonth(), ist.getUTCDate()));
 }
 
 /**

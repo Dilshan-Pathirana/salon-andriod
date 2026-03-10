@@ -16,14 +16,14 @@ export async function createAppointment(userId: string, data: CreateAppointmentI
   const date = parseDateString(data.date);
   const today = getTodayDate();
   const maxAdvanceDate = new Date(today);
-  maxAdvanceDate.setDate(maxAdvanceDate.getDate() + 2);
+  maxAdvanceDate.setUTCDate(maxAdvanceDate.getUTCDate() + 5);
 
   if (date < today) {
     throw new BadRequestError('Cannot book appointments in the past');
   }
 
   if (date > maxAdvanceDate) {
-    throw new BadRequestError('You can only book for today and the next 2 days');
+    throw new BadRequestError('You can only book for today and the next 5 days');
   }
 
   // Use a serializable transaction to prevent race conditions

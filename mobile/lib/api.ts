@@ -3,6 +3,31 @@ import axios from 'axios';
 import { Platform } from 'react-native';
 import { Appointment, Service, Story } from './types';
 
+// ─── IST timezone helpers (UTC+5:30) ──────────────────────────────────────
+const IST_OFFSET_MS = 5.5 * 60 * 60 * 1000;
+function getNowIST(): Date { return new Date(Date.now() + IST_OFFSET_MS); }
+export function getTodayIST(): string {
+  const d = getNowIST();
+  return [
+    d.getUTCFullYear(),
+    String(d.getUTCMonth() + 1).padStart(2, '0'),
+    String(d.getUTCDate()).padStart(2, '0'),
+  ].join('-');
+}
+export function getMaxDateIST(daysAhead = 5): string {
+  const d = getNowIST();
+  d.setUTCDate(d.getUTCDate() + daysAhead);
+  return [
+    d.getUTCFullYear(),
+    String(d.getUTCMonth() + 1).padStart(2, '0'),
+    String(d.getUTCDate()).padStart(2, '0'),
+  ].join('-');
+}
+function getCurrentISTMinutes(): number {
+  const d = getNowIST();
+  return d.getUTCHours() * 60 + d.getUTCMinutes();
+}
+
 type SessionUser = {
   id: string;
   firstName: string;
@@ -388,6 +413,17 @@ export async function getClientScheduleByDate(date: string): Promise<{
     slots.push({ time, available: !bookedTimes.has(time) });
   }
 
+  // Disable past time slots when the selected date is today in IST
+  if (date === getTodayIST()) {
+    const nowMins = getCurrentISTMinutes();
+    for (let i = 0; i < slots.length; i++) {
+      const [h, m] = slots[i].time.split(':').map(Number);
+      if (h * 60 + m <= nowMins) {
+        slots[i] = { ...slots[i], available: false };
+      }
+    }
+  }
+
   return { ...target, slots };
 }
 
@@ -411,6 +447,15 @@ export async function adminGetScheduleRange(startDate: string, endDate: string):
     startTime: row.startTime,
     endTime: row.endTime,
     slotDurationMins: Number(row.slotDurationMins || 30),
+  }));
+}
+
+export async function getScheduleDays(startDate: string, endDate: string): Promise<Array<{ date: string; status: string }>> {
+  await ensureSession();
+  const response = await client.get('/schedule', { params: { startDate, endDate } });
+  return (extractData<any[]>(response) || []).map((row) => ({
+    date: row.date as string,
+    status: row.status as string,
   }));
 }
 
@@ -468,6 +513,16 @@ export async function adminDeleteAppointment(id: string): Promise<void> {
 export async function adminCompleteAppointment(id: string): Promise<void> {
   await ensureAdminSession();
   await client.put(`/appointments/${id}/complete`);
+}
+
+export async function adminCreateReservedAppointment(payload: {
+  date: string;
+  timeSlot: string;
+  userId?: string;
+  notes?: string;
+}): Promise<void> {
+  await ensureAdminSession();
+  await client.post('/appointments/reserve', payload);
 }
 
 export async function submitBookingRequest(payload: {

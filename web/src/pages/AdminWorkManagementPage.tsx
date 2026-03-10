@@ -215,7 +215,7 @@ export function AdminWorkManagementPage() {
         </label>
         {form.beforeImageUrl ? <img src={form.beforeImageUrl} alt="Before preview" className="w-full h-28 object-cover rounded-lg border border-slate-200" /> : null}
         {form.afterImageUrl ? <img src={form.afterImageUrl} alt="After preview" className="w-full h-28 object-cover rounded-lg border border-slate-200" /> : null}
-        <button onClick={() => void add()} className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-colors text-white rounded-lg text-xs tracking-widest uppercase font-semibold">Add Work</button>
+        <button onClick={() => void add()} className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-colors rounded-lg text-xs tracking-widest uppercase font-semibold">Add Work</button>
       </div>
 
       {message ? <p className="text-xs text-blue-600 mb-4">{message}</p> : null}

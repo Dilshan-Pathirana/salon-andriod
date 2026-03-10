@@ -3,11 +3,11 @@ import { Service } from '../lib/types';
 import { Colors } from '../constants/Colors';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   ActivityIndicator,
   FlatList,
   Pressable,
-  SafeAreaView,
   StyleSheet,
   Text,
   View,

@@ -3,12 +3,13 @@ import { loginWithPhone } from '../../lib/api';
 import { Colors } from '../../constants/Colors';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
+import PasswordInput from '../../components/PasswordInput';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
   Pressable,
-  SafeAreaView,
   StyleSheet,
   Text,
   TextInput,
@@ -63,11 +64,8 @@ export default function LoginScreen() {
             onChangeText={setPhone}
             autoComplete="tel"
           />
-          <TextInput
-            style={styles.input}
+          <PasswordInput
             placeholder="Password"
-            placeholderTextColor={Colors.textMuted}
-            secureTextEntry
             value={password}
             onChangeText={setPassword}
           />

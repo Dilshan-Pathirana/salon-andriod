@@ -185,7 +185,7 @@ export function AdminSessionManagementPage() {
           <p className="text-xs text-slate-500">Calculated as total range minutes ÷ 30</p>
         </div>
 
-        <button onClick={() => void saveDay()} disabled={isSaving} className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-colors text-white rounded-lg text-xs tracking-widest uppercase font-semibold disabled:opacity-60">
+        <button onClick={() => void saveDay()} disabled={isSaving} className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-colors rounded-lg text-xs tracking-widest uppercase font-semibold disabled:opacity-60">
           {isSaving ? 'Saving...' : 'Save Day'}
         </button>
 

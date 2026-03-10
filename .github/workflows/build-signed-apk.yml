@@ -1,0 +1,162 @@
+name: Build Signed APK
+
+# Triggers: every push to main, or manually via the Actions tab.
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# ────────────────────────────────────────────────────────────────────────────
+# Required GitHub repository secrets
+# ────────────────────────────────────────────────────────────────────────────
+# EXPO_PUBLIC_API_BASE_URL     — e.g. https://salon-andriod.vercel.app/api
+# ANDROID_KEYSTORE_BASE64      — base64-encoded .jks keystore
+#                                 Generate: keytool -genkeypair -v \
+#                                   -keystore release.keystore \
+#                                   -alias salon-key \
+#                                   -keyalg RSA -keysize 2048 \
+#                                   -validity 10000
+#                                 Then: base64 -w 0 release.keystore
+# ANDROID_KEYSTORE_PASSWORD    — password used during keytool -storepass
+# ANDROID_KEY_ALIAS            — alias used in keytool (e.g. salon-key)
+# ANDROID_KEY_PASSWORD         — key password (usually same as store password)
+# ────────────────────────────────────────────────────────────────────────────
+
+jobs:
+  build-signed-apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      EXPO_NO_TELEMETRY: '1'
+      EXPO_PUBLIC_API_BASE_URL: ${{ secrets.EXPO_PUBLIC_API_BASE_URL }}
+
+    steps:
+      # ── 1. Source ───────────────────────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ── 2. Toolchain ────────────────────────────────────────────────────────
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      # ── 3. Guard: fail fast if secrets are missing ──────────────────────────
+      - name: Validate required secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+          missing=0
+          for name in \
+            EXPO_PUBLIC_API_BASE_URL \
+            ANDROID_KEYSTORE_BASE64 \
+            ANDROID_KEYSTORE_PASSWORD \
+            ANDROID_KEY_ALIAS \
+            ANDROID_KEY_PASSWORD; do
+            if [ -z "${!name:-}" ] 2>/dev/null; then
+              echo "::error::Required secret '$name' is not set in repository secrets"
+              missing=1
+            fi
+          done
+          [ "$missing" -eq 0 ] || exit 1
+        env:
+          ANDROID_KEYSTORE_BASE64:    ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD:  ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS:          ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD:       ${{ secrets.ANDROID_KEY_PASSWORD }}
+
+      # ── 4. Install JS dependencies ──────────────────────────────────────────
+      - name: Install dependencies
+        working-directory: mobile
+        run: npm ci
+
+      # ── 5. Generate Android native project ─────────────────────────────────
+      - name: Generate Android project (expo prebuild)
+        working-directory: mobile
+        run: npx expo prebuild --platform android --non-interactive --clean
+
+      # ── 6. Gradle caching (after prebuild so wrapper properties exist) ──────
+      - name: Setup Gradle cache
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          build-root-directory: mobile/android
+
+      # ── 7. Restore keystore from secret ────────────────────────────────────
+      - name: Restore Android keystore
+        working-directory: mobile
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p android/signing
+          printenv ANDROID_KEYSTORE_BASE64 | base64 --decode > android/signing/release.keystore
+          echo "Keystore restored ($(wc -c < android/signing/release.keystore) bytes)"
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+
+      # ── 8. Patch build.gradle with signing config ───────────────────────────
+      - name: Configure Android release signing
+        working-directory: mobile
+        run: node scripts/configure-android-signing.js
+
+      # ── 9. Build ────────────────────────────────────────────────────────────
+      - name: Build release APK
+        working-directory: mobile/android
+        run: ./gradlew --no-daemon assembleRelease --stacktrace --warning-mode all
+        env:
+          # ORG_GRADLE_PROJECT_* vars are automatically injected as Gradle project properties
+          ORG_GRADLE_PROJECT_RELEASE_STORE_FILE:     ../../signing/release.keystore
+          ORG_GRADLE_PROJECT_RELEASE_STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ORG_GRADLE_PROJECT_RELEASE_KEY_ALIAS:      ${{ secrets.ANDROID_KEY_ALIAS }}
+          ORG_GRADLE_PROJECT_RELEASE_KEY_PASSWORD:   ${{ secrets.ANDROID_KEY_PASSWORD }}
+
+      # ── 10. Always remove the keystore from the runner ──────────────────────
+      - name: Clean up keystore
+        if: always()
+        working-directory: mobile
+        run: rm -rf android/signing
+
+      # ── 11. Upload Gradle reports on failure ─────────────────────────────────
+      - name: Upload Gradle build reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gradle-build-reports
+          path: |
+            mobile/android/app/build/reports
+            mobile/android/build/reports
+          if-no-files-found: ignore
+
+      # ── 12. Verify APK is properly signed ────────────────────────────────────
+      - name: Verify APK signature
+        working-directory: mobile
+        shell: bash
+        run: |
+          set -euo pipefail
+          APKSIGNER=$(find "$ANDROID_HOME/build-tools" -name apksigner | sort | tail -n 1)
+          if [ -z "$APKSIGNER" ]; then
+            echo "::error::apksigner not found in ANDROID_HOME/build-tools"
+            exit 1
+          fi
+          "$APKSIGNER" verify --verbose \
+            android/app/build/outputs/apk/release/app-release.apk
+
+      # ── 13. Upload APK artifact ───────────────────────────────────────────────
+      - name: Upload signed APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: salon-android-release-apk
+          path: mobile/android/app/build/outputs/apk/release/app-release.apk
+          if-no-files-found: error
+          retention-days: 30

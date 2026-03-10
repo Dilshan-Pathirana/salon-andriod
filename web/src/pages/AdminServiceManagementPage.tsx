@@ -153,7 +153,7 @@ export function AdminServiceManagementPage() {
           placeholder="Description"
           className="w-full bg-white border border-slate-200 rounded-lg p-3 text-sm text-slate-900"
         />
-        <button onClick={() => void handleCreate()} className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-colors text-white rounded-lg text-xs tracking-widest uppercase font-semibold">
+        <button onClick={() => void handleCreate()} className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-colors rounded-lg text-xs tracking-widest uppercase font-semibold">
           Add Service
         </button>
       </div>

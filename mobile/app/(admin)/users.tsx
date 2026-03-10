@@ -8,6 +8,8 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import { Colors } from '../../constants/Colors';
 import { useEffect, useState } from 'react';
+import PasswordInput from '../../components/PasswordInput';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   ActivityIndicator,
   Alert,
@@ -15,7 +17,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Switch,
@@ -136,15 +137,19 @@ export default function AdminUsersScreen() {
             <Text style={styles.formTitle}>{editing ? 'Edit User' : 'New User'}</Text>
             {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
-            <TextInput style={styles.input} placeholder="First name" placeholderTextColor={Colors.textMuted}
-              value={form.firstName} onChangeText={(v) => setForm((p) => ({ ...p, firstName: v }))} color={Colors.text} />
-            <TextInput style={styles.input} placeholder="Last name" placeholderTextColor={Colors.textMuted}
-              value={form.lastName} onChangeText={(v) => setForm((p) => ({ ...p, lastName: v }))} color={Colors.text} />
-            <TextInput style={styles.input} placeholder="Phone number" placeholderTextColor={Colors.textMuted}
-              value={form.phoneNumber} onChangeText={(v) => setForm((p) => ({ ...p, phoneNumber: v }))} keyboardType="phone-pad" color={Colors.text} />
+            <TextInput style={[styles.input, { color: Colors.text }]} placeholder="First name" placeholderTextColor={Colors.textMuted}
+              value={form.firstName} onChangeText={(v) => setForm((p) => ({ ...p, firstName: v }))} />
+            <TextInput style={[styles.input, { color: Colors.text }]} placeholder="Last name" placeholderTextColor={Colors.textMuted}
+              value={form.lastName} onChangeText={(v) => setForm((p) => ({ ...p, lastName: v }))} />
+            <TextInput style={[styles.input, { color: Colors.text }]} placeholder="Phone number" placeholderTextColor={Colors.textMuted}
+              value={form.phoneNumber} onChangeText={(v) => setForm((p) => ({ ...p, phoneNumber: v }))} keyboardType="phone-pad" />
             {!editing ? (
-              <TextInput style={styles.input} placeholder="Password" placeholderTextColor={Colors.textMuted}
-                value={form.password} onChangeText={(v) => setForm((p) => ({ ...p, password: v }))} secureTextEntry color={Colors.text} />
+              <PasswordInput
+                containerStyle={{ backgroundColor: Colors.card, marginBottom: 12 }}
+                placeholder="Password"
+                value={form.password}
+                onChangeText={(v) => setForm((p) => ({ ...p, password: v }))}
+              />
             ) : null}
 
             <Text style={styles.inputLabel}>Role</Text>

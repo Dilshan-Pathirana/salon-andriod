@@ -189,7 +189,7 @@ export function AdminAppointmentManagementPage() {
           <input type="date" value={reservedDate} onChange={(event) => setReservedDate(event.target.value)} className="bg-white border border-slate-200 rounded-lg p-3 text-sm text-slate-900" />
           <input type="time" value={reservedTime} onChange={(event) => setReservedTime(event.target.value)} className="bg-white border border-slate-200 rounded-lg p-3 text-sm text-slate-900" />
         </div>
-        <button onClick={() => void createReserved()} className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-colors text-white rounded-lg text-xs tracking-widest uppercase font-semibold">
+        <button onClick={() => void createReserved()} className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-colors rounded-lg text-xs tracking-widest uppercase font-semibold">
           Save Reserved Slot
         </button>
       </div>

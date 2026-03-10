@@ -3,13 +3,13 @@ import { Story } from '../lib/types';
 import { Colors } from '../constants/Colors';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   ActivityIndicator,
   Dimensions,
   FlatList,
   Image,
   Pressable,
-  SafeAreaView,
   StyleSheet,
   Text,
   View,

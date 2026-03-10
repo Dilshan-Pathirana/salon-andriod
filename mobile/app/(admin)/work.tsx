@@ -7,6 +7,7 @@ import {
 } from '../../lib/api';
 import { Colors } from '../../constants/Colors';
 import { useEffect, useState } from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   ActivityIndicator,
   Alert,
@@ -15,7 +16,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -114,14 +114,14 @@ export default function AdminWorkScreen() {
             <Text style={styles.formTitle}>{editing ? 'Edit Work Item' : 'New Work Item'}</Text>
             {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
-            <TextInput style={styles.input} placeholder="Topic / title" placeholderTextColor={Colors.textMuted}
-              value={form.topic} onChangeText={(v) => setForm((p) => ({ ...p, topic: v }))} color={Colors.text} />
-            <TextInput style={[styles.input, { height: 80 }]} placeholder="Description" placeholderTextColor={Colors.textMuted}
-              value={form.description} onChangeText={(v) => setForm((p) => ({ ...p, description: v }))} multiline color={Colors.text} />
-            <TextInput style={styles.input} placeholder="Before image URL" placeholderTextColor={Colors.textMuted}
-              value={form.beforeImageUrl} onChangeText={(v) => setForm((p) => ({ ...p, beforeImageUrl: v }))} color={Colors.text} />
-            <TextInput style={styles.input} placeholder="After image URL" placeholderTextColor={Colors.textMuted}
-              value={form.afterImageUrl} onChangeText={(v) => setForm((p) => ({ ...p, afterImageUrl: v }))} color={Colors.text} />
+            <TextInput style={[styles.input, { color: Colors.text }]} placeholder="Topic / title" placeholderTextColor={Colors.textMuted}
+              value={form.topic} onChangeText={(v) => setForm((p) => ({ ...p, topic: v }))} />
+            <TextInput style={[styles.input, { height: 80, color: Colors.text }]} placeholder="Description" placeholderTextColor={Colors.textMuted}
+              value={form.description} onChangeText={(v) => setForm((p) => ({ ...p, description: v }))} multiline />
+            <TextInput style={[styles.input, { color: Colors.text }]} placeholder="Before image URL" placeholderTextColor={Colors.textMuted}
+              value={form.beforeImageUrl} onChangeText={(v) => setForm((p) => ({ ...p, beforeImageUrl: v }))} />
+            <TextInput style={[styles.input, { color: Colors.text }]} placeholder="After image URL" placeholderTextColor={Colors.textMuted}
+              value={form.afterImageUrl} onChangeText={(v) => setForm((p) => ({ ...p, afterImageUrl: v }))} />
 
             {form.beforeImageUrl ? (
               <Image source={{ uri: form.beforeImageUrl }} style={styles.preview} resizeMode="cover" />

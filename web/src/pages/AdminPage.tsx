@@ -82,7 +82,7 @@ function StoriesPanel() {
   return (
     <div className="space-y-3">
       <p className="text-slate-500 text-sm">Before/After story management is available directly in the web admin panel.</p>
-      <button className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-colors text-white rounded-lg text-xs tracking-widest uppercase font-semibold">Upload Story</button>
+      <button className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-colors rounded-lg text-xs tracking-widest uppercase font-semibold">Upload Story</button>
     </div>
   );
 }
@@ -195,7 +195,7 @@ function AppointmentsPanel() {
         <button
           onClick={() => void handleSave()}
           disabled={isSaving}
-          className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-colors text-white rounded-lg text-xs tracking-widest uppercase font-semibold disabled:opacity-60"
+          className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-colors rounded-lg text-xs tracking-widest uppercase font-semibold disabled:opacity-60"
         >
           {isSaving ? 'Saving...' : 'Save'}
         </button>

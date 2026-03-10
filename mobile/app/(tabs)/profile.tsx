@@ -3,13 +3,14 @@ import { logoutCurrentSession, updateMyProfile } from '../../lib/api';
 import { Colors } from '../../constants/Colors';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
+import PasswordInput from '../../components/PasswordInput';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   ActivityIndicator,
   Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -115,12 +116,16 @@ export default function ProfileScreen() {
           {editing ? (
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Edit Profile</Text>
-              <TextInput style={styles.input} placeholder="First name" placeholderTextColor={Colors.textMuted}
-                value={form.firstName} onChangeText={(v) => setForm((p) => ({ ...p, firstName: v }))} color={Colors.text} />
-              <TextInput style={styles.input} placeholder="Last name" placeholderTextColor={Colors.textMuted}
-                value={form.lastName} onChangeText={(v) => setForm((p) => ({ ...p, lastName: v }))} color={Colors.text} />
-              <TextInput style={styles.input} placeholder="New password (optional)" placeholderTextColor={Colors.textMuted}
-                value={form.password} onChangeText={(v) => setForm((p) => ({ ...p, password: v }))} secureTextEntry color={Colors.text} />
+              <TextInput style={[styles.input, { color: Colors.text }]} placeholder="First name" placeholderTextColor={Colors.textMuted}
+                value={form.firstName} onChangeText={(v) => setForm((p) => ({ ...p, firstName: v }))} />
+              <TextInput style={[styles.input, { color: Colors.text }]} placeholder="Last name" placeholderTextColor={Colors.textMuted}
+                value={form.lastName} onChangeText={(v) => setForm((p) => ({ ...p, lastName: v }))} />
+              <PasswordInput
+                containerStyle={{ backgroundColor: Colors.card, marginBottom: 12 }}
+                placeholder="New password (optional)"
+                value={form.password}
+                onChangeText={(v) => setForm((p) => ({ ...p, password: v }))}
+              />
 
               <View style={styles.btnRow}>
                 <Pressable style={[styles.btn, { flex: 1, marginRight: 8 }]} onPress={handleSave} disabled={loading}>

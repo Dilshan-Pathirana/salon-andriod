@@ -7,6 +7,7 @@ import {
 } from '../../lib/api';
 import { Colors } from '../../constants/Colors';
 import { useEffect, useState } from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   ActivityIndicator,
   Alert,
@@ -14,7 +15,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Switch,
@@ -133,14 +133,14 @@ export default function AdminServicesScreen() {
             <Text style={styles.formTitle}>{editing ? 'Edit Service' : 'New Service'}</Text>
             {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
-            <TextInput style={styles.input} placeholder="Service name" placeholderTextColor={Colors.textMuted}
-              value={form.name} onChangeText={(v) => setForm((p) => ({ ...p, name: v }))} color={Colors.text} />
-            <TextInput style={[styles.input, { height: 80 }]} placeholder="Description" placeholderTextColor={Colors.textMuted}
-              value={form.description} onChangeText={(v) => setForm((p) => ({ ...p, description: v }))} multiline color={Colors.text} />
-            <TextInput style={styles.input} placeholder="Price (Rs.)" placeholderTextColor={Colors.textMuted}
-              value={form.price} onChangeText={(v) => setForm((p) => ({ ...p, price: v }))} keyboardType="numeric" color={Colors.text} />
-            <TextInput style={styles.input} placeholder="Duration (min)" placeholderTextColor={Colors.textMuted}
-              value={form.duration} onChangeText={(v) => setForm((p) => ({ ...p, duration: v }))} keyboardType="numeric" color={Colors.text} />
+            <TextInput style={[styles.input, { color: Colors.text }]} placeholder="Service name" placeholderTextColor={Colors.textMuted}
+              value={form.name} onChangeText={(v) => setForm((p) => ({ ...p, name: v }))} />
+            <TextInput style={[styles.input, { height: 80, color: Colors.text }]} placeholder="Description" placeholderTextColor={Colors.textMuted}
+              value={form.description} onChangeText={(v) => setForm((p) => ({ ...p, description: v }))} multiline />
+            <TextInput style={[styles.input, { color: Colors.text }]} placeholder="Price (Rs.)" placeholderTextColor={Colors.textMuted}
+              value={form.price} onChangeText={(v) => setForm((p) => ({ ...p, price: v }))} keyboardType="numeric" />
+            <TextInput style={[styles.input, { color: Colors.text }]} placeholder="Duration (min)" placeholderTextColor={Colors.textMuted}
+              value={form.duration} onChangeText={(v) => setForm((p) => ({ ...p, duration: v }))} keyboardType="numeric" />
 
             <Text style={styles.inputLabel}>Category</Text>
             <View style={styles.categoriesRow}>

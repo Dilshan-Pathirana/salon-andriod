@@ -3,12 +3,13 @@ import { registerClient } from '../../lib/api';
 import { Colors } from '../../constants/Colors';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
+import PasswordInput from '../../components/PasswordInput';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
   Pressable,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -63,14 +64,17 @@ export default function RegisterScreen() {
 
             {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
-            <TextInput style={styles.input} placeholder="First name" placeholderTextColor={Colors.textMuted}
-              value={form.firstName} onChangeText={(v) => update('firstName', v)} autoComplete="given-name" color={Colors.text} />
-            <TextInput style={styles.input} placeholder="Last name" placeholderTextColor={Colors.textMuted}
-              value={form.lastName} onChangeText={(v) => update('lastName', v)} autoComplete="family-name" color={Colors.text} />
-            <TextInput style={styles.input} placeholder="Phone number" placeholderTextColor={Colors.textMuted}
-              value={form.phone} onChangeText={(v) => update('phone', v)} keyboardType="phone-pad" autoComplete="tel" color={Colors.text} />
-            <TextInput style={styles.input} placeholder="Password (min 8 characters)" placeholderTextColor={Colors.textMuted}
-              value={form.password} onChangeText={(v) => update('password', v)} secureTextEntry color={Colors.text} />
+            <TextInput style={[styles.input, { color: Colors.text }]} placeholder="First name" placeholderTextColor={Colors.textMuted}
+              value={form.firstName} onChangeText={(v) => update('firstName', v)} autoComplete="given-name" />
+            <TextInput style={[styles.input, { color: Colors.text }]} placeholder="Last name" placeholderTextColor={Colors.textMuted}
+              value={form.lastName} onChangeText={(v) => update('lastName', v)} autoComplete="family-name" />
+            <TextInput style={[styles.input, { color: Colors.text }]} placeholder="Phone number" placeholderTextColor={Colors.textMuted}
+              value={form.phone} onChangeText={(v) => update('phone', v)} keyboardType="phone-pad" autoComplete="tel" />
+            <PasswordInput
+              placeholder="Password (min 8 characters)"
+              value={form.password}
+              onChangeText={(v) => update('password', v)}
+            />
 
             <Pressable style={[styles.btn, loading && styles.btnDisabled]} onPress={handleRegister} disabled={loading}>
               {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.btnText}>Create Account</Text>}

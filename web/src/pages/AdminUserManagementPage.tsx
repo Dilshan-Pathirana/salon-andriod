@@ -155,7 +155,7 @@ export function AdminUserManagementPage() {
           <option value="CLIENT">CLIENT</option>
           <option value="ADMIN">ADMIN</option>
         </select>
-        <button onClick={() => void addUser()} className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-colors text-white rounded-lg text-xs tracking-widest uppercase font-semibold">Add User</button>
+        <button onClick={() => void addUser()} className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-colors rounded-lg text-xs tracking-widest uppercase font-semibold">Add User</button>
       </div>
 
       {message ? <p className="text-xs text-blue-600 mb-4">{message}</p> : null}
@@ -231,7 +231,7 @@ export function AdminUserManagementPage() {
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     onClick={() => void updateSelectedUser()}
-                    className="py-2 bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-colors text-white rounded-lg text-xs tracking-widest uppercase font-semibold"
+                    className="py-2 bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-colors rounded-lg text-xs tracking-widest uppercase font-semibold"
                   >
                     Update User
                   </button>

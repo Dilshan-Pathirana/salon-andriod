@@ -1,12 +1,12 @@
-import { adminCompleteAppointment, adminDeleteAppointment, adminGetAppointments, ManagedAppointment } from '../../lib/api';
+import { adminCompleteAppointment, adminCreateReservedAppointment, adminDeleteAppointment, adminGetAppointments, ManagedAppointment } from '../../lib/api';
 import { Colors } from '../../constants/Colors';
 import { useEffect, useState } from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   Alert,
   FlatList,
   Pressable,
   RefreshControl,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -32,6 +32,12 @@ export default function AdminAppointmentsScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [filterDate, setFilterDate] = useState(TODAY);
   const [error, setError] = useState('');
+  const [showReserve, setShowReserve] = useState(false);
+  const [reserveDate, setReserveDate] = useState(TODAY);
+  const [reserveSlot, setReserveSlot] = useState('');
+  const [reserveNotes, setReserveNotes] = useState('');
+  const [reserving, setReserving] = useState(false);
+  const [reserveError, setReserveError] = useState('');
 
   async function load(isRefresh = false) {
     if (isRefresh) setRefreshing(true); else setLoading(true);
@@ -58,6 +64,30 @@ export default function AdminAppointmentsScreen() {
     }
   }
 
+  async function handleReserve() {
+    if (!reserveDate || !reserveSlot) {
+      setReserveError('Date and time slot are required');
+      return;
+    }
+    setReserving(true);
+    setReserveError('');
+    try {
+      await adminCreateReservedAppointment({
+        date: reserveDate,
+        timeSlot: reserveSlot,
+        notes: reserveNotes || undefined,
+      });
+      setShowReserve(false);
+      setReserveSlot('');
+      setReserveNotes('');
+      if (reserveDate === filterDate) load();
+    } catch (e: any) {
+      setReserveError(e?.response?.data?.message || 'Failed to reserve appointment');
+    } finally {
+      setReserving(false);
+    }
+  }
+
   async function handleDelete(id: string, name: string) {
     Alert.alert('Delete', `Delete appointment for ${name}?`, [
       { text: 'Cancel' },
@@ -78,15 +108,61 @@ export default function AdminAppointmentsScreen() {
 
   return (
     <SafeAreaView style={styles.safe}>
+      {/* Reserve form toggle */}
+      <View style={styles.reserveHeader}>
+        <Text style={styles.reserveHeaderTitle}>Appointments</Text>
+        <Pressable style={styles.reserveToggleBtn} onPress={() => setShowReserve((v) => !v)}>
+          <Text style={styles.reserveToggleBtnText}>{showReserve ? 'Cancel' : '+ Reserve'}</Text>
+        </Pressable>
+      </View>
+
+      {showReserve && (
+        <View style={styles.reserveForm}>
+          <Text style={styles.reserveFormTitle}>Reserve Appointment</Text>
+          {reserveError ? <Text style={styles.errorText}>{reserveError}</Text> : null}
+          <Text style={styles.reserveLabel}>Date</Text>
+          <TextInput
+            style={styles.reserveInput}
+            value={reserveDate}
+            onChangeText={setReserveDate}
+            placeholder="YYYY-MM-DD"
+            placeholderTextColor={Colors.textMuted}
+          />
+          <Text style={styles.reserveLabel}>Time Slot</Text>
+          <TextInput
+            style={styles.reserveInput}
+            value={reserveSlot}
+            onChangeText={setReserveSlot}
+            placeholder="e.g. 09:00 - 09:30"
+            placeholderTextColor={Colors.textMuted}
+          />
+          <Text style={styles.reserveLabel}>Notes (optional)</Text>
+          <TextInput
+            style={[styles.reserveInput, { minHeight: 60, textAlignVertical: 'top' }]}
+            value={reserveNotes}
+            onChangeText={setReserveNotes}
+            placeholder="Internal notes..."
+            placeholderTextColor={Colors.textMuted}
+            multiline
+          />
+          <Pressable
+            style={[styles.reserveSubmitBtn, reserving && { opacity: 0.6 }]}
+            onPress={handleReserve}
+            disabled={reserving}
+          >
+            <Text style={styles.reserveSubmitBtnText}>{reserving ? 'Reserving...' : 'Reserve Appointment'}</Text>
+          </Pressable>
+        </View>
+      )}
+
       {/* Date filter */}
       <View style={styles.filterRow}>
         <TextInput
-          style={styles.filterInput}
+          style={[styles.filterInput, { color: Colors.text }]}
           value={filterDate}
           onChangeText={setFilterDate}
           placeholder="YYYY-MM-DD"
           placeholderTextColor={Colors.textMuted}
-          color={Colors.text}
         />
         <Pressable style={styles.todayChip} onPress={() => setFilterDate(TODAY)}>
           <Text style={styles.todayChipText}>Today</Text>
@@ -167,8 +243,34 @@ const styles = StyleSheet.create({
   actionRow: { flexDirection: 'row', gap: 8 },
   completeBtn: { flex: 1, backgroundColor: '#10B981', borderRadius: 8, paddingVertical: 8, alignItems: 'center' },
   completeBtnText: { color: '#fff', fontWeight: '700', fontSize: 13 },
-  deleteBtn: { flex: 1, borderWidth: 1, borderColor: Colors.error, borderRadius: 8, paddingVertical: 8, alignItems: 'center' },
-  deleteBtnText: { color: Colors.error, fontWeight: '700', fontSize: 13 },
-  errorText: { color: Colors.error, marginHorizontal: 16, marginBottom: 8, fontSize: 13 },
+  deleteBtn: { flex: 1, borderWidth: 1, borderColor: Colors.danger, borderRadius: 8, paddingVertical: 8, alignItems: 'center' },
+  deleteBtnText: { color: Colors.danger, fontWeight: '700', fontSize: 13 },
+  errorText: { color: Colors.danger, marginHorizontal: 16, marginBottom: 8, fontSize: 13 },
   emptyText: { textAlign: 'center', color: Colors.textMuted, marginTop: 40 },
+  reserveHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingTop: 12 },
+  reserveHeaderTitle: { fontSize: 18, fontWeight: '800', color: Colors.text },
+  reserveToggleBtn: { backgroundColor: Colors.primary, borderRadius: 8, paddingHorizontal: 14, paddingVertical: 8 },
+  reserveToggleBtnText: { color: '#fff', fontWeight: '700', fontSize: 13 },
+  reserveForm: {
+    margin: 12,
+    backgroundColor: Colors.card,
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  reserveFormTitle: { fontSize: 15, fontWeight: '800', color: Colors.text, marginBottom: 12 },
+  reserveLabel: { fontSize: 12, fontWeight: '700', color: Colors.textMuted, marginBottom: 4, marginTop: 8 },
+  reserveInput: {
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 14,
+    backgroundColor: Colors.background,
+    color: Colors.text,
+  },
+  reserveSubmitBtn: { backgroundColor: Colors.primary, borderRadius: 10, paddingVertical: 12, alignItems: 'center', marginTop: 16 },
+  reserveSubmitBtnText: { color: '#fff', fontWeight: '800', fontSize: 14 },
 });
