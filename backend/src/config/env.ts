@@ -23,6 +23,12 @@ export const env = {
   mongodbUri:
     process.env.MONGODB_URI ??
     (isProduction ? '' : 'mongodb://127.0.0.1:27017/salon_andriod'),
+  // CORS_ORIGIN supports comma-separated list, falls back to CLIENT_URL
+  corsOrigins: (
+    process.env.CORS_ORIGIN ??
+    process.env.CLIENT_URL ??
+    'http://localhost:5173'
+  ).split(',').map(s => s.trim()).filter(Boolean),
   clientUrl: process.env.CLIENT_URL ?? 'http://localhost:5173',
   // Separate secrets for access and refresh tokens — must be set in production
   jwtAccessSecret: requireSecret('JWT_ACCESS_SECRET', 'dev_only_access_secret_do_not_use_in_prod'),

@@ -31,7 +31,14 @@ const app = express();
 app.use(helmet());
 app.use(
   cors({
-    origin: env.clientUrl,
+    origin: env.corsOrigins.length === 1 && env.corsOrigins[0] === '*'
+      ? '*'
+      : (origin, callback) => {
+          // Allow requests with no origin (mobile native, curl, Postman)
+          if (!origin) return callback(null, true);
+          if (env.corsOrigins.includes(origin)) return callback(null, true);
+          callback(new Error(`CORS: origin '${origin}' not allowed`));
+        },
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   })
