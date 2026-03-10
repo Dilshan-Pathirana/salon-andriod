@@ -16,17 +16,56 @@ export function AuthPage({ onAuthSuccess }: AuthPageProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleSubmit = async () => {
-    setIsSubmitting(true)
     setMessage('')
+
+    // Client-side validation before hitting the network
+    const trimmedPhone = phoneNumber.trim()
+    const trimmedFirst = firstName.trim()
+    const trimmedLast = lastName.trim()
+
+    if (!trimmedPhone || !password) {
+      setMessage('Phone number and password are required.')
+      return
+    }
+    if (!/^\d{10,15}$/.test(trimmedPhone)) {
+      setMessage('Phone number must be 10–15 digits (digits only).')
+      return
+    }
+    if (password.length < 8) {
+      setMessage('Password must be at least 8 characters.')
+      return
+    }
+    if (mode === 'signup') {
+      if (!trimmedFirst || !trimmedLast) {
+        setMessage('First and last name are required.')
+        return
+      }
+      if (trimmedFirst.length > 50 || trimmedLast.length > 50) {
+        setMessage('Name fields must be 50 characters or fewer.')
+        return
+      }
+    }
+
+    setIsSubmitting(true)
     try {
       if (mode === 'login') {
-        await loginWithPhone(phoneNumber, password)
+        await loginWithPhone(trimmedPhone, password)
       } else {
-        await registerClient({ firstName, lastName, phoneNumber, password })
+        await registerClient({ firstName: trimmedFirst, lastName: trimmedLast, phoneNumber: trimmedPhone, password })
       }
       onAuthSuccess()
-    } catch (error: any) {
-      setMessage(error?.response?.data?.message || error?.message || 'Authentication failed')
+    } catch (error: unknown) {
+      // Only surface safe, user-facing messages — never raw server internals
+      const serverMsg: string =
+        (error as { response?: { data?: { message?: string } } })?.response?.data?.message ?? ''
+      const isUserFacing =
+        serverMsg.length > 0 &&
+        serverMsg.length < 120 &&
+        !serverMsg.toLowerCase().includes('cast') &&
+        !serverMsg.toLowerCase().includes('validation error') &&
+        !serverMsg.toLowerCase().includes('mongod') &&
+        !serverMsg.toLowerCase().includes('duplicate key')
+      setMessage(isUserFacing ? serverMsg : mode === 'login' ? 'Login failed. Please check your credentials.' : 'Registration failed. Please try again.')
     } finally {
       setIsSubmitting(false)
     }

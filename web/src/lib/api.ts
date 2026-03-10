@@ -343,8 +343,8 @@ export async function getClientScheduleByDate(date: string): Promise<{
     }
   }
 
-  const bookingsResponse = await client.get('/bookings')
-  const bookings = extractData<any[]>(bookingsResponse) || []
+  const bookingsResponse = await client.get('/time-slots', { params: { date } })
+  const bookedTimes = (extractData<string[]>(bookingsResponse) || []) as string[]
 
   const parseMinutes = (time: string) => {
     const [h, m] = String(time).split(':').map(Number)
@@ -356,11 +356,7 @@ export async function getClientScheduleByDate(date: string): Promise<{
   const end = parseMinutes(target.endTime)
   const step = Number(target.slotDurationMins || 30)
 
-  const taken = new Set(
-    bookings
-      .filter((row) => row.date === date && row.status !== 'CANCELLED')
-      .map((row) => row.time || row.timeSlot),
-  )
+  const taken = new Set(bookedTimes)
 
   for (let minute = start; minute < end; minute += step) {
     const hh = String(Math.floor(minute / 60)).padStart(2, '0')

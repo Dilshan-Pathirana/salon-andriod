@@ -3,6 +3,13 @@ import { motion } from 'framer-motion'
 import { GoldSpinner } from '../components/GoldSpinner'
 import { getCurrentSession, getLiveQueue, LiveQueueItem } from '../lib/api'
 
+function toDateKey(date: Date): string {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
 export function QueuePage() {
   const [isLoading, setIsLoading] = useState(true)
   const [queue, setQueue] = useState<LiveQueueItem[]>([])
@@ -12,7 +19,7 @@ export function QueuePage() {
     const loadQueue = async () => {
       setIsLoading(true)
       try {
-        const response = await getLiveQueue()
+        const response = await getLiveQueue(toDateKey(new Date()))
         setQueue(response.queue || [])
         setCurrentlyServing(response.currentlyServing?.name || null)
       } catch {

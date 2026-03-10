@@ -1,6 +1,8 @@
 import bcrypt from 'bcryptjs';
 import cors from 'cors';
 import express, { NextFunction, Request, Response } from 'express';
+import mongoSanitize from 'express-mongo-sanitize';
+import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import jwt from 'jsonwebtoken';
 import { isValidObjectId } from 'mongoose';
@@ -8,6 +10,7 @@ import morgan from 'morgan';
 import { env } from './config/env';
 import { Booking } from './models/Booking';
 import { GalleryItem } from './models/GalleryItem';
+import { RefreshToken, hashToken } from './models/RefreshToken';
 import { Schedule } from './models/Schedule';
 import { Service } from './models/Service';
 import { Session } from './models/Session';
@@ -35,6 +38,36 @@ app.use(
 );
 app.use(express.json({ limit: '1mb' }));
 app.use(morgan(env.nodeEnv === 'production' ? 'combined' : 'dev'));
+
+// Strip MongoDB operators from user-supplied input (NoSQL injection prevention)
+app.use(mongoSanitize());
+
+// Global rate limit: 300 requests per 15 minutes per IP
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 300,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: 'Too many requests, please try again later.' },
+});
+// Strict limit for auth endpoints: 10 per 15 minutes per IP
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: 'Too many authentication attempts, please try again later.' },
+});
+// Booking submission: 5 per 15 minutes per IP
+const bookingLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: 'Too many booking requests, please try again later.' },
+});
+
+app.use(globalLimiter);
 
 function todayString(): string {
   const now = new Date();
@@ -64,11 +97,11 @@ function sanitizeUser(user: {
 }
 
 function signAccessToken(payload: AuthPayload): string {
-  return jwt.sign(payload, env.jwtSecret, { expiresIn: '7d' });
+  return jwt.sign(payload, env.jwtAccessSecret, { expiresIn: '15m' });
 }
 
 function signRefreshToken(payload: AuthPayload): string {
-  return jwt.sign(payload, env.jwtSecret, { expiresIn: '30d' });
+  return jwt.sign(payload, env.jwtRefreshSecret, { expiresIn: '30d' });
 }
 
 function authenticate(req: AuthRequest, res: Response, next: NextFunction): void {
@@ -81,7 +114,7 @@ function authenticate(req: AuthRequest, res: Response, next: NextFunction): void
   const token = authHeader.slice('Bearer '.length);
 
   try {
-    const decoded = jwt.verify(token, env.jwtSecret) as AuthPayload;
+    const decoded = jwt.verify(token, env.jwtAccessSecret) as AuthPayload;
     req.auth = { userId: decoded.userId, role: decoded.role };
     next();
   } catch {
@@ -127,7 +160,7 @@ app.get('/api/health', (_req, res) => {
   });
 });
 
-app.post('/api/auth/register', async (req, res, next) => {
+app.post('/api/auth/register', authLimiter, async (req, res, next) => {
   try {
     const { phoneNumber, password, firstName, lastName } = req.body as {
       phoneNumber: string;
@@ -141,6 +174,26 @@ app.post('/api/auth/register', async (req, res, next) => {
       return;
     }
 
+    // Validate phone number format (10-15 digits)
+    if (!/^\d{10,15}$/.test(String(phoneNumber))) {
+      res.status(400).json({ success: false, message: 'Phone number must be 10–15 digits' });
+      return;
+    }
+
+    // Enforce minimum password length
+    if (String(password).length < 8) {
+      res.status(400).json({ success: false, message: 'Password must be at least 8 characters' });
+      return;
+    }
+
+    // Sanitize names (strip leading/trailing whitespace, enforce length)
+    const cleanFirst = String(firstName).trim();
+    const cleanLast = String(lastName).trim();
+    if (cleanFirst.length < 1 || cleanFirst.length > 50 || cleanLast.length < 1 || cleanLast.length > 50) {
+      res.status(400).json({ success: false, message: 'First and last name are required (max 50 characters each)' });
+      return;
+    }
+
     const exists = await User.findOne({ phoneNumber }).lean();
     if (exists) {
       res.status(409).json({ success: false, message: 'A user with this phone number already exists' });
@@ -151,21 +204,25 @@ app.post('/api/auth/register', async (req, res, next) => {
     const user = await User.create({
       phoneNumber,
       passwordHash,
-      firstName,
-      lastName,
+      firstName: cleanFirst,
+      lastName: cleanLast,
       role: 'CLIENT',
       profileImageUrl: null,
       isActive: true,
     });
 
     const payload: AuthPayload = { userId: String(user._id), role: user.role };
+    const refreshToken = signRefreshToken(payload);
+    const tokenExpiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    await RefreshToken.create({ tokenHash: hashToken(refreshToken), userId: String(user._id), expiresAt: tokenExpiresAt });
+
     res.status(201).json({
       success: true,
       message: 'User registered successfully',
       data: {
         user: sanitizeUser(user),
         accessToken: signAccessToken(payload),
-        refreshToken: signRefreshToken(payload),
+        refreshToken,
       },
     });
   } catch (error) {
@@ -173,7 +230,7 @@ app.post('/api/auth/register', async (req, res, next) => {
   }
 });
 
-app.post('/api/auth/login', async (req, res, next) => {
+app.post('/api/auth/login', authLimiter, async (req, res, next) => {
   try {
     const { phoneNumber, password } = req.body as {
       phoneNumber: string;
@@ -187,6 +244,7 @@ app.post('/api/auth/login', async (req, res, next) => {
 
     const user = await User.findOne({ phoneNumber });
     if (!user) {
+      // Constant-time response to prevent account enumeration
       res.status(401).json({ success: false, message: 'Invalid phone number or password' });
       return;
     }
@@ -203,6 +261,9 @@ app.post('/api/auth/login', async (req, res, next) => {
     }
 
     const payload: AuthPayload = { userId: String(user._id), role: user.role };
+    const refreshToken = signRefreshToken(payload);
+    const tokenExpiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    await RefreshToken.create({ tokenHash: hashToken(refreshToken), userId: String(user._id), expiresAt: tokenExpiresAt });
 
     res.status(200).json({
       success: true,
@@ -210,7 +271,7 @@ app.post('/api/auth/login', async (req, res, next) => {
       data: {
         user: sanitizeUser(user),
         accessToken: signAccessToken(payload),
-        refreshToken: signRefreshToken(payload),
+        refreshToken,
       },
     });
   } catch (error) {
@@ -218,7 +279,7 @@ app.post('/api/auth/login', async (req, res, next) => {
   }
 });
 
-app.post('/api/auth/refresh', async (req, res, next) => {
+app.post('/api/auth/refresh', authLimiter, async (req, res, next) => {
   try {
     const { refreshToken } = req.body as { refreshToken?: string };
     if (!refreshToken) {
@@ -226,14 +287,37 @@ app.post('/api/auth/refresh', async (req, res, next) => {
       return;
     }
 
-    const decoded = jwt.verify(refreshToken, env.jwtSecret) as AuthPayload;
+    // Verify JWT signature first (use refresh secret)
+    let decoded: AuthPayload;
+    try {
+      decoded = jwt.verify(refreshToken, env.jwtRefreshSecret) as AuthPayload;
+    } catch {
+      res.status(401).json({ success: false, message: 'Invalid or expired refresh token' });
+      return;
+    }
+
+    // Check token exists in DB (single-use via delete-on-use = rotation)
+    const tokenHash = hashToken(refreshToken);
+    const stored = await RefreshToken.findOneAndDelete({ tokenHash, userId: decoded.userId });
+    if (!stored) {
+      // Token not found — possible reuse attack; revoke ALL tokens for this user
+      await RefreshToken.deleteMany({ userId: decoded.userId });
+      res.status(401).json({ success: false, message: 'Refresh token already used or revoked' });
+      return;
+    }
+
+    // Issue new token pair
+    const payload: AuthPayload = { userId: decoded.userId, role: decoded.role };
+    const newRefreshToken = signRefreshToken(payload);
+    const tokenExpiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    await RefreshToken.create({ tokenHash: hashToken(newRefreshToken), userId: decoded.userId, expiresAt: tokenExpiresAt });
 
     res.status(200).json({
       success: true,
       message: 'Token refreshed successfully',
       data: {
-        accessToken: signAccessToken({ userId: decoded.userId, role: decoded.role }),
-        refreshToken: signRefreshToken({ userId: decoded.userId, role: decoded.role }),
+        accessToken: signAccessToken(payload),
+        refreshToken: newRefreshToken,
       },
     });
   } catch (error) {
@@ -241,12 +325,25 @@ app.post('/api/auth/refresh', async (req, res, next) => {
   }
 });
 
-app.post('/api/auth/logout', (_req, res) => {
-  res.status(200).json({ success: true, message: 'Logged out successfully', data: null });
+app.post('/api/auth/logout', async (req, res, next) => {
+  try {
+    const { refreshToken } = req.body as { refreshToken?: string };
+    if (refreshToken) {
+      await RefreshToken.deleteOne({ tokenHash: hashToken(String(refreshToken)) });
+    }
+    res.status(200).json({ success: true, message: 'Logged out successfully', data: null });
+  } catch (error) {
+    next(error);
+  }
 });
 
-app.post('/api/auth/logout-all', authenticate, (_req, res) => {
-  res.status(200).json({ success: true, message: 'Logged out of all devices', data: null });
+app.post('/api/auth/logout-all', authenticate, async (req: AuthRequest, res, next) => {
+  try {
+    await RefreshToken.deleteMany({ userId: req.auth!.userId });
+    res.status(200).json({ success: true, message: 'Logged out of all devices', data: null });
+  } catch (error) {
+    next(error);
+  }
 });
 
 app.get('/api/users/profile', authenticate, async (req: AuthRequest, res, next) => {
@@ -313,6 +410,13 @@ app.post('/api/users', authenticate, requireAdmin, async (req, res, next) => {
       return;
     }
 
+    // Enforce role must be a valid enum value
+    const validRoles: Role[] = ['ADMIN', 'CLIENT'];
+    if (!validRoles.includes(role)) {
+      res.status(400).json({ success: false, message: 'Invalid role. Must be ADMIN or CLIENT' });
+      return;
+    }
+
     const exists = await User.findOne({ phoneNumber }).lean();
     if (exists) {
       res.status(409).json({ success: false, message: 'A user with this phone number already exists' });
@@ -370,10 +474,16 @@ app.put('/api/users/:id', authenticate, requireAdmin, async (req, res, next) => 
   }
 });
 
-app.delete('/api/users/:id', authenticate, requireAdmin, async (req, res, next) => {
+app.delete('/api/users/:id', authenticate, requireAdmin, async (req: AuthRequest, res, next) => {
   try {
     if (!isValidObjectId(req.params.id)) {
       res.status(400).json({ success: false, message: 'Invalid user id' });
+      return;
+    }
+
+    // Prevent admin from deleting their own account
+    if (req.auth!.userId === req.params.id) {
+      res.status(400).json({ success: false, message: 'Cannot delete your own account' });
       return;
     }
 
@@ -386,6 +496,10 @@ app.delete('/api/users/:id', authenticate, requireAdmin, async (req, res, next) 
 
 app.put('/api/users/:id/deactivate', authenticate, requireAdmin, async (req, res, next) => {
   try {
+    if (!isValidObjectId(req.params.id)) {
+      res.status(400).json({ success: false, message: 'Invalid user id' });
+      return;
+    }
     const updated = await User.findByIdAndUpdate(req.params.id, { isActive: false }, { new: true }).lean();
     if (!updated) {
       res.status(404).json({ success: false, message: 'User not found' });
@@ -399,6 +513,10 @@ app.put('/api/users/:id/deactivate', authenticate, requireAdmin, async (req, res
 
 app.put('/api/users/:id/activate', authenticate, requireAdmin, async (req, res, next) => {
   try {
+    if (!isValidObjectId(req.params.id)) {
+      res.status(400).json({ success: false, message: 'Invalid user id' });
+      return;
+    }
     const updated = await User.findByIdAndUpdate(req.params.id, { isActive: true }, { new: true }).lean();
     if (!updated) {
       res.status(404).json({ success: false, message: 'User not found' });
@@ -801,7 +919,24 @@ app.get('/api/session/dashboard', authenticate, requireAdmin, async (req, res, n
   }
 });
 
-app.post('/api/bookings', async (req, res, next) => {
+// Public endpoint: returns only booked time strings for a date — no PII exposed
+app.get('/api/time-slots', async (req, res, next) => {
+  try {
+    const date = String(req.query.date || '');
+    if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      res.status(400).json({ success: false, message: 'Valid date query param required (YYYY-MM-DD)' });
+      return;
+    }
+    const bookings = await Booking.find({ date, status: { $in: ['BOOKED', 'IN_SERVICE'] } })
+      .select('time')
+      .lean();
+    res.status(200).json({ success: true, data: bookings.map((b) => b.time), message: 'Time slots retrieved' });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post('/api/bookings', bookingLimiter, async (req, res, next) => {
   try {
     const { fullName, email, phone, serviceName, date, time, notes } = req.body as {
       fullName: string;
@@ -815,6 +950,24 @@ app.post('/api/bookings', async (req, res, next) => {
 
     if (!fullName || !email || !phone || !serviceName || !date || !time) {
       res.status(400).json({ success: false, message: 'Missing required booking fields.' });
+      return;
+    }
+
+    // Basic format validation to prevent garbage data
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email))) {
+      res.status(400).json({ success: false, message: 'Invalid email address.' });
+      return;
+    }
+    if (!/^\d{7,15}$/.test(String(phone).replace(/[\s\-+]/g, ''))) {
+      res.status(400).json({ success: false, message: 'Invalid phone number.' });
+      return;
+    }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(date))) {
+      res.status(400).json({ success: false, message: 'Invalid date format. Use YYYY-MM-DD.' });
+      return;
+    }
+    if (!/^\d{2}:\d{2}$/.test(String(time))) {
+      res.status(400).json({ success: false, message: 'Invalid time format. Use HH:MM.' });
       return;
     }
 
@@ -839,7 +992,7 @@ app.post('/api/bookings', async (req, res, next) => {
   }
 });
 
-app.get('/api/bookings', async (_req, res, next) => {
+app.get('/api/bookings', authenticate, requireAdmin, async (_req, res, next) => {
   try {
     const bookings = await Booking.find().sort({ date: -1, time: -1 }).limit(200).lean();
     res.status(200).json({ success: true, data: bookings });
@@ -1138,7 +1291,11 @@ app.use((_req, res) => {
 });
 
 app.use((error: unknown, _req: Request, res: Response, _next: NextFunction) => {
-  const message = error instanceof Error ? error.message : 'Internal server error';
+  const isProduction = env.nodeEnv === 'production';
+  if (!isProduction) {
+    console.error(error);
+  }
+  const message = !isProduction && error instanceof Error ? error.message : 'Internal server error';
   res.status(500).json({ success: false, message });
 });
 

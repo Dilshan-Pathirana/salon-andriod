@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import { BottomNav, BottomNavRole, PageType } from './components/BottomNav'
 import { HamburgerMenu, MenuItem, MenuTab } from './components/HamburgerMenu'
@@ -39,6 +39,18 @@ export function App() {
   const [activePage, setActivePage] = useState<AppPage>('home')
   const [authTarget, setAuthTarget] = useState<AppPage>('profile')
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isOnline, setIsOnline] = useState(navigator.onLine)
+
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true)
+    const handleOffline = () => setIsOnline(false)
+    window.addEventListener('online', handleOnline)
+    window.addEventListener('offline', handleOffline)
+    return () => {
+      window.removeEventListener('online', handleOnline)
+      window.removeEventListener('offline', handleOffline)
+    }
+  }, [])
 
   const isLoggedIn = Boolean(sessionUser)
   const isAdmin = sessionUser?.role === 'ADMIN'
@@ -293,6 +305,13 @@ export function App() {
 
       {/* Main App Container */}
       <div className="relative w-full max-w-[480px] h-full flex flex-col overflow-hidden bg-white shadow-2xl shadow-indigo-100 sm:border-x sm:border-slate-200 z-10">
+        {/* Offline banner */}
+        {!isOnline && (
+          <div className="relative z-50 flex items-center justify-center gap-2 bg-amber-500 px-4 py-2 text-xs font-medium text-white">
+            <span>⚠</span>
+            <span>You are offline. Some features may not be available.</span>
+          </div>
+        )}
         <TopBar title={getPageTitle(activePage)} onMenuClick={() => setIsMenuOpen(true)} />
 
         <HamburgerMenu
