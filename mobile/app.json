@@ -15,7 +15,9 @@
     "updates": {
       "enabled": false
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.salonruzeroone.app",
@@ -28,7 +30,10 @@
       },
       "package": "com.salonruzeroone.app",
       "versionCode": 1,
-      "permissions": ["INTERNET", "ACCESS_NETWORK_STATE"]
+      "permissions": [
+        "INTERNET",
+        "ACCESS_NETWORK_STATE"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -52,8 +57,9 @@
     },
     "extra": {
       "eas": {
-        "projectId": "your-eas-project-id-here"
-      }
+        "projectId": "6598450b-df4d-44d1-9783-48f2c7d89326"
+      },
+      "router": {}
     }
   }
 }
