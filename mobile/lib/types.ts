@@ -16,13 +16,6 @@ export type Appointment = {
   queuePosition: number;
 };
 
-export type Story = {
-  id: string;
-  beforeImageUrl: string;
-  afterImageUrl: string;
-  caption: string;
-};
-
 export type Review = {
   id: string;
   author: string;

@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { Appointment, Service, Story } from './types'
+import { Appointment, Service } from './types'
 
 type SessionUser = {
   id: string
@@ -61,14 +61,6 @@ export type ManagedAppointment = {
   isReserved: boolean
 }
 
-export type ManagedWorkItem = {
-  id: string
-  topic: string
-  description: string
-  beforeImageUrl: string
-  afterImageUrl: string
-}
-
 export type ManagedScheduleDay = {
   date: string
   status: 'OPEN' | 'CLOSED' | 'HOLIDAY'
@@ -110,13 +102,20 @@ const SESSION_STORAGE_KEY = 'salon_web_session'
 const client = axios.create({
   baseURL: API_BASE_URL,
   timeout: 15000,
+  headers: { 'X-Requested-With': 'XMLHttpRequest' },
 })
 
+// ─── In-memory session (primary) + localStorage (persistence for reloads) ──
+
+let inMemorySession: SessionState | null = null
+
 function getStoredSession(): SessionState | null {
+  if (inMemorySession) return inMemorySession
   const raw = localStorage.getItem(SESSION_STORAGE_KEY)
   if (!raw) return null
   try {
-    return JSON.parse(raw) as SessionState
+    inMemorySession = JSON.parse(raw) as SessionState
+    return inMemorySession
   } catch {
     localStorage.removeItem(SESSION_STORAGE_KEY)
     return null
@@ -124,6 +123,7 @@ function getStoredSession(): SessionState | null {
 }
 
 function setStoredSession(session: SessionState): void {
+  inMemorySession = session
   localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session))
 }
 
@@ -199,6 +199,50 @@ client.interceptors.request.use((config) => {
   return config
 })
 
+// ─── Response interceptor: auto-refresh on 401 ─────────────────────────────
+
+let refreshPromise: Promise<SessionState | null> | null = null
+
+async function silentRefresh(): Promise<SessionState | null> {
+  const session = getStoredSession()
+  if (!session?.refreshToken) return null
+  try {
+    const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {
+      refreshToken: session.refreshToken,
+    }, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+    const data = response.data?.data ?? response.data
+    const newSession: SessionState = {
+      accessToken: data.accessToken,
+      refreshToken: data.refreshToken || session.refreshToken,
+      user: session.user,
+    }
+    setStoredSession(newSession)
+    return newSession
+  } catch {
+    clearStoredSession()
+    return null
+  }
+}
+
+client.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true
+      if (!refreshPromise) {
+        refreshPromise = silentRefresh().finally(() => { refreshPromise = null })
+      }
+      const newSession = await refreshPromise
+      if (newSession) {
+        originalRequest.headers.Authorization = `Bearer ${newSession.accessToken}`
+        return client(originalRequest)
+      }
+    }
+    return Promise.reject(error)
+  },
+)
+
 export async function submitBookingRequest(payload: {
   fullName: string
   email: string
@@ -220,6 +264,7 @@ export function isSessionAuthenticated(): boolean {
 }
 
 export function clearStoredSession(): void {
+  inMemorySession = null
   localStorage.removeItem(SESSION_STORAGE_KEY)
 }
 
@@ -449,133 +494,6 @@ export async function adminUpdateService(
 export async function adminDeleteService(id: string): Promise<void> {
   await ensureAdminSession()
   await client.delete(`/services/${id}`)
-}
-
-export async function getStories(): Promise<Story[]> {
-  const response = await client.get('/gallery')
-  const rows = extractData<any[]>(response) || []
-
-  if (rows.length === 0) return []
-
-  if (typeof rows[0] === 'string') {
-    return rows.map((url: string, index: number) => ({
-      id: `story-${index + 1}`,
-      beforeImageUrl: url,
-      afterImageUrl: url,
-      caption: `Transformation ${index + 1}`,
-      serviceId: undefined,
-    }))
-  }
-
-  return rows.map((row: any) => {
-    let parsedDescription: { description?: string; beforeImageUrl?: string; afterImageUrl?: string } = {}
-    try {
-      parsedDescription = row.description ? JSON.parse(row.description) : {}
-    } catch {
-      parsedDescription = {}
-    }
-
-    return {
-      id: String(row.id || row._id),
-      beforeImageUrl: parsedDescription.beforeImageUrl || row.imageUrl,
-      afterImageUrl: parsedDescription.afterImageUrl || row.imageUrl,
-      caption: row.title || parsedDescription.description || 'Salon transformation',
-      serviceId: undefined,
-    }
-  })
-}
-
-export async function adminGetWorkItems(): Promise<ManagedWorkItem[]> {
-  await ensureAdminSession()
-  const response = await client.get('/gallery', { params: { includeInactive: true } })
-  const rows = extractData<any[]>(response) || []
-
-  return rows
-    .filter((row) => typeof row === 'object')
-    .map((row) => {
-      let parsed: { description?: string; beforeImageUrl?: string; afterImageUrl?: string } = {}
-      try {
-        parsed = row.description ? JSON.parse(row.description) : {}
-      } catch {
-        parsed = {}
-      }
-
-      return {
-        id: String(row.id || row._id),
-        topic: row.title || '',
-        description: parsed.description || row.description || '',
-        beforeImageUrl: parsed.beforeImageUrl || row.imageUrl,
-        afterImageUrl: parsed.afterImageUrl || row.imageUrl,
-      }
-    })
-}
-
-export async function adminCreateWorkItem(payload: {
-  topic: string
-  description: string
-  beforeImageUrl: string
-  afterImageUrl: string
-}): Promise<ManagedWorkItem> {
-  await ensureAdminSession()
-
-  const response = await client.post('/gallery', {
-    title: payload.topic,
-    category: 'Work',
-    description: JSON.stringify({
-      description: payload.description,
-      beforeImageUrl: payload.beforeImageUrl,
-      afterImageUrl: payload.afterImageUrl,
-    }),
-    imageUrl: payload.afterImageUrl,
-    isActive: true,
-  })
-
-  const row = extractData<any>(response)
-  return {
-    id: String(row.id || row._id),
-    topic: row.title || payload.topic,
-    description: payload.description,
-    beforeImageUrl: payload.beforeImageUrl,
-    afterImageUrl: payload.afterImageUrl,
-  }
-}
-
-export async function adminUpdateWorkItem(
-  id: string,
-  payload: {
-    topic: string
-    description: string
-    beforeImageUrl: string
-    afterImageUrl: string
-  },
-): Promise<ManagedWorkItem> {
-  await ensureAdminSession()
-
-  const response = await client.put(`/gallery/${id}`, {
-    title: payload.topic,
-    category: 'Work',
-    description: JSON.stringify({
-      description: payload.description,
-      beforeImageUrl: payload.beforeImageUrl,
-      afterImageUrl: payload.afterImageUrl,
-    }),
-    imageUrl: payload.afterImageUrl,
-    isActive: true,
-  })
-
-  const row = extractData<any>(response)
-  return {
-    id: String(row.id || row._id),
-    topic: row.title || payload.topic,
-    description: payload.description,
-    beforeImageUrl: payload.beforeImageUrl,
-    afterImageUrl: payload.afterImageUrl,
-  }
-}
-
-export async function adminDeleteWorkItem(id: string): Promise<void> {
-  await ensureAdminSession()
-  await client.delete(`/gallery/${id}`)
 }
 
 export async function getLiveQueue(date?: string): Promise<LiveQueueResponse> {

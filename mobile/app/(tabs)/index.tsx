@@ -102,7 +102,6 @@ export default function HomeScreen() {
         <View style={styles.quickRow}>
           {[
             { label: 'Services', route: '/services', icon: 'cut-outline' as const },
-            { label: 'Our Work', route: '/work', icon: 'images-outline' as const },
             { label: 'Queue', route: '/(tabs)/queue', icon: 'list-outline' as const },
           ].map((item) => (
             <Pressable

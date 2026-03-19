@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { Platform } from 'react-native';
-import { Appointment, Service, Story } from './types';
+import { Appointment, Service } from './types';
 
 // ─── IST timezone helpers (UTC+5:30) ──────────────────────────────────────
 const IST_OFFSET_MS = 5.5 * 60 * 60 * 1000;
@@ -83,14 +83,6 @@ export type ManagedAppointment = {
   isReserved: boolean;
 };
 
-export type ManagedWorkItem = {
-  id: string;
-  topic: string;
-  description: string;
-  beforeImageUrl: string;
-  afterImageUrl: string;
-};
-
 export type ManagedScheduleDay = {
   date: string;
   status: 'OPEN' | 'CLOSED' | 'HOLIDAY';
@@ -136,6 +128,7 @@ const SESSION_STORAGE_KEY = 'salon_session_v1';
 const client = axios.create({
   baseURL: API_BASE_URL,
   timeout: 15000,
+  headers: { 'X-Requested-With': 'XMLHttpRequest' },
 });
 
 // ─── Storage helpers (AsyncStorage is async, unlike localStorage) ──────────
@@ -177,6 +170,50 @@ client.interceptors.request.use(async (config) => {
   }
   return config;
 });
+
+// ─── Response interceptor: auto-refresh on 401 ─────────────────────────────
+
+let refreshPromise: Promise<SessionState | null> | null = null;
+
+async function silentRefresh(): Promise<SessionState | null> {
+  const session = await getStoredSession();
+  if (!session?.refreshToken) return null;
+  try {
+    const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {
+      refreshToken: session.refreshToken,
+    }, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+    const data = response.data?.data ?? response.data;
+    const newSession: SessionState = {
+      accessToken: data.accessToken,
+      refreshToken: data.refreshToken || session.refreshToken,
+      user: session.user,
+    };
+    await setStoredSession(newSession);
+    return newSession;
+  } catch {
+    await clearStoredSession();
+    return null;
+  }
+}
+
+client.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      if (!refreshPromise) {
+        refreshPromise = silentRefresh().finally(() => { refreshPromise = null; });
+      }
+      const newSession = await refreshPromise;
+      if (newSession) {
+        originalRequest.headers.Authorization = `Bearer ${newSession.accessToken}`;
+        return client(originalRequest);
+      }
+    }
+    return Promise.reject(error);
+  },
+);
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
 
@@ -548,109 +585,6 @@ export async function getLiveQueue(date?: string): Promise<LiveQueueResponse> {
 export async function adminReorderQueue(date: string, orderedIds: string[]): Promise<void> {
   await ensureAdminSession();
   await client.put('/queue/reorder', { date, orderedIds });
-}
-
-// ─── Gallery / Work ────────────────────────────────────────────────────────
-
-export async function getStories(): Promise<Story[]> {
-  const response = await client.get('/gallery');
-  const rows = extractData<any[]>(response) || [];
-  if (rows.length === 0) return [];
-  if (typeof rows[0] === 'string') {
-    return rows.map((url: string, i: number) => ({
-      id: `story-${i + 1}`,
-      beforeImageUrl: url,
-      afterImageUrl: url,
-      caption: `Transformation ${i + 1}`,
-    }));
-  }
-  return rows.map((row: any) => {
-    let parsed: { beforeImageUrl?: string; afterImageUrl?: string; description?: string } = {};
-    try { parsed = row.description ? JSON.parse(row.description) : {}; } catch { parsed = {}; }
-    return {
-      id: String(row.id || row._id),
-      beforeImageUrl: parsed.beforeImageUrl || row.imageUrl,
-      afterImageUrl: parsed.afterImageUrl || row.imageUrl,
-      caption: row.title || parsed.description || 'Salon transformation',
-    };
-  });
-}
-
-export async function adminGetWorkItems(): Promise<ManagedWorkItem[]> {
-  await ensureAdminSession();
-  const response = await client.get('/gallery', { params: { includeInactive: true } });
-  return (extractData<any[]>(response) || [])
-    .filter((row) => typeof row === 'object')
-    .map((row) => {
-      let parsed: { description?: string; beforeImageUrl?: string; afterImageUrl?: string } = {};
-      try { parsed = row.description ? JSON.parse(row.description) : {}; } catch { parsed = {}; }
-      return {
-        id: String(row.id || row._id),
-        topic: row.title || '',
-        description: parsed.description || '',
-        beforeImageUrl: parsed.beforeImageUrl || row.imageUrl,
-        afterImageUrl: parsed.afterImageUrl || row.imageUrl,
-      };
-    });
-}
-
-export async function adminCreateWorkItem(payload: {
-  topic: string;
-  description: string;
-  beforeImageUrl: string;
-  afterImageUrl: string;
-}): Promise<ManagedWorkItem> {
-  await ensureAdminSession();
-  const response = await client.post('/gallery', {
-    title: payload.topic,
-    category: 'Work',
-    description: JSON.stringify({
-      description: payload.description,
-      beforeImageUrl: payload.beforeImageUrl,
-      afterImageUrl: payload.afterImageUrl,
-    }),
-    imageUrl: payload.afterImageUrl,
-    isActive: true,
-  });
-  const row = extractData<any>(response);
-  return {
-    id: String(row.id || row._id),
-    topic: row.title || payload.topic,
-    description: payload.description,
-    beforeImageUrl: payload.beforeImageUrl,
-    afterImageUrl: payload.afterImageUrl,
-  };
-}
-
-export async function adminUpdateWorkItem(
-  id: string,
-  payload: { topic: string; description: string; beforeImageUrl: string; afterImageUrl: string },
-): Promise<ManagedWorkItem> {
-  await ensureAdminSession();
-  const response = await client.put(`/gallery/${id}`, {
-    title: payload.topic,
-    category: 'Work',
-    description: JSON.stringify({
-      description: payload.description,
-      beforeImageUrl: payload.beforeImageUrl,
-      afterImageUrl: payload.afterImageUrl,
-    }),
-    imageUrl: payload.afterImageUrl,
-    isActive: true,
-  });
-  const row = extractData<any>(response);
-  return {
-    id: String(row.id || row._id),
-    topic: row.title || payload.topic,
-    description: payload.description,
-    beforeImageUrl: payload.beforeImageUrl,
-    afterImageUrl: payload.afterImageUrl,
-  };
-}
-
-export async function adminDeleteWorkItem(id: string): Promise<void> {
-  await ensureAdminSession();
-  await client.delete(`/gallery/${id}`);
 }
 
 // ─── Users ─────────────────────────────────────────────────────────────────

@@ -94,7 +94,6 @@ const NAV_ITEMS = [
   { label: 'Session', route: '/(admin)/session', icon: '📋' },
   { label: 'Appointments', route: '/(admin)/appointments', icon: '📅' },
   { label: 'Queue', route: '/(admin)/queue', icon: '📋' },
-  { label: 'Our Work', route: '/(admin)/work', icon: '🖼️' },
   { label: 'Users', route: '/(admin)/users', icon: '👥' },
 ];
 

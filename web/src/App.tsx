@@ -8,7 +8,6 @@ import { BookingPage } from './pages/BookingPage'
 import { QueuePage } from './pages/QueuePage'
 import { ProfilePage } from './pages/ProfilePage'
 import { ServicesPage } from './pages/ServicesPage'
-import { WorkPage } from './pages/WorkPage'
 import { AppointmentsPage } from './pages/AppointmentsPage'
 import { AuthPage } from './pages/AuthPage'
 import { AdminDashboardPage } from './pages/AdminDashboardPage'
@@ -16,14 +15,12 @@ import { AdminServiceManagementPage } from './pages/AdminServiceManagementPage'
 import { AdminSessionManagementPage } from './pages/AdminSessionManagementPage'
 import { AdminAppointmentManagementPage } from './pages/AdminAppointmentManagementPage'
 import { AdminQueueManagementPage } from './pages/AdminQueueManagementPage'
-import { AdminWorkManagementPage } from './pages/AdminWorkManagementPage'
 import { AdminUserManagementPage } from './pages/AdminUserManagementPage'
 import { getCurrentSession } from './lib/api'
 
 type AppPage =
   | PageType
   | 'services'
-  | 'work'
   | 'appointments'
   | 'auth'
   | 'admin-home'
@@ -31,7 +28,6 @@ type AppPage =
   | 'admin-session'
   | 'admin-appointments'
   | 'admin-queue'
-  | 'admin-work'
   | 'admin-users'
 
 export function App() {
@@ -64,7 +60,6 @@ export function App() {
         { id: 'admin-session', label: 'Session Management' },
         { id: 'admin-appointments', label: 'Appointment Management' },
         { id: 'admin-queue', label: 'Queue Management' },
-        { id: 'admin-work', label: 'Work Management' },
         { id: 'admin-users', label: 'User Management' },
         { id: 'profile', label: 'Profile' },
       ]
@@ -77,14 +72,12 @@ export function App() {
         { id: 'book', label: 'Book Now' },
         { id: 'appointments', label: 'Appointments' },
         { id: 'queue', label: 'Live Queue' },
-        { id: 'work', label: 'Our Work' },
         { id: 'profile', label: 'Profile' },
       ]
     }
 
     return [
       { id: 'services', label: 'Services' },
-      { id: 'work', label: 'Our Work' },
       { id: 'login', label: 'Login/Register' },
     ]
   }, [isAdmin, isLoggedIn])
@@ -111,10 +104,6 @@ export function App() {
       setActivePage('admin-appointments')
       return
     }
-    if (tab === 'admin-work') {
-      setActivePage('admin-work')
-      return
-    }
     if (tab === 'admin-users') {
       setActivePage('admin-users')
       return
@@ -130,10 +119,6 @@ export function App() {
     }
     if (tab === 'book') {
       setActivePage('book')
-      return
-    }
-    if (tab === 'work') {
-      setActivePage('work')
       return
     }
     if (tab === 'queue') {
@@ -206,8 +191,6 @@ export function App() {
         return <HomePage key="home" onBookClick={() => setActivePage('book')} />
       case 'services':
         return <ServicesPage key="services" />
-      case 'work':
-        return <WorkPage key="work" />
       case 'appointments':
         return <AppointmentsPage key="appointments" />
       case 'admin-home':
@@ -235,11 +218,6 @@ export function App() {
           return <HomePage key="home-admin-fallback" onBookClick={() => setActivePage('book')} />
         }
         return <AdminQueueManagementPage key="admin-queue" />
-      case 'admin-work':
-        if (!isAdmin || !sessionUser) {
-          return <HomePage key="home-admin-fallback" onBookClick={() => setActivePage('book')} />
-        }
-        return <AdminWorkManagementPage key="admin-work" />
       case 'admin-users':
         if (!isAdmin || !sessionUser) {
           return <HomePage key="home-admin-fallback" onBookClick={() => setActivePage('book')} />

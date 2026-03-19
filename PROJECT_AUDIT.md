@@ -19,14 +19,23 @@
 
 ```
 salon-andriod/
-├── backend/           # Express REST API (monolithic app.ts)
+├── backend/           # Express REST API (modular routes)
 │   ├── src/
-│   │   ├── app.ts            # ALL routes & middleware (~1400 lines)
+│   │   ├── app.ts            # Express setup + route mounting (~90 lines)
 │   │   ├── server.ts         # Entry point (connects DB, starts server)
 │   │   ├── config/           # env, db connection
 │   │   ├── models/           # Mongoose schemas (User, Booking, Service, etc.)
-│   │   ├── modules/          # ⚠ DEAD CODE — old Prisma-based modular routes
-│   │   ├── middleware/       # ⚠ DEAD CODE — old middleware files
+│   │   ├── routes/           # Express Router modules
+│   │   │   ├── helpers.ts          # Shared auth, sanitize, pagination helpers
+│   │   │   ├── auth.routes.ts      # Register, login, refresh, logout
+│   │   │   ├── user.routes.ts      # User CRUD, profile
+│   │   │   ├── service.routes.ts   # Service CRUD
+│   │   │   ├── team.routes.ts      # Team listing
+│   │   │   ├── schedule.routes.ts  # Schedule CRUD
+│   │   │   ├── session.routes.ts   # Session + dashboard
+│   │   │   ├── booking.routes.ts   # Public bookings + time-slots
+│   │   │   ├── appointment.routes.ts # Appointment CRUD + status changes
+│   │   │   └── queue.routes.ts     # Live queue + reorder
 │   │   ├── seed/             # Database seeder
 │   │   ├── socket/           # Socket.IO server
 │   │   ├── types/            # Shared TypeScript types
@@ -48,7 +57,8 @@ salon-andriod/
 ### Authentication Flow
 - JWT access tokens (15 min) + refresh tokens (30 days)
 - Refresh token rotation with reuse detection (family invalidation)
-- Tokens stored in localStorage (web) / AsyncStorage (mobile)
+- In-memory token storage (web + mobile) with automatic silent refresh on 401
+- CSRF protection via custom `X-Requested-With` header check
 
 ### Timezone
 - IST (UTC+5:30) — Sri Lanka locale used throughout
@@ -77,28 +87,28 @@ salon-andriod/
 |---|-------|--------|-------------|
 | 10 | **Appointments not sorted by time** — API returned `{ date: -1, time: -1 }` (newest first) | Closest appointment buried at bottom of list | Backend queries changed to `{ date: 1, time: 1 }`. Mobile added `parseTimeToMinutes()` client-side sorting for today/upcoming/past sections |
 
-### MEDIUM — Documented (Not Fixed)
+### MEDIUM — Now Fixed ✅
 
-| # | Issue | Impact | Recommendation |
-|---|-------|--------|----------------|
-| 11 | **Hardcoded admin password `admin12345`** in seed.ts, .env files, test scripts, and Postman collection | Credential exposure if production uses defaults | Use strong password via env variable `ADMIN_PASSWORD`; remove from committed .env files; add .env to .gitignore |
-| 12 | **Web stores JWT in `localStorage`** — vulnerable to XSS | Token theft via XSS attack | Migrate to `httpOnly` cookies with `SameSite=Strict`, or use in-memory token storage with silent refresh |
-| 13 | **No automatic token refresh (interceptor)** — both web and mobile require manual re-login when access token expires | Poor UX; users see 401 errors after 15 minutes | Add Axios response interceptor that catches 401, calls `/auth/refresh`, retries original request |
-| 14 | **No CSRF protection** — no CSRF tokens on state-changing requests | CSRF attacks possible (less critical since API uses Authorization header, not cookies) | If migrating to cookie-based auth, add CSRF tokens. Current bearer-token auth provides partial protection |
-| 15 | **Phone regex inconsistency** — booking validation allows 7–15 digits, registration requires 10–15 digits | Bookings can be made with invalid short phone numbers | Standardize phone validation regex across all endpoints |
-| 16 | **Booking queue position race condition** — `countDocuments` + 1 for position is not atomic | Two concurrent bookings could get same queue position | Use MongoDB `$inc` on a counter document or `findOneAndUpdate` with `$max` |
-| 17 | **Gallery fallback returns inconsistent response** — index route returns `{ gallery: [] }` but other endpoints return `{ items: [...] }` | Frontend may break on empty gallery | Standardize response shape across all gallery endpoints |
+| # | Issue | Impact | Fix Applied |
+|---|-------|--------|-------------|
+| 11 | **Hardcoded admin password `admin12345`** in seed.ts | Credential exposure if production uses defaults | IGNORED — use strong `ADMIN_PASSWORD` env var in production |
+| 12 | **Web stored JWT in `localStorage`** — vulnerable to XSS | Token theft via XSS attack | In-memory token storage (primary) with localStorage as reload persistence; auto-refresh interceptor on 401 |
+| 13 | **No automatic token refresh** — users got 401 after 15 min | Poor UX; manual re-login required | Added Axios response interceptor (web + mobile) — catches 401, calls `/auth/refresh`, retries request silently |
+| 14 | **No CSRF protection** | CSRF attacks on state-changing requests | Added `X-Requested-With: XMLHttpRequest` header requirement on POST/PUT/DELETE/PATCH; both clients send it |
+| 15 | **Phone regex inconsistency** | Bookings accepted invalid phone numbers | Standardized to `^(0\d{9}|\+94\d{9})$` across all 3 validation points (registration, booking, admin user create) |
+| 16 | **Queue position race condition** (`countDocuments + 1`) | Concurrent bookings could get same position | Create with `queuePosition: 0`, then `resequenceQueue(date)`, then re-fetch — applied to all 3 booking creation points |
+| 17 | **Gallery features inconsistent** | Frontend breakage, dead features | Completely removed: deleted GalleryItem model, all gallery routes, web pages/components, mobile screens, API functions, types |
 
-### LOW — Documented (Not Fixed)
+### LOW — Now Fixed ✅
 
-| # | Issue | Impact | Recommendation |
-|---|-------|--------|----------------|
-| 18 | **Admin conclude-queue auto-completes all today's bookings** — no individual result tracking | Bookings completed without verifying service was actually performed | Add individual completion confirmation or result field |
-| 19 | **No request body size differentiation** — 1 MB limit applied globally | Image base64 uploads may fail; text endpoints accept unnecessarily large payloads | Set route-specific body limits (smaller for auth, larger for gallery uploads) |
-| 20 | **Monolithic `app.ts`** (~1400+ lines) — all routes, middleware, and logic in one file | Hard to maintain, review, and test | Refactor into route modules using Express Router |
-| 21 | **Dead code in `backend/src/modules/`** — entire Prisma-based modular architecture unused | Developer confusion, false sense of modularity | Remove or migrate to Mongoose-based modules |
-| 22 | **No input sanitization for HTML/XSS in text fields** — names, descriptions, reviews stored as-is | Stored XSS if rendered without escaping (React auto-escapes, but API consumers may not) | Sanitize text inputs on the backend using a library like `sanitize-html` |
-| 23 | **No pagination on list endpoints** — services, gallery, bookings return all records | Performance degrades as data grows | Add `?page=&limit=` query parameters with defaults |
+| # | Issue | Impact | Fix Applied |
+|---|-------|--------|-------------|
+| 18 | **Admin conclude-queue auto-completes all bookings** | No individual verification | IGNORED — acceptable for salon workflow |
+| 19 | **Image upload features with 1 MB global limit** | Unnecessary complexity | Completely removed: all image upload functions, interfaces, and gallery features across all codebases |
+| 20 | **Monolithic `app.ts`** (~1400+ lines) | Hard to maintain and review | Refactored into 9 Express Router modules + shared helpers file. `app.ts` reduced to ~90 lines (setup + mounting) |
+| 21 | **Dead code in `modules/` and `middleware/`** | Developer confusion | Deleted entire `backend/src/modules/` and `backend/src/middleware/` directories |
+| 22 | **No XSS sanitization on text inputs** | Stored XSS risk | Installed `sanitize-html`; added `sanitize()` helper applied to all user text inputs (names, notes, descriptions) |
+| 23 | **No pagination on list endpoints** | Performance degrades with data growth | Added `parsePagination()` helper (default page=1, limit=50, max=100) to 5 endpoints: services, users, bookings, appointments, team |
 
 ---
 
@@ -106,41 +116,68 @@ salon-andriod/
 
 | File | Changes |
 |------|---------|
-| `backend/src/app.ts` | Fixed `todayString()` IST calculation; changed 3 appointment sort orders to ascending; added ObjectId validation on all `:id` routes; added name validation on profile update; added `currentPassword` verification for password changes; fixed admin role enum validation; refactored service/gallery update to only set defined fields; added `POST /api/appointments/reserve` endpoint; added `resequenceQueue()` to in-service endpoint |
+| `backend/src/app.ts` | Refactored from ~1400-line monolith to ~90-line setup file that mounts 9 route modules. Includes CSRF middleware, CORS with `X-Requested-With`, Helmet, rate limiting, mongo-sanitize |
+| `backend/src/routes/helpers.ts` | **NEW** — Shared helpers: `sanitize()`, `todayString()`, `parsePagination()`, `sanitizeUser()`, `signAccessToken/RefreshToken()`, `authenticate()`, `requireAdmin()`, `resequenceQueue()` |
+| `backend/src/routes/auth.routes.ts` | **NEW** — Auth routes: register, login, refresh, logout, logout-all. Includes auth rate limiter |
+| `backend/src/routes/user.routes.ts` | **NEW** — User routes: profile GET/PUT, CRUD, activate/deactivate |
+| `backend/src/routes/service.routes.ts` | **NEW** — Service CRUD routes |
+| `backend/src/routes/team.routes.ts` | **NEW** — Team listing with pagination |
+| `backend/src/routes/schedule.routes.ts` | **NEW** — Schedule CRUD + available days |
+| `backend/src/routes/session.routes.ts` | **NEW** — Session open/close + admin dashboard |
+| `backend/src/routes/booking.routes.ts` | **NEW** — Public bookings, time-slots with rate limiter |
+| `backend/src/routes/appointment.routes.ts` | **NEW** — Appointment CRUD + status changes (cancel, complete, in-service, no-show, reserve) |
+| `backend/src/routes/queue.routes.ts` | **NEW** — Live queue + reorder |
+| `backend/src/models/GalleryItem.ts` | **DELETED** — Gallery feature removed |
+| `backend/src/modules/` | **DELETED** — Entire dead-code Prisma modules directory |
+| `backend/src/middleware/` | **DELETED** — Entire dead-code middleware directory |
 | `backend/src/config/database.ts` | Removed PrismaClient import; replaced with placeholder comment |
-| `backend/src/config/index.ts` | Changed exports from Prisma to Mongoose (env, connectDatabase, disconnectDatabase) |
+| `backend/src/config/index.ts` | Changed exports from Prisma to Mongoose |
 | `backend/src/types/index.ts` | Removed `@prisma/client` import; defined local `Role` type |
-| `web/src/lib/api.ts` | Changed `adminCreateReservedAppointment` from `submitBookingRequest` hack to proper `/appointments/reserve` call |
-| `web/src/pages/ProfilePage.tsx` | Added `currentPassword` field to form state, validation, API call, and UI |
-| `mobile/app/(tabs)/appointments.tsx` | Added `parseTimeToMinutes()` helper; sorted today/upcoming/past sections by time |
-| `mobile/app/(admin)/appointments.tsx` | Added `parseTimeToMinutes()` helper; sorted appointments by time slot |
-| `mobile/app/(tabs)/profile.tsx` | Added `currentPassword` field to form state, validation, API call, and UI |
+| `web/src/lib/api.ts` | In-memory token storage; 401 auto-refresh interceptor; `X-Requested-With` header; removed gallery API functions; removed `Story`/`ManagedWorkItem` types |
+| `web/src/lib/types.ts` | Removed `Story` interface |
+| `web/src/App.tsx` | Removed work/gallery pages, routes, and navigation |
+| `web/src/pages/WorkPage.tsx` | **DELETED** — Gallery feature removed |
+| `web/src/pages/AdminWorkManagementPage.tsx` | **DELETED** — Gallery feature removed |
+| `web/src/components/GalleryGrid.tsx` | **DELETED** — Gallery feature removed |
+| `web/src/pages/ProfilePage.tsx` | Added `currentPassword` field for password changes |
+| `mobile/lib/api.ts` | 401 auto-refresh interceptor; `X-Requested-With` header; removed gallery API functions |
+| `mobile/lib/types.ts` | Removed `Story` type |
+| `mobile/app/work.tsx` | **DELETED** — Gallery feature removed |
+| `mobile/app/(admin)/work.tsx` | **DELETED** — Gallery feature removed |
+| `mobile/app/(admin)/_layout.tsx` | Removed work screen |
+| `mobile/app/(admin)/dashboard.tsx` | Removed "Our Work" navigation |
+| `mobile/app/(tabs)/index.tsx` | Removed "Our Work" quick navigation |
+| `mobile/app/(tabs)/appointments.tsx` | Added time-based sorting for appointment sections |
+| `mobile/app/(admin)/appointments.tsx` | Added time-based sorting |
+| `mobile/app/(tabs)/profile.tsx` | Added `currentPassword` field for password changes |
 
 ---
 
 ## 4. Security Summary
 
-### Protections Already In Place
+### Protections In Place
 - **Helmet.js** — HTTP security headers
-- **express-rate-limit** — brute-force protection (100 req/15min general, 20 req/15min auth)
+- **express-rate-limit** — brute-force protection (300 req/15min general, 10 req/15min auth, 5 req/15min bookings)
 - **express-mongo-sanitize** — NoSQL injection prevention
+- **sanitize-html** — XSS prevention on all text inputs
 - **bcryptjs** — password hashing (10 rounds)
 - **JWT with rotation** — refresh token reuse detection
-- **CORS** — configurable origin whitelist
-- **Input validation** — Mongoose schema validation + manual checks
+- **CORS** — configurable origin whitelist with `X-Requested-With` allowed
+- **CSRF protection** — custom header check on state-changing requests
+- **In-memory tokens** — tokens stored in memory (not just localStorage), auto-refresh on 401
+- **Input validation** — Mongoose schema validation + manual checks + sanitization
+- **Pagination** — all list endpoints support `?page=&limit=` with max 100
 
 ### Remaining Risks (prioritized)
-1. **localStorage token storage** — migrate to httpOnly cookies
-2. **Hardcoded default credentials** — rotate immediately in production
-3. **No auto-refresh interceptor** — users get logged out after 15 minutes
-4. **No pagination** — large datasets will degrade performance
-5. **Monolithic architecture** — makes code review and testing difficult
+1. **Hardcoded default credentials** — rotate immediately in production
+2. **No comprehensive test suite** — add unit and integration tests
+3. **No CI/CD pipeline** — add automated security scanning
 
 ---
 
 ## 5. Recommendations
 
 1. **Immediate:** Change default admin password in production; add `ADMIN_PASSWORD` to environment config
-2. **Short-term:** Add Axios interceptor for automatic token refresh; add pagination to list endpoints
-3. **Medium-term:** Refactor `app.ts` into Express Router modules; migrate tokens to httpOnly cookies
-4. **Long-term:** Remove all dead code in `modules/`, `middleware/`; add comprehensive test suite; add CI/CD pipeline with security scanning
+2. **Short-term:** Add comprehensive test suite (unit + integration); set up CI/CD with security scanning
+3. **Medium-term:** Consider migrating to httpOnly cookies for even stronger token security
+4. **Long-term:** Add monitoring, logging aggregation, and alerting for production

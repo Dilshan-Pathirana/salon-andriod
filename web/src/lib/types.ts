@@ -19,14 +19,6 @@ export interface Service {
   isActive: boolean;
 }
 
-export interface Story {
-  id: string;
-  beforeImageUrl: string;
-  afterImageUrl: string;
-  caption: string;
-  serviceId?: string;
-}
-
 export interface Appointment {
   id: string;
   userId: string;
