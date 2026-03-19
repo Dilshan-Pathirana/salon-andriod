@@ -77,8 +77,9 @@ const bookingLimiter = rateLimit({
 app.use(globalLimiter);
 
 function todayString(): string {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  const IST_OFFSET_MS = 5.5 * 60 * 60 * 1000;
+  const ist = new Date(Date.now() + IST_OFFSET_MS);
+  return `${ist.getUTCFullYear()}-${String(ist.getUTCMonth() + 1).padStart(2, '0')}-${String(ist.getUTCDate()).padStart(2, '0')}`;
 }
 
 function sanitizeUser(user: {
@@ -372,14 +373,50 @@ app.put('/api/users/profile', authenticate, async (req: AuthRequest, res, next) 
       firstName?: string;
       lastName?: string;
       password?: string;
+      currentPassword?: string;
       profileImageUrl?: string | null;
     };
 
     const data: Record<string, unknown> = {};
-    if (updateBody.firstName !== undefined) data.firstName = updateBody.firstName;
-    if (updateBody.lastName !== undefined) data.lastName = updateBody.lastName;
+    if (updateBody.firstName !== undefined) {
+      const name = String(updateBody.firstName).trim();
+      if (name.length < 1 || name.length > 50) {
+        res.status(400).json({ success: false, message: 'First name must be 1-50 characters' });
+        return;
+      }
+      data.firstName = name;
+    }
+    if (updateBody.lastName !== undefined) {
+      const name = String(updateBody.lastName).trim();
+      if (name.length < 1 || name.length > 50) {
+        res.status(400).json({ success: false, message: 'Last name must be 1-50 characters' });
+        return;
+      }
+      data.lastName = name;
+    }
     if (updateBody.profileImageUrl !== undefined) data.profileImageUrl = updateBody.profileImageUrl;
-    if (updateBody.password) data.passwordHash = await bcrypt.hash(updateBody.password, 10);
+    if (updateBody.password) {
+      if (String(updateBody.password).length < 8) {
+        res.status(400).json({ success: false, message: 'Password must be at least 8 characters' });
+        return;
+      }
+      // Require current password verification for password changes
+      if (!updateBody.currentPassword) {
+        res.status(400).json({ success: false, message: 'Current password is required to set a new password' });
+        return;
+      }
+      const user = await User.findById(req.auth!.userId);
+      if (!user) {
+        res.status(404).json({ success: false, message: 'Profile not found' });
+        return;
+      }
+      const valid = await bcrypt.compare(updateBody.currentPassword, user.passwordHash);
+      if (!valid) {
+        res.status(401).json({ success: false, message: 'Current password is incorrect' });
+        return;
+      }
+      data.passwordHash = await bcrypt.hash(updateBody.password, 10);
+    }
 
     const updated = await User.findByIdAndUpdate(req.auth!.userId, data, { new: true }).lean();
     if (!updated) {
@@ -460,6 +497,15 @@ app.put('/api/users/:id', authenticate, requireAdmin, async (req, res, next) => 
       role?: Role;
       isActive?: boolean;
     };
+
+    // Validate role if provided
+    if (update.role !== undefined) {
+      const validRoles: Role[] = ['ADMIN', 'CLIENT'];
+      if (!validRoles.includes(update.role)) {
+        res.status(400).json({ success: false, message: 'Invalid role. Must be ADMIN or CLIENT' });
+        return;
+      }
+    }
 
     if (update.phoneNumber) {
       const duplicate = await User.findOne({ phoneNumber: update.phoneNumber, _id: { $ne: req.params.id } }).lean();
@@ -557,6 +603,10 @@ app.get('/api/services/category/:category', async (req, res, next) => {
 
 app.get('/api/services/:id', async (req, res, next) => {
   try {
+    if (!isValidObjectId(req.params.id)) {
+      res.status(400).json({ success: false, message: 'Invalid service id' });
+      return;
+    }
     const item = await Service.findById(req.params.id).lean();
     if (!item) {
       res.status(404).json({ success: false, message: 'Service not found' });
@@ -599,6 +649,10 @@ app.post('/api/services', authenticate, requireAdmin, async (req, res, next) => 
 
 app.put('/api/services/:id', authenticate, requireAdmin, async (req, res, next) => {
   try {
+    if (!isValidObjectId(req.params.id)) {
+      res.status(400).json({ success: false, message: 'Invalid service id' });
+      return;
+    }
     const payload = req.body as {
       name?: string;
       description?: string;
@@ -610,17 +664,20 @@ app.put('/api/services/:id', authenticate, requireAdmin, async (req, res, next) 
       isActive?: boolean;
     };
 
+    const updateData: Record<string, unknown> = {};
+    if (payload.name !== undefined) updateData.name = payload.name;
+    if (payload.description !== undefined) updateData.description = payload.description;
+    if (payload.durationMinutes !== undefined || payload.duration !== undefined) {
+      updateData.durationMinutes = payload.durationMinutes ?? payload.duration;
+    }
+    if (payload.price !== undefined) updateData.price = payload.price;
+    if (payload.category !== undefined) updateData.category = payload.category;
+    if (payload.icon !== undefined) updateData.icon = payload.icon;
+    if (payload.isActive !== undefined) updateData.isActive = payload.isActive;
+
     const updated = await Service.findByIdAndUpdate(
       req.params.id,
-      {
-        name: payload.name,
-        description: payload.description,
-        durationMinutes: payload.durationMinutes ?? payload.duration,
-        price: payload.price,
-        category: payload.category,
-        icon: payload.icon,
-        isActive: payload.isActive,
-      },
+      updateData,
       { new: true }
     ).lean();
 
@@ -637,6 +694,10 @@ app.put('/api/services/:id', authenticate, requireAdmin, async (req, res, next) 
 
 app.delete('/api/services/:id', authenticate, requireAdmin, async (req, res, next) => {
   try {
+    if (!isValidObjectId(req.params.id)) {
+      res.status(400).json({ success: false, message: 'Invalid service id' });
+      return;
+    }
     await Service.findByIdAndDelete(req.params.id);
     res.status(200).json({ success: true, data: null, message: 'Service deleted successfully' });
   } catch (error) {
@@ -682,6 +743,10 @@ app.get('/api/gallery/category/:category', async (req, res, next) => {
 
 app.get('/api/gallery/:id', async (req, res, next) => {
   try {
+    if (!isValidObjectId(req.params.id)) {
+      res.status(400).json({ success: false, message: 'Invalid gallery item id' });
+      return;
+    }
     const item = await GalleryItem.findById(req.params.id).lean();
     if (!item) {
       res.status(404).json({ success: false, message: 'Gallery item not found' });
@@ -710,15 +775,20 @@ app.post('/api/gallery', authenticate, requireAdmin, async (req, res, next) => {
 
 app.put('/api/gallery/:id', authenticate, requireAdmin, async (req, res, next) => {
   try {
+    if (!isValidObjectId(req.params.id)) {
+      res.status(400).json({ success: false, message: 'Invalid gallery item id' });
+      return;
+    }
+    const galleryUpdate: Record<string, unknown> = {};
+    if (req.body.title !== undefined) galleryUpdate.title = req.body.title;
+    if (req.body.category !== undefined) galleryUpdate.category = req.body.category;
+    if (req.body.description !== undefined) galleryUpdate.description = req.body.description;
+    if (req.body.imageUrl !== undefined) galleryUpdate.imageUrl = req.body.imageUrl;
+    if (req.body.isActive !== undefined) galleryUpdate.isActive = req.body.isActive;
+
     const updated = await GalleryItem.findByIdAndUpdate(
       req.params.id,
-      {
-        title: req.body.title,
-        category: req.body.category,
-        description: req.body.description,
-        imageUrl: req.body.imageUrl,
-        isActive: req.body.isActive,
-      },
+      galleryUpdate,
       { new: true }
     ).lean();
 
@@ -735,6 +805,10 @@ app.put('/api/gallery/:id', authenticate, requireAdmin, async (req, res, next) =
 
 app.delete('/api/gallery/:id', authenticate, requireAdmin, async (req, res, next) => {
   try {
+    if (!isValidObjectId(req.params.id)) {
+      res.status(400).json({ success: false, message: 'Invalid gallery item id' });
+      return;
+    }
     await GalleryItem.findByIdAndDelete(req.params.id);
     res.status(200).json({ success: true, data: null, message: 'Gallery item deleted successfully' });
   } catch (error) {
@@ -1001,7 +1075,7 @@ app.post('/api/bookings', bookingLimiter, async (req, res, next) => {
 
 app.get('/api/bookings', authenticate, requireAdmin, async (_req, res, next) => {
   try {
-    const bookings = await Booking.find().sort({ date: -1, time: -1 }).limit(200).lean();
+    const bookings = await Booking.find().sort({ date: 1, time: 1 }).limit(200).lean();
     res.status(200).json({ success: true, data: bookings });
   } catch (error) {
     next(error);
@@ -1059,9 +1133,59 @@ app.post('/api/appointments', authenticate, async (req: AuthRequest, res, next) 
   }
 });
 
+app.post('/api/appointments/reserve', authenticate, requireAdmin, async (req: AuthRequest, res, next) => {
+  try {
+    const { date, timeSlot, notes } = req.body as { date: string; timeSlot: string; notes?: string };
+    if (!date || !timeSlot) {
+      res.status(400).json({ success: false, message: 'date and timeSlot are required' });
+      return;
+    }
+
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(date))) {
+      res.status(400).json({ success: false, message: 'Invalid date format. Use YYYY-MM-DD.' });
+      return;
+    }
+
+    const occupied = await Booking.findOne({
+      date,
+      time: timeSlot,
+      status: { $in: ['BOOKED', 'IN_SERVICE'] },
+    }).lean();
+
+    if (occupied) {
+      res.status(409).json({ success: false, message: 'Selected slot is already booked' });
+      return;
+    }
+
+    const queuePosition =
+      (await Booking.countDocuments({
+        date,
+        status: { $in: ['BOOKED', 'IN_SERVICE'] },
+      })) + 1;
+
+    const reserved = await Booking.create({
+      userId: null,
+      fullName: 'Reserved Slot',
+      email: 'reserved@salon.local',
+      phone: '0000000000',
+      serviceName: 'Reserved',
+      date,
+      time: timeSlot,
+      notes: notes ?? 'Reserved by admin',
+      status: 'BOOKED',
+      queuePosition,
+      isReserved: true,
+    });
+
+    res.status(201).json({ success: true, data: reserved, message: 'Appointment reserved successfully' });
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.get('/api/appointments/my', authenticate, async (req: AuthRequest, res, next) => {
   try {
-    const rows = await Booking.find({ userId: req.auth!.userId }).sort({ date: -1, time: -1 }).lean();
+    const rows = await Booking.find({ userId: req.auth!.userId }).sort({ date: 1, time: 1 }).lean();
     res.status(200).json({ success: true, data: rows, message: 'Your appointments retrieved successfully' });
   } catch (error) {
     next(error);
@@ -1070,6 +1194,10 @@ app.get('/api/appointments/my', authenticate, async (req: AuthRequest, res, next
 
 app.put('/api/appointments/:id/cancel', authenticate, async (req: AuthRequest, res, next) => {
   try {
+    if (!isValidObjectId(req.params.id)) {
+      res.status(400).json({ success: false, message: 'Invalid appointment id' });
+      return;
+    }
     const row = await Booking.findById(req.params.id);
     if (!row) {
       res.status(404).json({ success: false, message: 'Appointment not found' });
@@ -1099,7 +1227,7 @@ app.get('/api/appointments', authenticate, requireAdmin, async (req, res, next) 
     if (status) filter.status = status;
     if (userId) filter.userId = userId;
 
-    const rows = await Booking.find(filter).sort({ date: -1, time: -1 }).lean();
+    const rows = await Booking.find(filter).sort({ date: 1, time: 1 }).lean();
     res.status(200).json({ success: true, data: rows, message: 'Appointments retrieved successfully' });
   } catch (error) {
     next(error);
@@ -1108,6 +1236,10 @@ app.get('/api/appointments', authenticate, requireAdmin, async (req, res, next) 
 
 app.get('/api/appointments/:id', authenticate, requireAdmin, async (req, res, next) => {
   try {
+    if (!isValidObjectId(req.params.id)) {
+      res.status(400).json({ success: false, message: 'Invalid appointment id' });
+      return;
+    }
     const row = await Booking.findById(req.params.id).lean();
     if (!row) {
       res.status(404).json({ success: false, message: 'Appointment not found' });
@@ -1121,6 +1253,10 @@ app.get('/api/appointments/:id', authenticate, requireAdmin, async (req, res, ne
 
 app.put('/api/appointments/:id', authenticate, requireAdmin, async (req, res, next) => {
   try {
+    if (!isValidObjectId(req.params.id)) {
+      res.status(400).json({ success: false, message: 'Invalid appointment id' });
+      return;
+    }
     const payload = req.body as {
       date?: string;
       time?: string;
@@ -1155,6 +1291,10 @@ app.put('/api/appointments/:id', authenticate, requireAdmin, async (req, res, ne
 
 app.put('/api/appointments/:id/complete', authenticate, requireAdmin, async (req, res, next) => {
   try {
+    if (!isValidObjectId(req.params.id)) {
+      res.status(400).json({ success: false, message: 'Invalid appointment id' });
+      return;
+    }
     const updated = await Booking.findByIdAndUpdate(req.params.id, { status: 'COMPLETED' }, { new: true });
     if (!updated) {
       res.status(404).json({ success: false, message: 'Appointment not found' });
@@ -1169,6 +1309,10 @@ app.put('/api/appointments/:id/complete', authenticate, requireAdmin, async (req
 
 app.put('/api/appointments/:id/in-service', authenticate, requireAdmin, async (req, res, next) => {
   try {
+    if (!isValidObjectId(req.params.id)) {
+      res.status(400).json({ success: false, message: 'Invalid appointment id' });
+      return;
+    }
     const row = await Booking.findById(req.params.id);
     if (!row) {
       res.status(404).json({ success: false, message: 'Appointment not found' });
@@ -1178,6 +1322,7 @@ app.put('/api/appointments/:id/in-service', authenticate, requireAdmin, async (r
     await Booking.updateMany({ date: row.date, status: 'IN_SERVICE', _id: { $ne: row._id } }, { status: 'BOOKED' });
     row.status = 'IN_SERVICE';
     await row.save();
+    await resequenceQueue(row.date);
 
     res.status(200).json({ success: true, data: row, message: 'Appointment marked as in service' });
   } catch (error) {
@@ -1187,6 +1332,10 @@ app.put('/api/appointments/:id/in-service', authenticate, requireAdmin, async (r
 
 app.put('/api/appointments/:id/no-show', authenticate, requireAdmin, async (req, res, next) => {
   try {
+    if (!isValidObjectId(req.params.id)) {
+      res.status(400).json({ success: false, message: 'Invalid appointment id' });
+      return;
+    }
     const updated = await Booking.findByIdAndUpdate(req.params.id, { status: 'NO_SHOW' }, { new: true });
     if (!updated) {
       res.status(404).json({ success: false, message: 'Appointment not found' });
@@ -1201,6 +1350,10 @@ app.put('/api/appointments/:id/no-show', authenticate, requireAdmin, async (req,
 
 app.delete('/api/appointments/:id', authenticate, requireAdmin, async (req, res, next) => {
   try {
+    if (!isValidObjectId(req.params.id)) {
+      res.status(400).json({ success: false, message: 'Invalid appointment id' });
+      return;
+    }
     const deleted = await Booking.findByIdAndDelete(req.params.id);
     if (deleted) {
       await resequenceQueue(deleted.date);

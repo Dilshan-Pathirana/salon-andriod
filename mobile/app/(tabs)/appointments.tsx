@@ -16,6 +16,22 @@ import {
 
 const TODAY = new Date().toISOString().split('T')[0];
 
+function parseTimeToMinutes(timeSlot: string): number {
+  const value = (timeSlot || '').trim();
+  const twelveHour = value.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  if (twelveHour) {
+    let h = Number(twelveHour[1]);
+    const m = Number(twelveHour[2]);
+    const mer = twelveHour[3].toUpperCase();
+    if (mer === 'PM' && h < 12) h += 12;
+    if (mer === 'AM' && h === 12) h = 0;
+    return h * 60 + m;
+  }
+  const [hh, mm] = value.split(':').map(Number);
+  if (Number.isNaN(hh) || Number.isNaN(mm)) return 0;
+  return hh * 60 + mm;
+}
+
 function statusColor(s: Appointment['status']): string {
   switch (s) {
     case 'BOOKED': return Colors.warning;
@@ -122,13 +138,35 @@ export default function AppointmentsScreen() {
     }
   }
 
-  const today = appointments.filter((a) => a.date === TODAY);
-  const upcoming = appointments.filter(
-    (a) => a.date > TODAY && (a.status === 'BOOKED' || (a.status as string) === 'IN_SERVICE'),
-  );
-  const past = appointments.filter(
-    (a) => a.date < TODAY || a.status === 'COMPLETED' || a.status === 'CANCELLED' || a.status === 'NO_SHOW',
-  );
+  const today = appointments
+    .filter((a) => a.date === TODAY)
+    .sort((a, b) => {
+      const now = parseTimeToMinutes(new Date().toTimeString().slice(0, 5));
+      const aMin = parseTimeToMinutes(a.timeSlot);
+      const bMin = parseTimeToMinutes(b.timeSlot);
+      const aUp = aMin >= now;
+      const bUp = bMin >= now;
+      if (aUp && !bUp) return -1;
+      if (!aUp && bUp) return 1;
+      if (aUp && bUp) return aMin - bMin;
+      return bMin - aMin;
+    });
+  const upcoming = appointments
+    .filter(
+      (a) => a.date > TODAY && (a.status === 'BOOKED' || (a.status as string) === 'IN_SERVICE'),
+    )
+    .sort((a, b) => {
+      if (a.date !== b.date) return a.date < b.date ? -1 : 1;
+      return parseTimeToMinutes(a.timeSlot) - parseTimeToMinutes(b.timeSlot);
+    });
+  const past = appointments
+    .filter(
+      (a) => a.date < TODAY || a.status === 'COMPLETED' || a.status === 'CANCELLED' || a.status === 'NO_SHOW',
+    )
+    .sort((a, b) => {
+      if (a.date !== b.date) return a.date > b.date ? -1 : 1;
+      return parseTimeToMinutes(b.timeSlot) - parseTimeToMinutes(a.timeSlot);
+    });
 
   return (
     <SafeAreaView style={styles.safe}>

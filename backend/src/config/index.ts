@@ -1,2 +1,2 @@
-export { config } from './env';
-export { default as prisma } from './database';
+export { env } from './env';
+export { connectDatabase, disconnectDatabase } from './db';

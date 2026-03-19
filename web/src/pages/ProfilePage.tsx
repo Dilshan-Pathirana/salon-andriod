@@ -70,6 +70,7 @@ export function ProfilePage({ onSignedOut }: ProfilePageProps) {
   const [editForm, setEditForm] = useState({
     firstName: '',
     lastName: '',
+    currentPassword: '',
     password: '',
     profileImageUrl: '',
   })
@@ -105,6 +106,7 @@ export function ProfilePage({ onSignedOut }: ProfilePageProps) {
         setEditForm({
           firstName: user.firstName,
           lastName: user.lastName,
+          currentPassword: '',
           password: '',
           profileImageUrl: user.profileImageUrl || '',
         })
@@ -211,6 +213,7 @@ export function ProfilePage({ onSignedOut }: ProfilePageProps) {
         firstName?: string
         lastName?: string
         password?: string
+        currentPassword?: string
         profileImageUrl?: string | null
       } = {
         firstName: editForm.firstName,
@@ -218,7 +221,13 @@ export function ProfilePage({ onSignedOut }: ProfilePageProps) {
       }
 
       if (editForm.password.trim()) {
+        if (!editForm.currentPassword.trim()) {
+          setStatusMessage('Current password is required to change password')
+          setIsLoading(false)
+          return
+        }
         payload.password = editForm.password
+        payload.currentPassword = editForm.currentPassword
       }
 
       payload.profileImageUrl = editForm.profileImageUrl.trim() || null
@@ -227,7 +236,7 @@ export function ProfilePage({ onSignedOut }: ProfilePageProps) {
       setProfileName(`${updated.firstName} ${updated.lastName}`.trim())
       setProfilePhone(updated.phoneNumber)
       setProfileImageUrl(updated.profileImageUrl || '')
-      setEditForm((prev) => ({ ...prev, password: '', profileImageUrl: updated.profileImageUrl || prev.profileImageUrl }))
+      setEditForm((prev) => ({ ...prev, password: '', currentPassword: '', profileImageUrl: updated.profileImageUrl || prev.profileImageUrl }))
       setStatusMessage('Profile updated successfully')
     } catch {
       setStatusMessage('Profile update failed')
@@ -407,6 +416,13 @@ export function ProfilePage({ onSignedOut }: ProfilePageProps) {
             placeholder="Last name"
             value={editForm.lastName}
             onChange={(event) => setEditForm((prev) => ({ ...prev, lastName: event.target.value }))}
+          />
+          <input
+            type="password"
+            className="w-full bg-white border border-teal-100/40 rounded-lg p-3 text-sm text-slate-800"
+            placeholder="Current password (required to change password)"
+            value={editForm.currentPassword}
+            onChange={(event) => setEditForm((prev) => ({ ...prev, currentPassword: event.target.value }))}
           />
           <input
             type="password"

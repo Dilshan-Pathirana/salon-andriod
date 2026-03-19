@@ -27,6 +27,7 @@ export default function ProfileScreen() {
   const [form, setForm] = useState({
     firstName: user?.firstName || '',
     lastName: user?.lastName || '',
+    currentPassword: '',
     password: '',
   });
   const [loading, setLoading] = useState(false);
@@ -44,18 +45,23 @@ export default function ProfileScreen() {
       setError('Password must be at least 8 characters');
       return;
     }
+    if (form.password && !form.currentPassword) {
+      setError('Current password is required to set a new password');
+      return;
+    }
 
     setLoading(true);
     try {
       const updated = await updateMyProfile({
         firstName: form.firstName.trim(),
         lastName: form.lastName.trim(),
+        currentPassword: form.currentPassword || undefined,
         password: form.password || undefined,
       });
       if (session) setSession({ ...session, user: updated });
       setSuccessMsg('Profile updated successfully');
       setEditing(false);
-      setForm((p) => ({ ...p, password: '' }));
+      setForm((p) => ({ ...p, currentPassword: '', password: '' }));
     } catch (e: any) {
       setError(e?.response?.data?.message || 'Update failed');
     } finally {
@@ -120,6 +126,12 @@ export default function ProfileScreen() {
                 value={form.firstName} onChangeText={(v) => setForm((p) => ({ ...p, firstName: v }))} />
               <TextInput style={[styles.input, { color: Colors.text }]} placeholder="Last name" placeholderTextColor={Colors.textMuted}
                 value={form.lastName} onChangeText={(v) => setForm((p) => ({ ...p, lastName: v }))} />
+              <PasswordInput
+                containerStyle={{ backgroundColor: Colors.card, marginBottom: 12 }}
+                placeholder="Current password (required for password change)"
+                value={form.currentPassword}
+                onChangeText={(v) => setForm((p) => ({ ...p, currentPassword: v }))}
+              />
               <PasswordInput
                 containerStyle={{ backgroundColor: Colors.card, marginBottom: 12 }}
                 placeholder="New password (optional)"

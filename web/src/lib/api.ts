@@ -620,30 +620,13 @@ export async function adminGetAppointments(filters?: {
 export async function adminCreateReservedAppointment(payload: { date: string; timeSlot: string }): Promise<ManagedAppointment> {
   await ensureAdminSession()
 
-  await submitBookingRequest({
-    fullName: 'Reserved Slot',
-    email: 'reserved@salon.local',
-    phone: '0000000000',
-    serviceName: 'Reserved',
-    date: payload.date,
-    time: payload.timeSlot,
-    notes: 'Reserved by admin',
-  })
-
-  const rows = await adminGetAppointments({ date: payload.date })
-  const found = rows.find((row) => row.timeSlot === payload.timeSlot && row.userName === 'Reserved Slot')
-  if (found) return found
-
-  return {
-    id: `reserved-${Date.now()}`,
+  const response = await client.post('/appointments/reserve', {
     date: payload.date,
     timeSlot: payload.timeSlot,
-    status: 'BOOKED',
-    userId: 'reserved',
-    userName: 'Reserved Slot',
-    phoneNumber: '0000000000',
-    isReserved: true,
-  }
+  })
+
+  const row = extractData<any>(response)
+  return mapBookingToManagedAppointment(row)
 }
 
 export async function adminDeleteAppointment(id: string): Promise<void> {
