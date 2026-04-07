@@ -18,6 +18,7 @@ import { AdminAppointmentManagementPage } from './pages/AdminAppointmentManageme
 import { AdminQueueManagementPage } from './pages/AdminQueueManagementPage'
 import { AdminUserManagementPage } from './pages/AdminUserManagementPage'
 import { getCurrentSession } from './lib/api'
+import { PwaInstallButton } from './components/PwaInstallButton'
 
 type AppPage = PageType | 'services' | 'appointments' | 'auth' | 'admin'
 
@@ -190,18 +191,15 @@ export function App() {
       : 'home'
 
   return (
-    <div className="relative h-screen w-full overflow-hidden bg-slate-50 font-sans text-slate-900 flex justify-center selection:bg-blue-100 selection:text-blue-900">
-      {/* Light subtle SaaS dashboard style background gradients */}
+    <div className="relative h-screen w-full overflow-hidden bg-[#fdf8f5] font-sans text-slate-900 flex justify-center selection:bg-orange-100 selection:text-orange-900">
       <div className="pointer-events-none absolute inset-0 flex justify-center">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-blue-400/10 blur-[80px]" />
-        <div className="absolute bottom-[10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-400/10 blur-[100px]" />
+        <div className="absolute top-[-5%] left-[-12%] w-[45%] h-[45%] rounded-full bg-rose-300/20 blur-[90px]" />
+        <div className="absolute bottom-[8%] right-[-10%] w-[55%] h-[55%] rounded-full bg-amber-300/25 blur-[110px]" />
       </div>
 
-      {/* Main App Container */}
-      <div className="relative w-full max-w-[480px] h-full flex flex-col overflow-hidden bg-white shadow-2xl shadow-indigo-100 sm:border-x sm:border-slate-200 z-10">
-        {/* Offline banner */}
+      <div className="relative w-full max-w-[480px] h-full flex flex-col overflow-hidden bg-[#fffdf9] shadow-2xl shadow-orange-200/50 sm:border-x sm:border-orange-100 z-10">
         {!isOnline && (
-          <div className="relative z-50 flex items-center justify-center gap-2 bg-amber-500 px-4 py-2 text-xs font-medium text-white">
+          <div className="relative z-50 flex items-center justify-center gap-2 bg-orange-500 px-4 py-2 text-xs font-medium text-white">
             <span>⚠</span>
             <span>You are offline. Some features may not be available.</span>
           </div>
@@ -264,6 +262,8 @@ export function App() {
             <BottomNav activePage={activeBottomPage} onChange={handleBottomNav} role={bottomNavRole} />
           </div>
         ) : null}
+
+        <PwaInstallButton />
       </div>
     </div>
   )

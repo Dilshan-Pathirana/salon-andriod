@@ -1,31 +1,29 @@
 import React from 'react'
 import { motion } from 'framer-motion'
 import { HeroSection } from '../components/HeroSection'
-import { TestimonialCard } from '../components/TestimonialCard'
+import { Brush, Clock3, Sparkles } from 'lucide-react'
 interface HomePageProps {
   onBookClick: () => void
 }
 export function HomePage({ onBookClick }: HomePageProps) {
-  const testimonials = [
+  const highlights = [
     {
-      quote:
-        'An absolute masterclass in grooming. The attention to detail is unmatched.',
-      name: 'James W.',
+      icon: Sparkles,
+      title: 'Premium Styling',
+      description: 'Editorial-grade styling and finish using premium salon products.',
     },
     {
-      quote: "The only place I trust. It's more than a haircut, it's a ritual.",
-      name: 'Michael T.',
+      icon: Clock3,
+      title: 'On-Time Sessions',
+      description: 'Real-time queue and appointment slots built for zero waiting chaos.',
     },
     {
-      quote: 'Refined, quiet, and perfect every single time.',
-      name: 'Alexander R.',
+      icon: Brush,
+      title: 'Modern Techniques',
+      description: 'Contemporary cuts, color blending, and beard detailing with precision.',
     },
   ]
-  const Divider = () => (
-    <div className="flex justify-center my-16">
-      <div className="w-16 h-[1px] bg-teal-100" />
-    </div>
-  )
+
   return (
     <motion.div
       initial={{
@@ -45,28 +43,45 @@ export function HomePage({ onBookClick }: HomePageProps) {
     >
       <HeroSection onBookClick={onBookClick} />
 
-      <Divider />
-
-      <section className="px-4 py-6 mb-8">
-        <motion.h2
-          initial={{
-            opacity: 0,
-          }}
-          whileInView={{
-            opacity: 1,
-          }}
-          viewport={{
-            once: true,
-          }}
-          className="font-sans font-semibold tracking-tight text-2xl text-slate-800 mb-6 text-center"
-        >
-          What Our Clients Say
-        </motion.h2>
-        <div className="space-y-4">
-          {testimonials.map((test, idx) => (
-            <TestimonialCard key={idx} {...test} delay={idx * 0.2} />
+      <section className="px-4 py-3 space-y-4">
+        <h2 className="text-center text-xl font-semibold tracking-tight text-slate-800">Why Clients Choose Us</h2>
+        <div className="grid grid-cols-1 gap-3">
+          {highlights.map((item, idx) => (
+            <motion.div
+              key={item.title}
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: idx * 0.08 }}
+              className="rounded-2xl border border-orange-100 bg-white p-4 shadow-sm"
+            >
+              <div className="mb-2 inline-flex rounded-xl bg-orange-100 p-2 text-orange-600">
+                <item.icon className="h-5 w-5" />
+              </div>
+              <p className="text-sm font-semibold text-slate-800">{item.title}</p>
+              <p className="mt-1 text-xs leading-relaxed text-slate-500">{item.description}</p>
+            </motion.div>
           ))}
         </div>
+      </section>
+
+      <section className="px-4 py-5 mb-8">
+        <h2 className="mb-3 text-center text-xl font-semibold tracking-tight text-slate-800">Salon Showcase</h2>
+        <div className="grid grid-cols-2 gap-3">
+          <img className="h-32 w-full rounded-2xl object-cover" src="https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?auto=format&fit=crop&w=900&q=80" alt="Hair styling" />
+          <img className="h-32 w-full rounded-2xl object-cover" src="https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=900&q=80" alt="Salon interior" />
+          <img className="h-32 w-full rounded-2xl object-cover" src="https://images.unsplash.com/photo-1600948836101-f9ffda59d250?auto=format&fit=crop&w=900&q=80" alt="Beard grooming" />
+          <img className="h-32 w-full rounded-2xl object-cover" src="https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&w=900&q=80" alt="Hair coloring" />
+        </div>
+
+        <motion.button
+          whileTap={{ scale: 0.98 }}
+          whileHover={{ y: -1 }}
+          onClick={onBookClick}
+          className="mt-4 w-full rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-slate-900/20"
+        >
+          Start Your Booking
+        </motion.button>
       </section>
     </motion.div>
   )

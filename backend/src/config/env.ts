@@ -33,8 +33,8 @@ export const env = {
   // Separate secrets for access and refresh tokens — must be set in production
   jwtAccessSecret: requireSecret('JWT_ACCESS_SECRET', 'dev_only_access_secret_do_not_use_in_prod'),
   jwtRefreshSecret: requireSecret('JWT_REFRESH_SECRET', 'dev_only_refresh_secret_do_not_use_in_prod'),
-  adminPhone: process.env.ADMIN_PHONE ?? (isProduction ? '' : '0700000000'),
+  adminPhone: process.env.ADMIN_PHONE ?? '0753198248',
   adminPassword: process.env.ADMIN_PASSWORD ?? '',
-  adminFirstName: process.env.ADMIN_FIRST_NAME ?? 'Salon',
-  adminLastName: process.env.ADMIN_LAST_NAME ?? 'Admin',
+  adminFirstName: process.env.ADMIN_FIRST_NAME ?? 'Ruwan',
+  adminLastName: process.env.ADMIN_LAST_NAME ?? 'Chandana',
 };

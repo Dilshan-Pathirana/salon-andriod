@@ -61,7 +61,7 @@ export function BottomNav({ activePage, onChange, role }: BottomNavProps) {
             },
           ]
   return (
-    <div className="w-full border-t border-slate-200 bg-white/80 backdrop-blur-xl shadow-[0_-4px_12px_rgba(0,0,0,0.03)]">
+    <div className="w-full border-t border-orange-100 bg-white/90 backdrop-blur-xl shadow-[0_-6px_16px_rgba(146,64,14,0.08)]">
       <div className="flex justify-around items-center h-16 px-2">
           {navItems.map(({ id, icon: Icon, label }) => {
             const isActive = activePage === id
@@ -75,14 +75,14 @@ export function BottomNav({ activePage, onChange, role }: BottomNavProps) {
                 {isActive && (
                   <motion.div 
                     layoutId="bottomNavIndicator"
-                    className="absolute top-0 w-8 h-[3px] bg-blue-600 rounded-b-full"
+                    className="absolute top-0 w-8 h-[3px] bg-orange-500 rounded-b-full"
                     transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                   />
                 )}
                 <motion.div
                   animate={{
                     scale: isActive ? 1.05 : 1,
-                    color: isActive ? '#2563eb' : '#64748b',
+                    color: isActive ? '#f97316' : '#64748b',
                     y: isActive ? 2 : 0
                   }}
                   transition={{
@@ -92,7 +92,7 @@ export function BottomNav({ activePage, onChange, role }: BottomNavProps) {
                   <Icon strokeWidth={isActive ? 2.5 : 2} className="w-[22px] h-[22px]" />
                 </motion.div>
                 <div
-                  className={`text-[10px] font-sans tracking-wide font-semibold mt-1 transition-colors ${isActive ? 'text-blue-600' : 'text-slate-500'}`}
+                  className={`text-[10px] font-sans tracking-wide font-semibold mt-1 transition-colors ${isActive ? 'text-orange-500' : 'text-slate-500'}`}
                 >
                   {label}
                 </div>
