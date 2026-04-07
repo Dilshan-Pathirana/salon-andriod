@@ -1,11 +1,10 @@
-import bcrypt from 'bcryptjs';
 import { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
+import { BookingStatus, Role } from '@prisma/client';
 import sanitizeHtml from 'sanitize-html';
+import { prisma } from '../config/db';
 import { env } from '../config/env';
-import { Booking } from '../models/Booking';
-
-export type Role = 'ADMIN' | 'CLIENT';
 
 export type AuthPayload = {
   userId: string;
@@ -32,7 +31,7 @@ export function parsePagination(query: { page?: string; limit?: string }): { ski
 }
 
 export function sanitizeUser(user: {
-  _id: unknown;
+  id: string;
   firstName: string;
   lastName: string;
   phoneNumber: string;
@@ -42,7 +41,7 @@ export function sanitizeUser(user: {
   createdAt?: Date;
 }) {
   return {
-    id: String(user._id),
+    id: user.id,
     firstName: user.firstName,
     lastName: user.lastName,
     phoneNumber: user.phoneNumber,
@@ -59,6 +58,10 @@ export function signAccessToken(payload: AuthPayload): string {
 
 export function signRefreshToken(payload: AuthPayload): string {
   return jwt.sign(payload, env.jwtRefreshSecret, { expiresIn: '30d' });
+}
+
+export function hashToken(token: string): string {
+  return crypto.createHash('sha256').update(token).digest('hex');
 }
 
 export function authenticate(req: AuthRequest, res: Response, next: NextFunction): void {
@@ -88,19 +91,20 @@ export function requireAdmin(req: AuthRequest, res: Response, next: NextFunction
 }
 
 export async function resequenceQueue(date: string): Promise<void> {
-  const active = await Booking.find({
-    date,
-    status: { $in: ['BOOKED', 'IN_SERVICE'] },
-  })
-    .sort({ time: 1, createdAt: 1 })
-    .lean();
+  const active = await prisma.booking.findMany({
+    where: {
+      date,
+      status: { in: [BookingStatus.BOOKED, BookingStatus.IN_SERVICE] },
+    },
+    orderBy: [{ time: 'asc' }, { createdAt: 'asc' }],
+  });
 
-  await Promise.all(
+  await prisma.$transaction(
     active.map((row, index) =>
-      Booking.updateOne(
-        { _id: row._id },
-        { $set: { queuePosition: index + 1 } },
-      )
+      prisma.booking.update({
+        where: { id: row.id },
+        data: { queuePosition: index + 1 },
+      })
     )
   );
 }

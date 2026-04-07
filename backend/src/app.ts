@@ -1,6 +1,5 @@
 import cors from 'cors';
 import express, { NextFunction, Request, Response } from 'express';
-import mongoSanitize from 'express-mongo-sanitize';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -33,9 +32,6 @@ app.use(
 );
 app.use(express.json({ limit: '1mb' }));
 app.use(morgan(env.nodeEnv === 'production' ? 'combined' : 'dev'));
-
-// Strip MongoDB operators from user-supplied input (NoSQL injection prevention)
-app.use(mongoSanitize());
 
 // CSRF protection: require X-Requested-With header on state-changing requests
 app.use((req: Request, res: Response, next: NextFunction) => {

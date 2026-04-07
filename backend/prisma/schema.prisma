@@ -1,0 +1,123 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  CLIENT
+}
+
+enum BookingStatus {
+  BOOKED
+  IN_SERVICE
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+enum ScheduleStatus {
+  OPEN
+  CLOSED
+  HOLIDAY
+}
+
+enum ServiceCategory {
+  HAIRCUT
+  BEARD
+  COMBO
+  PREMIUM
+}
+
+model User {
+  id              String         @id @default(uuid())
+  phoneNumber     String         @unique
+  passwordHash    String
+  firstName       String
+  lastName        String
+  role            Role           @default(CLIENT)
+  profileImageUrl String?
+  isActive        Boolean        @default(true)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  refreshTokens   RefreshToken[]
+  bookings        Booking[]
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  tokenHash String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model Service {
+  id              String          @id @default(uuid())
+  name            String
+  description     String
+  durationMinutes Int
+  price           Float
+  icon            String
+  category        ServiceCategory @default(HAIRCUT)
+  isActive        Boolean         @default(true)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+}
+
+model TeamMember {
+  id              String   @id @default(uuid())
+  name            String
+  title           String
+  experienceYears Int
+  avatar          String
+  portfolio       String[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Schedule {
+  date             String         @id
+  status           ScheduleStatus @default(OPEN)
+  startTime        String         @default("09:00")
+  endTime          String         @default("18:00")
+  slotDurationMins Int            @default(30)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+}
+
+model Session {
+  date      String   @id
+  isClosed  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Booking {
+  id            String        @id @default(uuid())
+  userId        String?
+  user          User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  fullName      String
+  email         String
+  phone         String
+  serviceName   String
+  date          String
+  time          String
+  notes         String        @default("")
+  status        BookingStatus @default(BOOKED)
+  queuePosition Int           @default(0)
+  isReserved    Boolean       @default(false)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([date, status])
+  @@index([userId])
+}

@@ -16,12 +16,7 @@
     "typeRoots": ["./node_modules/@types", "./src/types"]
   },
   "include": [
-    "src/server.ts",
-    "src/app.ts",
-    "src/config/env.ts",
-    "src/config/db.ts",
-    "src/models/**/*.ts",
-    "src/seed/**/*.ts"
+    "src/**/*.ts"
   ],
   "exclude": ["node_modules", "dist"]
 }

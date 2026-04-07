@@ -1,9 +1,7 @@
-import { Service } from '../models/Service';
-import { TeamMember } from '../models/TeamMember';
-import { User } from '../models/User';
 import bcrypt from 'bcryptjs';
 import { connectDatabase, disconnectDatabase } from '../config/db';
 import { env } from '../config/env';
+import { prisma } from '../config/db';
 
 const serviceSeeds = [
   {
@@ -68,32 +66,34 @@ const teamSeeds = [
 ];
 
 export async function seedInitialData(): Promise<void> {
-  const serviceCount = await Service.estimatedDocumentCount();
+  const serviceCount = await prisma.service.count();
   if (serviceCount === 0) {
-    await Service.insertMany(serviceSeeds);
+    await prisma.service.createMany({ data: serviceSeeds as any[] });
   }
 
-  const teamCount = await TeamMember.estimatedDocumentCount();
+  const teamCount = await prisma.teamMember.count();
   if (teamCount === 0) {
-    await TeamMember.insertMany(teamSeeds);
+    await prisma.teamMember.createMany({ data: teamSeeds as any[] });
   }
 
   await ensureAdminUser();
 }
 
 export async function ensureAdminUser(): Promise<void> {
-  const existingAdmin = await User.findOne({ phoneNumber: env.adminPhone }).lean();
+  const existingAdmin = await prisma.user.findUnique({ where: { phoneNumber: env.adminPhone } });
 
   if (!existingAdmin) {
     const initialPasswordHash = await bcrypt.hash(env.adminPassword || 'admin12345', 10);
-    await User.create({
-      phoneNumber: env.adminPhone,
-      passwordHash: initialPasswordHash,
-      firstName: env.adminFirstName,
-      lastName: env.adminLastName,
-      role: 'ADMIN',
-      isActive: true,
-      profileImageUrl: null,
+    await prisma.user.create({
+      data: {
+        phoneNumber: env.adminPhone,
+        passwordHash: initialPasswordHash,
+        firstName: env.adminFirstName,
+        lastName: env.adminLastName,
+        role: 'ADMIN',
+        isActive: true,
+        profileImageUrl: null,
+      },
     });
     return;
   }
@@ -117,7 +117,10 @@ export async function ensureAdminUser(): Promise<void> {
     update.passwordHash = await bcrypt.hash(env.adminPassword, 10);
   }
 
-  await User.updateOne({ phoneNumber: env.adminPhone }, { $set: update });
+  await prisma.user.update({
+    where: { phoneNumber: env.adminPhone },
+    data: update,
+  });
 }
 
 async function runSeed(): Promise<void> {

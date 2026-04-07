@@ -1,7 +1,7 @@
 import { Server as HttpServer } from 'http';
 import { Server as SocketServer } from 'socket.io';
 import jwt from 'jsonwebtoken';
-import { config } from '../config';
+import { env } from '../config/env';
 import { JwtPayload } from '../types';
 
 let io: SocketServer | null = null;
@@ -9,7 +9,7 @@ let io: SocketServer | null = null;
 export function initializeSocket(httpServer: HttpServer): SocketServer {
   io = new SocketServer(httpServer, {
     cors: {
-      origin: config.cors.origin,
+      origin: env.corsOrigins,
       methods: ['GET', 'POST'],
     },
     pingInterval: 25000,
@@ -25,7 +25,7 @@ export function initializeSocket(httpServer: HttpServer): SocketServer {
         return next(new Error('Authentication required'));
       }
 
-      const decoded = jwt.verify(token, config.jwt.accessSecret) as JwtPayload;
+      const decoded = jwt.verify(token, env.jwtAccessSecret) as JwtPayload;
       socket.data.userId = decoded.userId;
       socket.data.role = decoded.role;
       next();

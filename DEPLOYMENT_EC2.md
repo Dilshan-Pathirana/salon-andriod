@@ -37,7 +37,9 @@ cp .env.example .env
 ```
 
 Set production values in `.env`:
-- `MONGO_ROOT_PASSWORD`
+- `POSTGRES_USER`
+- `POSTGRES_PASSWORD`
+- `POSTGRES_DB`
 - `JWT_ACCESS_SECRET`
 - `JWT_REFRESH_SECRET`
 - `ADMIN_PASSWORD`
@@ -83,4 +85,4 @@ IMAGE_REPOSITORY=<repo> IMAGE_TAG=latest docker compose up -d --remove-orphans
 ## 6. Restart Persistence
 
 - All services use `restart: unless-stopped`.
-- MongoDB data is persisted in `mongo_data` Docker volume.
+- PostgreSQL data is persisted in `postgres_data` Docker volume.

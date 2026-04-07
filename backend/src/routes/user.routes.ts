@@ -1,10 +1,9 @@
 import bcrypt from 'bcryptjs';
 import { Router } from 'express';
-import { isValidObjectId } from 'mongoose';
-import { User } from '../models/User';
+import { Role } from '@prisma/client';
+import { prisma } from '../config/db';
 import {
   AuthRequest,
-  Role,
   authenticate,
   parsePagination,
   requireAdmin,
@@ -13,10 +12,11 @@ import {
 } from './helpers';
 
 const router = Router();
+const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 router.get('/profile', authenticate, async (req: AuthRequest, res, next) => {
   try {
-    const user = await User.findById(req.auth!.userId).lean();
+    const user = await prisma.user.findUnique({ where: { id: req.auth!.userId } });
     if (!user) {
       res.status(404).json({ success: false, message: 'Profile not found' });
       return;
@@ -64,7 +64,7 @@ router.put('/profile', authenticate, async (req: AuthRequest, res, next) => {
         res.status(400).json({ success: false, message: 'Current password is required to set a new password' });
         return;
       }
-      const user = await User.findById(req.auth!.userId);
+      const user = await prisma.user.findUnique({ where: { id: req.auth!.userId } });
       if (!user) {
         res.status(404).json({ success: false, message: 'Profile not found' });
         return;
@@ -77,7 +77,10 @@ router.put('/profile', authenticate, async (req: AuthRequest, res, next) => {
       data.passwordHash = await bcrypt.hash(updateBody.password, 10);
     }
 
-    const updated = await User.findByIdAndUpdate(req.auth!.userId, data, { new: true }).lean();
+    const updated = await prisma.user.update({
+      where: { id: req.auth!.userId },
+      data,
+    });
     if (!updated) {
       res.status(404).json({ success: false, message: 'Profile not found' });
       return;
@@ -93,8 +96,8 @@ router.get('/', authenticate, requireAdmin, async (req, res, next) => {
   try {
     const { skip, take, page, limit } = parsePagination(req.query as any);
     const [users, total] = await Promise.all([
-      User.find().sort({ createdAt: -1 }).skip(skip).limit(take).lean(),
-      User.countDocuments(),
+      prisma.user.findMany({ orderBy: { createdAt: 'desc' }, skip, take }),
+      prisma.user.count(),
     ]);
     res.status(200).json({ success: true, message: 'Users retrieved successfully', data: users.map(sanitizeUser), page, limit, total });
   } catch (error) {
@@ -128,20 +131,22 @@ router.post('/', authenticate, requireAdmin, async (req, res, next) => {
       return;
     }
 
-    const exists = await User.findOne({ phoneNumber }).lean();
+    const exists = await prisma.user.findUnique({ where: { phoneNumber } });
     if (exists) {
       res.status(409).json({ success: false, message: 'A user with this phone number already exists' });
       return;
     }
 
-    const created = await User.create({
-      phoneNumber,
-      passwordHash: await bcrypt.hash(password, 10),
-      firstName: sanitize(String(firstName).trim()),
-      lastName: sanitize(String(lastName).trim()),
-      role,
-      profileImageUrl: null,
-      isActive: true,
+    const created = await prisma.user.create({
+      data: {
+        phoneNumber,
+        passwordHash: await bcrypt.hash(password, 10),
+        firstName: sanitize(String(firstName).trim()),
+        lastName: sanitize(String(lastName).trim()),
+        role,
+        profileImageUrl: null,
+        isActive: true,
+      },
     });
 
     res.status(201).json({ success: true, message: 'User created successfully', data: sanitizeUser(created) });
@@ -152,7 +157,7 @@ router.post('/', authenticate, requireAdmin, async (req, res, next) => {
 
 router.put('/:id', authenticate, requireAdmin, async (req, res, next) => {
   try {
-    if (!isValidObjectId(req.params.id)) {
+    if (!uuidRegex.test(req.params.id)) {
       res.status(400).json({ success: false, message: 'Invalid user id' });
       return;
     }
@@ -174,7 +179,12 @@ router.put('/:id', authenticate, requireAdmin, async (req, res, next) => {
     }
 
     if (update.phoneNumber) {
-      const duplicate = await User.findOne({ phoneNumber: update.phoneNumber, _id: { $ne: req.params.id } }).lean();
+      const duplicate = await prisma.user.findFirst({
+        where: {
+          phoneNumber: update.phoneNumber,
+          NOT: { id: req.params.id },
+        },
+      });
       if (duplicate) {
         res.status(409).json({ success: false, message: 'A user with this phone number already exists' });
         return;
@@ -188,7 +198,13 @@ router.put('/:id', authenticate, requireAdmin, async (req, res, next) => {
     if (update.role !== undefined) sanitizedUpdate.role = update.role;
     if (update.isActive !== undefined) sanitizedUpdate.isActive = update.isActive;
 
-    const updated = await User.findByIdAndUpdate(req.params.id, sanitizedUpdate, { new: true }).lean();
+    const existing = await prisma.user.findUnique({ where: { id: req.params.id } });
+    if (!existing) {
+      res.status(404).json({ success: false, message: 'User not found' });
+      return;
+    }
+
+    const updated = await prisma.user.update({ where: { id: req.params.id }, data: sanitizedUpdate });
     if (!updated) {
       res.status(404).json({ success: false, message: 'User not found' });
       return;
@@ -202,7 +218,7 @@ router.put('/:id', authenticate, requireAdmin, async (req, res, next) => {
 
 router.delete('/:id', authenticate, requireAdmin, async (req: AuthRequest, res, next) => {
   try {
-    if (!isValidObjectId(req.params.id)) {
+    if (!uuidRegex.test(req.params.id)) {
       res.status(400).json({ success: false, message: 'Invalid user id' });
       return;
     }
@@ -212,7 +228,7 @@ router.delete('/:id', authenticate, requireAdmin, async (req: AuthRequest, res, 
       return;
     }
 
-    await User.findByIdAndDelete(req.params.id);
+    await prisma.user.deleteMany({ where: { id: req.params.id } });
     res.status(200).json({ success: true, message: 'User deleted successfully', data: null });
   } catch (error) {
     next(error);
@@ -221,11 +237,16 @@ router.delete('/:id', authenticate, requireAdmin, async (req: AuthRequest, res, 
 
 router.put('/:id/deactivate', authenticate, requireAdmin, async (req, res, next) => {
   try {
-    if (!isValidObjectId(req.params.id)) {
+    if (!uuidRegex.test(req.params.id)) {
       res.status(400).json({ success: false, message: 'Invalid user id' });
       return;
     }
-    const updated = await User.findByIdAndUpdate(req.params.id, { isActive: false }, { new: true }).lean();
+    const existing = await prisma.user.findUnique({ where: { id: req.params.id } });
+    if (!existing) {
+      res.status(404).json({ success: false, message: 'User not found' });
+      return;
+    }
+    const updated = await prisma.user.update({ where: { id: req.params.id }, data: { isActive: false } });
     if (!updated) {
       res.status(404).json({ success: false, message: 'User not found' });
       return;
@@ -238,11 +259,16 @@ router.put('/:id/deactivate', authenticate, requireAdmin, async (req, res, next)
 
 router.put('/:id/activate', authenticate, requireAdmin, async (req, res, next) => {
   try {
-    if (!isValidObjectId(req.params.id)) {
+    if (!uuidRegex.test(req.params.id)) {
       res.status(400).json({ success: false, message: 'Invalid user id' });
       return;
     }
-    const updated = await User.findByIdAndUpdate(req.params.id, { isActive: true }, { new: true }).lean();
+    const existing = await prisma.user.findUnique({ where: { id: req.params.id } });
+    if (!existing) {
+      res.status(404).json({ success: false, message: 'User not found' });
+      return;
+    }
+    const updated = await prisma.user.update({ where: { id: req.params.id }, data: { isActive: true } });
     if (!updated) {
       res.status(404).json({ success: false, message: 'User not found' });
       return;

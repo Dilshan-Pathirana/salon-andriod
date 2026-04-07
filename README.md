@@ -5,8 +5,8 @@ Mobile-first salon booking platform using React PWA frontend and Node.js backend
 ## Stack
 
 - Frontend: React + Vite + Tailwind + vite-plugin-pwa
-- Backend: Node.js + Express + Mongoose
-- Database: MongoDB
+- Backend: Node.js + Express + Prisma
+- Database: PostgreSQL
 - Infra: Docker Compose + GitHub Actions + EC2
 
 ## Local Development

@@ -1,23 +1,22 @@
-import mongoose from 'mongoose';
-import { env } from './env';
+import { PrismaClient } from '@prisma/client';
 
-let connectionPromise: Promise<typeof mongoose> | null = null;
+declare global {
+  // eslint-disable-next-line no-var
+  var __prisma: PrismaClient | undefined;
+}
+
+export const prisma = global.__prisma ?? new PrismaClient();
+
+if (process.env.NODE_ENV !== 'production') {
+  global.__prisma = prisma;
+}
 
 export async function connectDatabase(): Promise<void> {
-  if (!env.mongodbUri) {
-    throw new Error('MONGODB_URI is required in production environment');
-  }
-
-  if (!connectionPromise) {
-    connectionPromise = mongoose.connect(env.mongodbUri);
-  }
-
-  await connectionPromise;
-  console.log('✅ MongoDB connected');
+  await prisma.$connect();
+  console.log('✅ PostgreSQL connected via Prisma');
 }
 
 export async function disconnectDatabase(): Promise<void> {
-  connectionPromise = null;
-  await mongoose.disconnect();
-  console.log('✅ MongoDB disconnected');
+  await prisma.$disconnect();
+  console.log('✅ PostgreSQL disconnected');
 }

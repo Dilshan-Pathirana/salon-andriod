@@ -1,9 +1,5 @@
 import { Router } from 'express';
-import { Booking } from '../models/Booking';
-import { Schedule } from '../models/Schedule';
-import { Service } from '../models/Service';
-import { Session } from '../models/Session';
-import { User } from '../models/User';
+import { prisma } from '../config/db';
 import { authenticate, requireAdmin, todayString } from './helpers';
 
 const router = Router();
@@ -11,8 +7,8 @@ const router = Router();
 router.get('/', authenticate, async (req, res, next) => {
   try {
     const date = String(req.query.date || todayString());
-    const schedule = await Schedule.findOne({ date }).lean();
-    const session = await Session.findOne({ date }).lean();
+    const schedule = await prisma.schedule.findUnique({ where: { date } });
+    const session = await prisma.session.findUnique({ where: { date } });
 
     const sessionStatus = !schedule
       ? 'NO_SCHEDULE'
@@ -37,13 +33,17 @@ router.get('/', authenticate, async (req, res, next) => {
 router.post('/open', authenticate, requireAdmin, async (req, res, next) => {
   try {
     const date = String(req.body.date || todayString());
-    await Schedule.findOneAndUpdate(
-      { date },
-      { date, status: 'OPEN', startTime: '09:00', endTime: '18:00', slotDurationMins: 30 },
-      { upsert: true, new: true }
-    );
+    await prisma.schedule.upsert({
+      where: { date },
+      create: { date, status: 'OPEN', startTime: '09:00', endTime: '18:00', slotDurationMins: 30 },
+      update: { status: 'OPEN', startTime: '09:00', endTime: '18:00', slotDurationMins: 30 },
+    });
 
-    const session = await Session.findOneAndUpdate({ date }, { date, isClosed: false }, { upsert: true, new: true }).lean();
+    const session = await prisma.session.upsert({
+      where: { date },
+      create: { date, isClosed: false },
+      update: { isClosed: false },
+    });
     res.status(200).json({ success: true, message: 'Session opened successfully', data: session });
   } catch (error) {
     next(error);
@@ -53,7 +53,11 @@ router.post('/open', authenticate, requireAdmin, async (req, res, next) => {
 router.put('/close', authenticate, requireAdmin, async (req, res, next) => {
   try {
     const date = String(req.query.date || todayString());
-    const session = await Session.findOneAndUpdate({ date }, { date, isClosed: true }, { upsert: true, new: true }).lean();
+    const session = await prisma.session.upsert({
+      where: { date },
+      create: { date, isClosed: true },
+      update: { isClosed: true },
+    });
     res.status(200).json({ success: true, message: 'Session closed successfully', data: session });
   } catch (error) {
     next(error);
@@ -64,12 +68,12 @@ router.get('/dashboard', authenticate, requireAdmin, async (req, res, next) => {
   try {
     const date = String(req.query.date || todayString());
 
-    const [users, services, appointments, schedule, session] = await Promise.all([
-      User.find().lean(),
-      Service.find({ isActive: true }).lean(),
-      Booking.find({ date }).lean(),
-      Schedule.findOne({ date }).lean(),
-      Session.findOne({ date }).lean(),
+    const [registeredUsers, activeServices, appointments, schedule, session] = await Promise.all([
+      prisma.user.count(),
+      prisma.service.count({ where: { isActive: true } }),
+      prisma.booking.findMany({ where: { date } }),
+      prisma.schedule.findUnique({ where: { date } }),
+      prisma.session.findUnique({ where: { date } }),
     ]);
 
     const sessionStatus = !schedule
@@ -89,7 +93,9 @@ router.get('/dashboard', authenticate, requireAdmin, async (req, res, next) => {
         end.setDate(end.getDate() + 1);
 
         const key = `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}`;
-        const count = await User.countDocuments({ createdAt: { $gte: start, $lt: end } });
+        const count = await prisma.user.count({
+          where: { createdAt: { gte: start, lt: end } },
+        });
 
         return { day: key, count };
       })
@@ -103,8 +109,8 @@ router.get('/dashboard', authenticate, requireAdmin, async (req, res, next) => {
       completed: appointments.filter((a) => a.status === 'COMPLETED').length,
       cancelled: appointments.filter((a) => a.status === 'CANCELLED').length,
       noShow: appointments.filter((a) => a.status === 'NO_SHOW').length,
-      registeredUsers: users.length,
-      activeServices: services.length,
+      registeredUsers,
+      activeServices,
       appointmentsToday: appointments.length,
       userRegistrationTrend: trend,
       averageAppointmentTime: schedule?.slotDurationMins ?? 30,

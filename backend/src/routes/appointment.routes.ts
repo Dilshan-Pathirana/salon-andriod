@@ -1,7 +1,5 @@
 import { Router } from 'express';
-import { isValidObjectId } from 'mongoose';
-import { Booking } from '../models/Booking';
-import { User } from '../models/User';
+import { prisma } from '../config/db';
 import {
   AuthRequest,
   authenticate,
@@ -11,6 +9,7 @@ import {
 } from './helpers';
 
 const router = Router();
+const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 router.post('/', authenticate, async (req: AuthRequest, res, next) => {
   try {
@@ -20,40 +19,44 @@ router.post('/', authenticate, async (req: AuthRequest, res, next) => {
       return;
     }
 
-    const user = await User.findById(req.auth!.userId).lean();
+    const user = await prisma.user.findUnique({ where: { id: req.auth!.userId } });
     if (!user) {
       res.status(404).json({ success: false, message: 'User not found' });
       return;
     }
 
-    const occupied = await Booking.findOne({
+    const occupied = await prisma.booking.findFirst({
+      where: {
       date,
       time: timeSlot,
-      status: { $in: ['BOOKED', 'IN_SERVICE'] },
-    }).lean();
+      status: { in: ['BOOKED', 'IN_SERVICE'] },
+      },
+    });
 
     if (occupied) {
       res.status(409).json({ success: false, message: 'Selected slot is already booked' });
       return;
     }
 
-    const appointment = await Booking.create({
-      userId: String(user._id),
-      fullName: `${user.firstName} ${user.lastName}`.trim(),
-      email: `${user.phoneNumber}@client.local`,
-      phone: user.phoneNumber,
-      serviceName: 'Salon Appointment',
-      date,
-      time: timeSlot,
-      notes: '',
-      status: 'BOOKED',
-      queuePosition: 0,
-      isReserved: false,
+    const appointment = await prisma.booking.create({
+      data: {
+        userId: user.id,
+        fullName: `${user.firstName} ${user.lastName}`.trim(),
+        email: `${user.phoneNumber}@client.local`,
+        phone: user.phoneNumber,
+        serviceName: 'Salon Appointment',
+        date,
+        time: timeSlot,
+        notes: '',
+        status: 'BOOKED',
+        queuePosition: 0,
+        isReserved: false,
+      },
     });
 
     await resequenceQueue(date);
 
-    const refreshed = await Booking.findById(appointment._id).lean();
+    const refreshed = await prisma.booking.findUnique({ where: { id: appointment.id } });
     res.status(201).json({ success: true, data: refreshed, message: 'Appointment booked successfully' });
   } catch (error) {
     next(error);
@@ -73,34 +76,38 @@ router.post('/reserve', authenticate, requireAdmin, async (req: AuthRequest, res
       return;
     }
 
-    const occupied = await Booking.findOne({
+    const occupied = await prisma.booking.findFirst({
+      where: {
       date,
       time: timeSlot,
-      status: { $in: ['BOOKED', 'IN_SERVICE'] },
-    }).lean();
+      status: { in: ['BOOKED', 'IN_SERVICE'] },
+      },
+    });
 
     if (occupied) {
       res.status(409).json({ success: false, message: 'Selected slot is already booked' });
       return;
     }
 
-    const reserved = await Booking.create({
-      userId: null,
-      fullName: 'Reserved Slot',
-      email: 'reserved@salon.local',
-      phone: '0000000000',
-      serviceName: 'Reserved',
-      date,
-      time: timeSlot,
-      notes: notes ?? 'Reserved by admin',
-      status: 'BOOKED',
-      queuePosition: 0,
-      isReserved: true,
+    const reserved = await prisma.booking.create({
+      data: {
+        userId: null,
+        fullName: 'Reserved Slot',
+        email: 'reserved@salon.local',
+        phone: '0000000000',
+        serviceName: 'Reserved',
+        date,
+        time: timeSlot,
+        notes: notes ?? 'Reserved by admin',
+        status: 'BOOKED',
+        queuePosition: 0,
+        isReserved: true,
+      },
     });
 
     await resequenceQueue(date);
 
-    const refreshed = await Booking.findById(reserved._id).lean();
+    const refreshed = await prisma.booking.findUnique({ where: { id: reserved.id } });
     res.status(201).json({ success: true, data: refreshed, message: 'Appointment reserved successfully' });
   } catch (error) {
     next(error);
@@ -109,7 +116,10 @@ router.post('/reserve', authenticate, requireAdmin, async (req: AuthRequest, res
 
 router.get('/my', authenticate, async (req: AuthRequest, res, next) => {
   try {
-    const rows = await Booking.find({ userId: req.auth!.userId }).sort({ date: 1, time: 1 }).lean();
+    const rows = await prisma.booking.findMany({
+      where: { userId: req.auth!.userId },
+      orderBy: [{ date: 'asc' }, { time: 'asc' }],
+    });
     res.status(200).json({ success: true, data: rows, message: 'Your appointments retrieved successfully' });
   } catch (error) {
     next(error);
@@ -118,11 +128,11 @@ router.get('/my', authenticate, async (req: AuthRequest, res, next) => {
 
 router.put('/:id/cancel', authenticate, async (req: AuthRequest, res, next) => {
   try {
-    if (!isValidObjectId(req.params.id)) {
+    if (!uuidRegex.test(req.params.id)) {
       res.status(400).json({ success: false, message: 'Invalid appointment id' });
       return;
     }
-    const row = await Booking.findById(req.params.id);
+    const row = await prisma.booking.findUnique({ where: { id: req.params.id } });
     if (!row) {
       res.status(404).json({ success: false, message: 'Appointment not found' });
       return;
@@ -133,11 +143,10 @@ router.put('/:id/cancel', authenticate, async (req: AuthRequest, res, next) => {
       return;
     }
 
-    row.status = 'CANCELLED';
-    await row.save();
+    const updated = await prisma.booking.update({ where: { id: req.params.id }, data: { status: 'CANCELLED' } });
     await resequenceQueue(row.date);
 
-    res.status(200).json({ success: true, data: row, message: 'Appointment cancelled successfully' });
+    res.status(200).json({ success: true, data: updated, message: 'Appointment cancelled successfully' });
   } catch (error) {
     next(error);
   }
@@ -153,8 +162,8 @@ router.get('/', authenticate, requireAdmin, async (req, res, next) => {
 
     const { skip, take, page, limit } = parsePagination(req.query as any);
     const [rows, total] = await Promise.all([
-      Booking.find(filter).sort({ date: 1, time: 1 }).skip(skip).limit(take).lean(),
-      Booking.countDocuments(filter),
+      prisma.booking.findMany({ where: filter as any, orderBy: [{ date: 'asc' }, { time: 'asc' }], skip, take }),
+      prisma.booking.count({ where: filter as any }),
     ]);
     res.status(200).json({ success: true, data: rows, page, limit, total, message: 'Appointments retrieved successfully' });
   } catch (error) {
@@ -164,11 +173,11 @@ router.get('/', authenticate, requireAdmin, async (req, res, next) => {
 
 router.get('/:id', authenticate, requireAdmin, async (req, res, next) => {
   try {
-    if (!isValidObjectId(req.params.id)) {
+    if (!uuidRegex.test(req.params.id)) {
       res.status(400).json({ success: false, message: 'Invalid appointment id' });
       return;
     }
-    const row = await Booking.findById(req.params.id).lean();
+    const row = await prisma.booking.findUnique({ where: { id: req.params.id } });
     if (!row) {
       res.status(404).json({ success: false, message: 'Appointment not found' });
       return;
@@ -181,7 +190,7 @@ router.get('/:id', authenticate, requireAdmin, async (req, res, next) => {
 
 router.put('/:id', authenticate, requireAdmin, async (req, res, next) => {
   try {
-    if (!isValidObjectId(req.params.id)) {
+    if (!uuidRegex.test(req.params.id)) {
       res.status(400).json({ success: false, message: 'Invalid appointment id' });
       return;
     }
@@ -193,16 +202,21 @@ router.put('/:id', authenticate, requireAdmin, async (req, res, next) => {
       queuePosition?: number;
     };
 
-    const updated = await Booking.findByIdAndUpdate(
-      req.params.id,
-      {
-        date: payload.date,
-        time: payload.timeSlot ?? payload.time,
-        status: payload.status,
-        queuePosition: payload.queuePosition,
+    const existing = await prisma.booking.findUnique({ where: { id: req.params.id } });
+    if (!existing) {
+      res.status(404).json({ success: false, message: 'Appointment not found' });
+      return;
+    }
+
+    const updated = await prisma.booking.update({
+      where: { id: req.params.id },
+      data: {
+        ...(payload.date !== undefined ? { date: payload.date } : {}),
+        ...((payload.timeSlot ?? payload.time) !== undefined ? { time: payload.timeSlot ?? payload.time } : {}),
+        ...(payload.status !== undefined ? { status: payload.status } : {}),
+        ...(payload.queuePosition !== undefined ? { queuePosition: payload.queuePosition } : {}),
       },
-      { new: true }
-    );
+    });
 
     if (!updated) {
       res.status(404).json({ success: false, message: 'Appointment not found' });
@@ -219,11 +233,11 @@ router.put('/:id', authenticate, requireAdmin, async (req, res, next) => {
 
 router.put('/:id/complete', authenticate, requireAdmin, async (req, res, next) => {
   try {
-    if (!isValidObjectId(req.params.id)) {
+    if (!uuidRegex.test(req.params.id)) {
       res.status(400).json({ success: false, message: 'Invalid appointment id' });
       return;
     }
-    const updated = await Booking.findByIdAndUpdate(req.params.id, { status: 'COMPLETED' }, { new: true });
+    const updated = await prisma.booking.update({ where: { id: req.params.id }, data: { status: 'COMPLETED' } });
     if (!updated) {
       res.status(404).json({ success: false, message: 'Appointment not found' });
       return;
@@ -237,22 +251,24 @@ router.put('/:id/complete', authenticate, requireAdmin, async (req, res, next) =
 
 router.put('/:id/in-service', authenticate, requireAdmin, async (req, res, next) => {
   try {
-    if (!isValidObjectId(req.params.id)) {
+    if (!uuidRegex.test(req.params.id)) {
       res.status(400).json({ success: false, message: 'Invalid appointment id' });
       return;
     }
-    const row = await Booking.findById(req.params.id);
+    const row = await prisma.booking.findUnique({ where: { id: req.params.id } });
     if (!row) {
       res.status(404).json({ success: false, message: 'Appointment not found' });
       return;
     }
 
-    await Booking.updateMany({ date: row.date, status: 'IN_SERVICE', _id: { $ne: row._id } }, { status: 'BOOKED' });
-    row.status = 'IN_SERVICE';
-    await row.save();
+    await prisma.booking.updateMany({
+      where: { date: row.date, status: 'IN_SERVICE', NOT: { id: row.id } },
+      data: { status: 'BOOKED' },
+    });
+    const updated = await prisma.booking.update({ where: { id: row.id }, data: { status: 'IN_SERVICE' } });
     await resequenceQueue(row.date);
 
-    res.status(200).json({ success: true, data: row, message: 'Appointment marked as in service' });
+    res.status(200).json({ success: true, data: updated, message: 'Appointment marked as in service' });
   } catch (error) {
     next(error);
   }
@@ -260,11 +276,11 @@ router.put('/:id/in-service', authenticate, requireAdmin, async (req, res, next)
 
 router.put('/:id/no-show', authenticate, requireAdmin, async (req, res, next) => {
   try {
-    if (!isValidObjectId(req.params.id)) {
+    if (!uuidRegex.test(req.params.id)) {
       res.status(400).json({ success: false, message: 'Invalid appointment id' });
       return;
     }
-    const updated = await Booking.findByIdAndUpdate(req.params.id, { status: 'NO_SHOW' }, { new: true });
+    const updated = await prisma.booking.update({ where: { id: req.params.id }, data: { status: 'NO_SHOW' } });
     if (!updated) {
       res.status(404).json({ success: false, message: 'Appointment not found' });
       return;
@@ -278,12 +294,13 @@ router.put('/:id/no-show', authenticate, requireAdmin, async (req, res, next) =>
 
 router.delete('/:id', authenticate, requireAdmin, async (req, res, next) => {
   try {
-    if (!isValidObjectId(req.params.id)) {
+    if (!uuidRegex.test(req.params.id)) {
       res.status(400).json({ success: false, message: 'Invalid appointment id' });
       return;
     }
-    const deleted = await Booking.findByIdAndDelete(req.params.id);
+    const deleted = await prisma.booking.findUnique({ where: { id: req.params.id } });
     if (deleted) {
+      await prisma.booking.delete({ where: { id: req.params.id } });
       await resequenceQueue(deleted.date);
     }
     res.status(200).json({ success: true, data: null, message: 'Appointment deleted successfully' });

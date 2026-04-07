@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
-import { Booking } from '../models/Booking';
+import { prisma } from '../config/db';
 import {
   authenticate,
   parsePagination,
@@ -27,9 +27,10 @@ router.get('/time-slots', async (req, res, next) => {
       res.status(400).json({ success: false, message: 'Valid date query param required (YYYY-MM-DD)' });
       return;
     }
-    const bookings = await Booking.find({ date, status: { $in: ['BOOKED', 'IN_SERVICE'] } })
-      .select('time')
-      .lean();
+    const bookings = await prisma.booking.findMany({
+      where: { date, status: { in: ['BOOKED', 'IN_SERVICE'] } },
+      select: { time: true },
+    });
     res.status(200).json({ success: true, data: bookings.map((b) => b.time), message: 'Time slots retrieved' });
   } catch (error) {
     next(error);
@@ -71,22 +72,24 @@ router.post('/bookings', bookingLimiter, async (req, res, next) => {
       return;
     }
 
-    const booking = await Booking.create({
-      fullName: sanitize(String(fullName).trim()),
-      email,
-      phone: cleanPhone,
-      serviceName: sanitize(String(serviceName).trim()),
-      date,
-      time,
-      notes: sanitize(String(notes ?? '').trim()),
-      status: 'BOOKED',
-      queuePosition: 0,
-      isReserved: false,
+    const booking = await prisma.booking.create({
+      data: {
+        fullName: sanitize(String(fullName).trim()),
+        email,
+        phone: cleanPhone,
+        serviceName: sanitize(String(serviceName).trim()),
+        date,
+        time,
+        notes: sanitize(String(notes ?? '').trim()),
+        status: 'BOOKED',
+        queuePosition: 0,
+        isReserved: false,
+      },
     });
 
     await resequenceQueue(date);
 
-    const updated = await Booking.findById(booking._id).lean();
+    const updated = await prisma.booking.findUnique({ where: { id: booking.id } });
     res.status(201).json({ success: true, data: updated, message: 'Appointment request submitted.' });
   } catch (error) {
     next(error);
@@ -97,8 +100,8 @@ router.get('/bookings', authenticate, requireAdmin, async (req, res, next) => {
   try {
     const { skip, take, page, limit } = parsePagination(req.query as any);
     const [bookings, total] = await Promise.all([
-      Booking.find().sort({ date: 1, time: 1 }).skip(skip).limit(take).lean(),
-      Booking.countDocuments(),
+      prisma.booking.findMany({ orderBy: [{ date: 'asc' }, { time: 'asc' }], skip, take }),
+      prisma.booking.count(),
     ]);
     res.status(200).json({ success: true, data: bookings, page, limit, total });
   } catch (error) {

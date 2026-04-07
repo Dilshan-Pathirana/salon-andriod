@@ -1,67 +1,64 @@
-name: Docker Build and Deploy to EC2
+name: Build and Deploy (Image Transfer)
 
 on:
   push:
-    branches: [main]
+    branches: [main, secondary-]
+    paths:
+      - .github/workflows/docker-ec2-deploy.yml
+      - backend/**
+      - web/**
+      - docker-compose.ec2.yml
   workflow_dispatch:
-
-env:
-  REGISTRY: ghcr.io
-  IMAGE_REPOSITORY: ${{ secrets.GHCR_IMAGE_REPOSITORY }}
 
 permissions:
   contents: read
-  packages: write
 
 jobs:
-  build-and-push:
+  build-and-package:
     runs-on: ubuntu-latest
-    outputs:
-      image_tag: ${{ steps.meta.outputs.image_tag }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set image tag
-        id: meta
-        run: echo "image_tag=${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
-
-      - name: Log in to GHCR
-        uses: docker/login-action@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ secrets.GHCR_USERNAME }}
-          password: ${{ secrets.GHCR_TOKEN }}
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: web/package-lock.json
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+      - name: Build frontend in CI
+        working-directory: web
+        env:
+          VITE_API_BASE_URL: /api
+        run: |
+          npm ci
+          npm run build
 
-      - name: Build and push backend image
-        uses: docker/build-push-action@v6
+      - name: Build backend image
+        run: docker build -t salon-backend:latest -f backend/Dockerfile backend
+
+      - name: Build frontend image
+        run: docker build -t salon-frontend:latest -f web/Dockerfile web
+
+      - name: Save image bundle
+        run: docker save salon-backend:latest salon-frontend:latest | gzip > salon-images.tar.gz
+
+      - name: Upload image bundle and compose file
+        uses: appleboy/scp-action@v1.0.0
         with:
-          context: ./backend
-          file: ./backend/Dockerfile
-          push: true
-          tags: |
-            ${{ env.IMAGE_REPOSITORY }}/backend:${{ steps.meta.outputs.image_tag }}
-            ${{ env.IMAGE_REPOSITORY }}/backend:latest
-
-      - name: Build and push frontend image
-        uses: docker/build-push-action@v6
-        with:
-          context: ./web
-          file: ./web/Dockerfile
-          push: true
-          tags: |
-            ${{ env.IMAGE_REPOSITORY }}/frontend:${{ steps.meta.outputs.image_tag }}
-            ${{ env.IMAGE_REPOSITORY }}/frontend:latest
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "salon-images.tar.gz,docker-compose.ec2.yml"
+          target: "/tmp/salon-deploy"
 
   deploy:
     runs-on: ubuntu-latest
-    needs: build-and-push
+    needs: build-and-package
     steps:
-      - name: Deploy on EC2
-        uses: appleboy/ssh-action@v1.2.0
+      - name: Load images and deploy on EC2
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
@@ -69,16 +66,24 @@ jobs:
           script: |
             set -e
             APP_DIR="${{ secrets.EC2_APP_DIR }}"
-            IMAGE_TAG="${{ needs.build-and-push.outputs.image_tag }}"
-            IMAGE_REPOSITORY="${{ env.IMAGE_REPOSITORY }}"
+            SRC_DIR="/tmp/salon-deploy"
 
-            cd "$APP_DIR"
+            mkdir -p "$APP_DIR"
 
-            echo "Deploying IMAGE_TAG=$IMAGE_TAG"
+            BUNDLE=$(find "$SRC_DIR" -name "salon-images.tar.gz" -type f | head -1)
+            COMPOSE=$(find "$SRC_DIR" -name "docker-compose.ec2.yml" -type f | head -1)
 
-            docker login ghcr.io -u "${{ secrets.GHCR_USERNAME }}" -p "${{ secrets.GHCR_TOKEN }}"
+            [ -n "$BUNDLE" ] || { echo "Missing salon-images.tar.gz"; exit 1; }
+            [ -n "$COMPOSE" ] || { echo "Missing docker-compose.ec2.yml"; exit 1; }
+            [ -f "$APP_DIR/.env" ] || { echo "Missing $APP_DIR/.env"; exit 1; }
 
-            IMAGE_REPOSITORY="$IMAGE_REPOSITORY" IMAGE_TAG="$IMAGE_TAG" docker compose pull
-            IMAGE_REPOSITORY="$IMAGE_REPOSITORY" IMAGE_TAG="$IMAGE_TAG" docker compose up -d --remove-orphans
+            cp -f "$COMPOSE" "$APP_DIR/docker-compose.ec2.yml"
 
+            gunzip -c "$BUNDLE" | docker load
+
+            docker compose --project-directory "$APP_DIR" -f "$APP_DIR/docker-compose.ec2.yml" --env-file "$APP_DIR/.env" up -d --remove-orphans
+
+            curl -fsS "http://localhost:${FRONTEND_PORT:-8088}/api/health" || curl -fsS "http://localhost:8088/api/health"
+
+            rm -rf "$SRC_DIR"
             docker image prune -f

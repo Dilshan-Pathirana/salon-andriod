@@ -20,9 +20,9 @@ function requireSecret(key: string, devFallback: string): string {
 export const env = {
   nodeEnv: process.env.NODE_ENV ?? 'development',
   port: Number(process.env.PORT ?? 4000),
-  mongodbUri:
-    process.env.MONGODB_URI ??
-    (isProduction ? '' : 'mongodb://127.0.0.1:27017/salon_andriod'),
+  databaseUrl:
+    process.env.DATABASE_URL ??
+    (isProduction ? '' : 'postgresql://salon_user:salon_password@127.0.0.1:5432/salon_andriod?schema=public'),
   // CORS_ORIGIN supports comma-separated list, falls back to CLIENT_URL
   corsOrigins: (
     process.env.CORS_ORIGIN ??

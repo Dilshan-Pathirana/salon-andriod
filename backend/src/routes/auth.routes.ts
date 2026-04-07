@@ -2,13 +2,13 @@ import bcrypt from 'bcryptjs';
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
 import jwt from 'jsonwebtoken';
+import { prisma } from '../config/db';
 import { env } from '../config/env';
-import { RefreshToken, hashToken } from '../models/RefreshToken';
-import { User } from '../models/User';
 import {
   AuthPayload,
   AuthRequest,
   authenticate,
+  hashToken,
   sanitize,
   sanitizeUser,
   signAccessToken,
@@ -56,14 +56,15 @@ router.post('/register', authLimiter, async (req, res, next) => {
       return;
     }
 
-    const exists = await User.findOne({ phoneNumber }).lean();
+    const exists = await prisma.user.findUnique({ where: { phoneNumber } });
     if (exists) {
       res.status(409).json({ success: false, message: 'A user with this phone number already exists' });
       return;
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
-    const user = await User.create({
+    const user = await prisma.user.create({
+      data: {
       phoneNumber,
       passwordHash,
       firstName: cleanFirst,
@@ -71,12 +72,15 @@ router.post('/register', authLimiter, async (req, res, next) => {
       role: 'CLIENT',
       profileImageUrl: null,
       isActive: true,
+      },
     });
 
-    const payload: AuthPayload = { userId: String(user._id), role: user.role };
+    const payload: AuthPayload = { userId: user.id, role: user.role };
     const refreshToken = signRefreshToken(payload);
     const tokenExpiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
-    await RefreshToken.create({ tokenHash: hashToken(refreshToken), userId: String(user._id), expiresAt: tokenExpiresAt });
+    await prisma.refreshToken.create({
+      data: { tokenHash: hashToken(refreshToken), userId: user.id, expiresAt: tokenExpiresAt },
+    });
 
     res.status(201).json({
       success: true,
@@ -104,7 +108,7 @@ router.post('/login', authLimiter, async (req, res, next) => {
       return;
     }
 
-    const user = await User.findOne({ phoneNumber });
+    const user = await prisma.user.findUnique({ where: { phoneNumber } });
     if (!user) {
       res.status(401).json({ success: false, message: 'Invalid phone number or password' });
       return;
@@ -121,10 +125,12 @@ router.post('/login', authLimiter, async (req, res, next) => {
       return;
     }
 
-    const payload: AuthPayload = { userId: String(user._id), role: user.role };
+    const payload: AuthPayload = { userId: user.id, role: user.role };
     const refreshToken = signRefreshToken(payload);
     const tokenExpiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
-    await RefreshToken.create({ tokenHash: hashToken(refreshToken), userId: String(user._id), expiresAt: tokenExpiresAt });
+    await prisma.refreshToken.create({
+      data: { tokenHash: hashToken(refreshToken), userId: user.id, expiresAt: tokenExpiresAt },
+    });
 
     res.status(200).json({
       success: true,
@@ -157,9 +163,9 @@ router.post('/refresh', authLimiter, async (req, res, next) => {
     }
 
     const tokenHash = hashToken(refreshToken);
-    const stored = await RefreshToken.findOneAndDelete({ tokenHash, userId: decoded.userId });
-    if (!stored) {
-      await RefreshToken.deleteMany({ userId: decoded.userId });
+    const removed = await prisma.refreshToken.deleteMany({ where: { tokenHash, userId: decoded.userId } });
+    if (removed.count === 0) {
+      await prisma.refreshToken.deleteMany({ where: { userId: decoded.userId } });
       res.status(401).json({ success: false, message: 'Refresh token already used or revoked' });
       return;
     }
@@ -167,7 +173,9 @@ router.post('/refresh', authLimiter, async (req, res, next) => {
     const payload: AuthPayload = { userId: decoded.userId, role: decoded.role };
     const newRefreshToken = signRefreshToken(payload);
     const tokenExpiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
-    await RefreshToken.create({ tokenHash: hashToken(newRefreshToken), userId: decoded.userId, expiresAt: tokenExpiresAt });
+    await prisma.refreshToken.create({
+      data: { tokenHash: hashToken(newRefreshToken), userId: decoded.userId, expiresAt: tokenExpiresAt },
+    });
 
     res.status(200).json({
       success: true,
@@ -186,7 +194,7 @@ router.post('/logout', async (req, res, next) => {
   try {
     const { refreshToken } = req.body as { refreshToken?: string };
     if (refreshToken) {
-      await RefreshToken.deleteOne({ tokenHash: hashToken(String(refreshToken)) });
+      await prisma.refreshToken.deleteMany({ where: { tokenHash: hashToken(String(refreshToken)) } });
     }
     res.status(200).json({ success: true, message: 'Logged out successfully', data: null });
   } catch (error) {
@@ -196,7 +204,7 @@ router.post('/logout', async (req, res, next) => {
 
 router.post('/logout-all', authenticate, async (req: AuthRequest, res, next) => {
   try {
-    await RefreshToken.deleteMany({ userId: req.auth!.userId });
+    await prisma.refreshToken.deleteMany({ where: { userId: req.auth!.userId } });
     res.status(200).json({ success: true, message: 'Logged out of all devices', data: null });
   } catch (error) {
     next(error);

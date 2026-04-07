@@ -1,6 +1,5 @@
 import { Router } from 'express';
-import { Booking } from '../models/Booking';
-import { Schedule } from '../models/Schedule';
+import { prisma } from '../config/db';
 import { authenticate, requireAdmin, todayString } from './helpers';
 
 const router = Router();
@@ -9,18 +8,19 @@ router.get('/', authenticate, async (req, res, next) => {
   try {
     const date = String(req.query.date || todayString());
 
-    const queueRows = await Booking.find({
-      date,
-      status: { $in: ['BOOKED', 'IN_SERVICE'] },
-    })
-      .sort({ queuePosition: 1, time: 1, createdAt: 1 })
-      .lean();
+    const queueRows = await prisma.booking.findMany({
+      where: {
+        date,
+        status: { in: ['BOOKED', 'IN_SERVICE'] },
+      },
+      orderBy: [{ queuePosition: 'asc' }, { time: 'asc' }, { createdAt: 'asc' }],
+    });
 
     const currentlyServing = queueRows.find((row) => row.status === 'IN_SERVICE') || null;
-    const slotDuration = (await Schedule.findOne({ date }).lean())?.slotDurationMins ?? 30;
+    const slotDuration = (await prisma.schedule.findUnique({ where: { date } }))?.slotDurationMins ?? 30;
 
     const queue = queueRows.map((row, index) => ({
-      id: String(row._id),
+      id: row.id,
       position: row.queuePosition || index + 1,
       name: row.fullName,
       userId: row.userId || `phone_${row.phone}`,
@@ -38,7 +38,7 @@ router.get('/', authenticate, async (req, res, next) => {
         date,
         currentlyServing: currentlyServing
           ? {
-              id: String(currentlyServing._id),
+              id: currentlyServing.id,
               name: currentlyServing.fullName,
               timeSlot: currentlyServing.time,
               phoneNumber: currentlyServing.phone,
@@ -65,21 +65,20 @@ router.put('/reorder', authenticate, requireAdmin, async (req, res, next) => {
 
     await Promise.all(
       orderedIds.map((id, index) =>
-        Booking.updateOne(
-          { _id: id, date: targetDate },
-          {
-            $set: {
-              queuePosition: index + 1,
-              status: index === 0 ? 'IN_SERVICE' : 'BOOKED',
-            },
-          }
-        )
+        prisma.booking.updateMany({
+          where: { id, date: targetDate },
+          data: {
+            queuePosition: index + 1,
+            status: index === 0 ? 'IN_SERVICE' : 'BOOKED',
+          },
+        })
       )
     );
 
-    const refreshed = await Booking.find({ date: targetDate, status: { $in: ['BOOKED', 'IN_SERVICE'] } })
-      .sort({ queuePosition: 1 })
-      .lean();
+    const refreshed = await prisma.booking.findMany({
+      where: { date: targetDate, status: { in: ['BOOKED', 'IN_SERVICE'] } },
+      orderBy: { queuePosition: 'asc' },
+    });
 
     res.status(200).json({ success: true, message: 'Queue reordered successfully', data: refreshed });
   } catch (error) {
