@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { AnimatePresence } from 'framer-motion'
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { BottomNav, BottomNavRole, PageType } from './components/BottomNav'
 import { HamburgerMenu, MenuItem, MenuTab } from './components/HamburgerMenu'
 import { TopBar } from './components/TopBar'
@@ -18,24 +19,60 @@ import { AdminQueueManagementPage } from './pages/AdminQueueManagementPage'
 import { AdminUserManagementPage } from './pages/AdminUserManagementPage'
 import { getCurrentSession } from './lib/api'
 
-type AppPage =
-  | PageType
-  | 'services'
-  | 'appointments'
-  | 'auth'
-  | 'admin-home'
-  | 'admin-services'
-  | 'admin-session'
-  | 'admin-appointments'
-  | 'admin-queue'
-  | 'admin-users'
+type AppPage = PageType | 'services' | 'appointments' | 'auth' | 'admin'
+
+function getPageFromPath(pathname: string): AppPage {
+  if (pathname.startsWith('/admin')) return 'admin'
+  if (pathname === '/services') return 'services'
+  if (pathname === '/appointments') return 'appointments'
+  if (pathname === '/book') return 'book'
+  if (pathname === '/queue') return 'queue'
+  if (pathname === '/profile') return 'profile'
+  if (pathname === '/auth') return 'auth'
+  return 'home'
+}
+
+function toPath(page: MenuTab | PageType): string {
+  switch (page) {
+    case 'home':
+      return '/'
+    case 'services':
+      return '/services'
+    case 'book':
+      return '/book'
+    case 'queue':
+      return '/queue'
+    case 'appointments':
+      return '/appointments'
+    case 'profile':
+      return '/profile'
+    case 'login':
+      return '/auth'
+    case 'admin-home':
+      return '/admin'
+    case 'admin-services':
+      return '/admin/services'
+    case 'admin-session':
+      return '/admin/session'
+    case 'admin-appointments':
+      return '/admin/appointments'
+    case 'admin-queue':
+      return '/admin/queue'
+    case 'admin-users':
+      return '/admin/users'
+    default:
+      return '/'
+  }
+}
 
 export function App() {
+  const navigate = useNavigate()
+  const location = useLocation()
   const [sessionUser, setSessionUser] = useState(() => getCurrentSession()?.user ?? null)
-  const [activePage, setActivePage] = useState<AppPage>('home')
-  const [authTarget, setAuthTarget] = useState<AppPage>('profile')
+  const [authTarget, setAuthTarget] = useState('/profile')
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isOnline, setIsOnline] = useState(navigator.onLine)
+  const activePage = getPageFromPath(location.pathname)
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true)
@@ -83,79 +120,26 @@ export function App() {
   }, [isAdmin, isLoggedIn])
 
   const navigateFromMenu = (tab: MenuTab) => {
-    if (tab === 'home' || tab === 'admin-home') {
-      if (isAdmin) {
-        setActivePage('admin-home')
-      } else {
-        setActivePage('home')
-      }
+    if (tab === 'appointments' && !isLoggedIn) {
+      setAuthTarget('/appointments')
+      navigate('/auth')
       return
     }
-
-    if (tab === 'admin-services') {
-      setActivePage('admin-services')
+    if (tab === 'profile' && !isLoggedIn) {
+      setAuthTarget('/profile')
+      navigate('/auth')
       return
     }
-    if (tab === 'admin-session') {
-      setActivePage('admin-session')
-      return
-    }
-    if (tab === 'admin-appointments') {
-      setActivePage('admin-appointments')
-      return
-    }
-    if (tab === 'admin-users') {
-      setActivePage('admin-users')
-      return
-    }
-    if (tab === 'admin-queue') {
-      setActivePage('admin-queue')
-      return
-    }
-
-    if (tab === 'services') {
-      setActivePage('services')
-      return
-    }
-    if (tab === 'book') {
-      setActivePage('book')
-      return
-    }
-    if (tab === 'queue') {
-      setActivePage('queue')
-      return
-    }
-    if (tab === 'appointments') {
-      if (isLoggedIn) {
-        setActivePage('appointments')
-      } else {
-        setAuthTarget('appointments')
-        setActivePage('auth')
-      }
-      return
-    }
-
-    if (tab === 'login') {
-      setAuthTarget('profile')
-      setActivePage('auth')
-      return
-    }
-
-    if (isLoggedIn) {
-      setActivePage('profile')
-    } else {
-      setAuthTarget('profile')
-      setActivePage('auth')
-    }
+    navigate(toPath(tab))
   }
 
   const handleBottomNav = (page: PageType) => {
     if (page === 'profile' && !isLoggedIn) {
-      setAuthTarget('profile')
-      setActivePage('auth')
+      setAuthTarget('/profile')
+      navigate('/auth')
       return
     }
-    setActivePage(page)
+    navigate(toPath(page))
   }
 
   const handleAuthSuccess = () => {
@@ -163,89 +147,19 @@ export function App() {
     setSessionUser(user)
 
     if (user?.role === 'ADMIN') {
-      setActivePage('admin-home')
+      navigate('/admin')
       return
     }
 
-    if (authTarget === 'appointments') {
-      setActivePage('appointments')
-      return
-    }
-
-    if (authTarget === 'book') {
-      setActivePage('book')
-      return
-    }
-
-    setActivePage('home')
+    navigate(authTarget || '/')
   }
 
   const handleSignedOut = () => {
     setSessionUser(null)
-    setActivePage('home')
+    navigate('/')
   }
 
-  const renderPage = () => {
-    switch (activePage) {
-      case 'home':
-        return <HomePage key="home" onBookClick={() => setActivePage('book')} />
-      case 'services':
-        return <ServicesPage key="services" />
-      case 'appointments':
-        return <AppointmentsPage key="appointments" />
-      case 'admin-home':
-        if (!isAdmin || !sessionUser) {
-          return <HomePage key="home-admin-fallback" onBookClick={() => setActivePage('book')} />
-        }
-        return <AdminDashboardPage key="admin-home" />
-      case 'admin-services':
-        if (!isAdmin || !sessionUser) {
-          return <HomePage key="home-admin-fallback" onBookClick={() => setActivePage('book')} />
-        }
-        return <AdminServiceManagementPage key="admin-services" />
-      case 'admin-session':
-        if (!isAdmin || !sessionUser) {
-          return <HomePage key="home-admin-fallback" onBookClick={() => setActivePage('book')} />
-        }
-        return <AdminSessionManagementPage key="admin-session" />
-      case 'admin-appointments':
-        if (!isAdmin || !sessionUser) {
-          return <HomePage key="home-admin-fallback" onBookClick={() => setActivePage('book')} />
-        }
-        return <AdminAppointmentManagementPage key="admin-appointments" />
-      case 'admin-queue':
-        if (!isAdmin || !sessionUser) {
-          return <HomePage key="home-admin-fallback" onBookClick={() => setActivePage('book')} />
-        }
-        return <AdminQueueManagementPage key="admin-queue" />
-      case 'admin-users':
-        if (!isAdmin || !sessionUser) {
-          return <HomePage key="home-admin-fallback" onBookClick={() => setActivePage('book')} />
-        }
-        return <AdminUserManagementPage key="admin-users" />
-      case 'book':
-        return (
-          <BookingPage
-            key="book"
-            onRequireAuth={() => {
-              setAuthTarget('book')
-              setActivePage('auth')
-            }}
-            onBookingComplete={() => setActivePage('queue')}
-          />
-        )
-      case 'queue':
-        return <QueuePage key="queue" />
-      case 'profile':
-        return <ProfilePage key="profile" onSignedOut={handleSignedOut} />
-      case 'auth':
-        return <AuthPage key="auth" onAuthSuccess={handleAuthSuccess} />
-      default:
-        return <HomePage key="home" onBookClick={() => setActivePage('book')} />
-    }
-  }
-
-  const isAdminPage = activePage.startsWith('admin-')
+  const isAdminPage = location.pathname.startsWith('/admin')
 
   const getPageTitle = (page: AppPage) => {
     switch (page) {
@@ -259,19 +173,21 @@ export function App() {
         return 'My Profile'
       case 'services':
         return 'Our Services'
-      case 'work':
-        return 'Our Work'
       case 'appointments':
         return 'My Appointments'
       case 'auth':
         return 'Sign In'
+      case 'admin':
+        return 'Admin Panel'
       default:
-        return page
-          .replace('admin-', '')
-          .replace(/-/g, ' ')
-          .replace(/\b\w/g, (label) => label.toUpperCase())
+        return 'Salon'
     }
   }
+
+  const activeBottomPage: PageType =
+    activePage === 'book' || activePage === 'queue' || activePage === 'profile'
+      ? activePage
+      : 'home'
 
   return (
     <div className="relative h-screen w-full overflow-hidden bg-slate-50 font-sans text-slate-900 flex justify-center selection:bg-blue-100 selection:text-blue-900">
@@ -300,12 +216,52 @@ export function App() {
         />
 
         <div className="flex-1 overflow-y-auto bg-transparent pb-24">
-          <AnimatePresence mode="wait">{renderPage()}</AnimatePresence>
+          <AnimatePresence mode="wait">
+            <Routes>
+              <Route path="/" element={<HomePage key="home" onBookClick={() => navigate('/book')} />} />
+              <Route path="/services" element={<ServicesPage key="services" />} />
+              <Route
+                path="/book"
+                element={
+                  <BookingPage
+                    key="book"
+                    onRequireAuth={() => {
+                      setAuthTarget('/book')
+                      navigate('/auth')
+                    }}
+                    onBookingComplete={() => navigate('/queue')}
+                  />
+                }
+              />
+              <Route path="/queue" element={<QueuePage key="queue" />} />
+              <Route
+                path="/profile"
+                element={isLoggedIn ? <ProfilePage key="profile" onSignedOut={handleSignedOut} /> : <Navigate to="/auth" replace />}
+              />
+              <Route
+                path="/appointments"
+                element={isLoggedIn ? <AppointmentsPage key="appointments" /> : <Navigate to="/auth" replace />}
+              />
+              <Route path="/auth" element={<AuthPage key="auth" onAuthSuccess={handleAuthSuccess} />} />
+
+              <Route path="/admin" element={isAdmin ? <AdminDashboardPage key="admin-home" /> : <Navigate to="/" replace />} />
+              <Route path="/admin/services" element={isAdmin ? <AdminServiceManagementPage key="admin-services" /> : <Navigate to="/" replace />} />
+              <Route path="/admin/session" element={isAdmin ? <AdminSessionManagementPage key="admin-session" /> : <Navigate to="/" replace />} />
+              <Route
+                path="/admin/appointments"
+                element={isAdmin ? <AdminAppointmentManagementPage key="admin-appointments" /> : <Navigate to="/" replace />}
+              />
+              <Route path="/admin/queue" element={isAdmin ? <AdminQueueManagementPage key="admin-queue" /> : <Navigate to="/" replace />} />
+              <Route path="/admin/users" element={isAdmin ? <AdminUserManagementPage key="admin-users" /> : <Navigate to="/" replace />} />
+
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </AnimatePresence>
         </div>
 
         {!isAdmin && !isAdminPage ? (
           <div className="absolute bottom-0 left-0 right-0 z-40">
-            <BottomNav activePage={activePage as PageType} onChange={handleBottomNav} role={bottomNavRole} />
+            <BottomNav activePage={activeBottomPage} onChange={handleBottomNav} role={bottomNavRole} />
           </div>
         ) : null}
       </div>

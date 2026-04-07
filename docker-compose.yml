@@ -1,0 +1,73 @@
+name: salon-pwa
+
+services:
+  database:
+    image: mongo:7
+    container_name: salon-db
+    restart: unless-stopped
+    command: ["--bind_ip_all"]
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_DATABASE}
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    image: ${IMAGE_REPOSITORY:-ghcr.io/example/salon-andriod}/backend:${IMAGE_TAG:-latest}
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: salon-backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      PORT: 4000
+      NODE_ENV: production
+      MONGODB_URI: mongodb://${MONGO_ROOT_USERNAME}:${MONGO_ROOT_PASSWORD}@database:27017/${MONGO_DATABASE}?authSource=admin
+      CORS_ORIGIN: ${CORS_ORIGIN}
+      CLIENT_URL: ${CLIENT_URL}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+      ADMIN_PHONE: ${ADMIN_PHONE}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      ADMIN_FIRST_NAME: ${ADMIN_FIRST_NAME}
+      ADMIN_LAST_NAME: ${ADMIN_LAST_NAME}
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - internal
+
+  frontend:
+    image: ${IMAGE_REPOSITORY:-ghcr.io/example/salon-andriod}/frontend:${IMAGE_TAG:-latest}
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    container_name: salon-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "${FRONTEND_PORT:-8080}:80"
+    networks:
+      - internal
+      - edge
+
+networks:
+  internal:
+    driver: bridge
+    internal: true
+  edge:
+    driver: bridge
+
+volumes:
+  mongo_data:

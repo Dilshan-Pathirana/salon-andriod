@@ -14,7 +14,8 @@
     "framer-motion": "^11.11.17",
     "lucide-react": "^0.460.0",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^7.9.2"
   },
   "devDependencies": {
     "@rollup/plugin-terser": "^1.0.0",

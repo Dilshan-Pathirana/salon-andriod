@@ -1,95 +1,71 @@
-# Salon Android
+# Salon PWA Platform
 
-## Deployment options (Vercel + MongoDB Atlas)
+Mobile-first salon booking platform using React PWA frontend and Node.js backend.
 
-### Option A: Single Vercel project (root config)
+## Stack
 
-This repository now includes root [vercel.json](vercel.json) that builds:
+- Frontend: React + Vite + Tailwind + vite-plugin-pwa
+- Backend: Node.js + Express + Mongoose
+- Database: MongoDB
+- Infra: Docker Compose + GitHub Actions + EC2
 
-- Backend function from `backend/api/index.ts`
-- Frontend static app from `web/`
-
-#### Vercel project settings
-
-- Build Command: `npm run vercel-build` (or `npm run build`)
-- Output Directory: `.`
-- Install Command: `npm install`
-
-> If you see `Missing script: "vercel-build"`, your Vercel **Root Directory** is likely not `.`.
->
-> - Root `.`: use `npm run vercel-build` and keep this root [vercel.json](vercel.json).
-> - Root `web`: use `npm run vercel-build` (now supported in `web/package.json`), Output Directory `dist`.
-> - Root `backend`: use `npm run vercel-build` (now supported in `backend/package.json`), no static Output Directory needed.
-
-#### Steps
-
-1. Create one Vercel project from this repo with **Root Directory = `.`** (repo root).
-1. Add these environment variables:
-
-
-
+## Local Development
 
 ```bash
-MONGODB_URI=mongodb+srv://<USER>:<PASSWORD>@<CLUSTER>/<DB_NAME>?retryWrites=true&w=majority
-JWT_SECRET=<RANDOM_32_PLUS_CHAR_SECRET_WITHOUT_SPACES>
-CLIENT_URL=https://<your-single-project-domain>
-NODE_ENV=production
-VITE_API_BASE_URL=/api
+npm install
+npm run install:all
+npm run dev:backend
+npm run dev:web
 ```
 
-1. Deploy.
+Frontend: `http://localhost:5173`
+Backend: `http://localhost:4000/api`
 
-#### Verify
+## PWA Build
 
 ```bash
-curl https://<your-single-project-domain>/api/health
-curl https://<your-single-project-domain>/api/services
+cd web
+npm run build
+npm run preview
 ```
 
-### Option B: Two Vercel projects (recommended for production)
+Installability and service worker are enabled via `vite-plugin-pwa`.
 
-Use two projects for better isolation and safer rollbacks:
-
-- `salon-api` with Root Directory `backend`
-- `salon-web` with Root Directory `web`
-
-#### Backend (`backend/`)
+## Docker Run
 
 ```bash
-MONGODB_URI=mongodb+srv://<USER>:<PASSWORD>@<CLUSTER>/<DB_NAME>?retryWrites=true&w=majority
-JWT_SECRET=<LONG_RANDOM_SECRET>
-CLIENT_URL=https://<your-frontend-domain>
-NODE_ENV=production
+cp .env.example .env
+# edit .env secrets
+docker compose up -d --build
 ```
 
-#### Frontend (`web/`)
+App: `http://localhost:8080`
+API health: `http://localhost:8080/api/health`
 
-```bash
-VITE_API_BASE_URL=https://<your-backend-domain>/api
-```
+## CI/CD
 
-#### Verify backend
+Workflow: `.github/workflows/docker-ec2-deploy.yml`
 
-```bash
-curl https://<your-backend-domain>/api/health
-curl https://<your-backend-domain>/api/services
-```
+Pipeline actions:
+1. Build backend/frontend images
+2. Push images to GHCR
+3. SSH into EC2
+4. Pull latest images and restart containers
 
-## Comparison
+## Required GitHub Secrets
 
-- Single project: simpler setup, shared deploy/rollback for web + API.
-- Two projects: better production safety, clearer blast radius, independent rollback.
+- `GHCR_USERNAME`
+- `GHCR_TOKEN`
+- `GHCR_IMAGE_REPOSITORY` (example: `ghcr.io/your-org/salon-andriod`)
+- `SSH_PRIVATE_KEY`
+- `EC2_HOST`
+- `EC2_USER`
+- `EC2_APP_DIR` (example: `/opt/salon-andriod`)
 
-## GitHub Actions auto-deploy (on each push)
+Application secrets are stored only on EC2 in `.env`.
 
-Workflow file: [.github/workflows/vercel-deploy.yml](.github/workflows/vercel-deploy.yml)
+## Architecture and Deployment Docs
 
-Add these repository secrets in GitHub:
-
-```bash
-VERCEL_TOKEN=<your_vercel_token>
-VERCEL_ORG_ID=<your_vercel_org_id>
-VERCEL_PROJECT_ID=<your_vercel_project_id>
-```
-
-After secrets are added, every push triggers a production deploy to Vercel.
+- `SYSTEM_MAP.md`
+- `DEPLOYMENT_EC2.md`
+- `database/migrations/001_init_postgresql.sql` (target SQL schema blueprint)
