@@ -17,7 +17,7 @@ import { AdminSessionManagementPage } from './pages/AdminSessionManagementPage'
 import { AdminAppointmentManagementPage } from './pages/AdminAppointmentManagementPage'
 import { AdminQueueManagementPage } from './pages/AdminQueueManagementPage'
 import { AdminUserManagementPage } from './pages/AdminUserManagementPage'
-import { getCurrentSession } from './lib/api'
+import { getCurrentSession, logoutCurrentSession } from './lib/api'
 import { PwaInstallButton } from './components/PwaInstallButton'
 
 type AppPage = PageType | 'services' | 'appointments' | 'auth' | 'admin'
@@ -160,6 +160,20 @@ export function App() {
     navigate('/')
   }
 
+  const handleMenuAuthAction = async () => {
+    if (isLoggedIn) {
+      try {
+        await logoutCurrentSession()
+      } finally {
+        handleSignedOut()
+      }
+      return
+    }
+
+    setAuthTarget('/profile')
+    navigate('/auth')
+  }
+
   const isAdminPage = location.pathname.startsWith('/admin')
 
   const getPageTitle = (page: AppPage) => {
@@ -211,24 +225,46 @@ export function App() {
           onSelect={navigateFromMenu}
           isOpen={isMenuOpen}
           onClose={() => setIsMenuOpen(false)}
+          isLoggedIn={isLoggedIn}
+          onAuthAction={handleMenuAuthAction}
         />
 
         <div className="flex-1 overflow-y-auto bg-transparent pb-24">
           <AnimatePresence mode="wait">
             <Routes>
-              <Route path="/" element={<HomePage key="home" onBookClick={() => navigate('/book')} />} />
+              <Route
+                path="/"
+                element={
+                  <HomePage
+                    key="home"
+                    isLoggedIn={isLoggedIn}
+                    onBookClick={() => {
+                      if (!isLoggedIn) {
+                        setAuthTarget('/book')
+                        navigate('/auth')
+                        return
+                      }
+                      navigate('/book')
+                    }}
+                  />
+                }
+              />
               <Route path="/services" element={<ServicesPage key="services" />} />
               <Route
                 path="/book"
                 element={
-                  <BookingPage
-                    key="book"
-                    onRequireAuth={() => {
-                      setAuthTarget('/book')
-                      navigate('/auth')
-                    }}
-                    onBookingComplete={() => navigate('/queue')}
-                  />
+                  isLoggedIn ? (
+                    <BookingPage
+                      key="book"
+                      onRequireAuth={() => {
+                        setAuthTarget('/book')
+                        navigate('/auth')
+                      }}
+                      onBookingComplete={() => navigate('/queue')}
+                    />
+                  ) : (
+                    <Navigate to="/auth" replace />
+                  )
                 }
               />
               <Route path="/queue" element={<QueuePage key="queue" />} />

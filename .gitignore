@@ -29,3 +29,6 @@ mongo-data
 *.jks
 *.keystore
 *.b64.txt
+
+qr-output/
+snapshot.tgz

@@ -1,5 +1,5 @@
 import React from 'react'
-import { X, ChevronRight, LogOut, Home, Briefcase, Calendar, Image as ImageIcon, User, List } from 'lucide-react'
+import { X, ChevronRight, LogOut, LogIn, List } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 export type MenuTab =
@@ -30,6 +30,8 @@ interface HamburgerMenuProps {
   onClose: () => void
   onSelect: (tab: MenuTab) => void
   items: MenuItem[]
+  isLoggedIn: boolean
+  onAuthAction: () => void
 }
 
 const itemVariants = {
@@ -41,9 +43,14 @@ const itemVariants = {
   })
 }
 
-export function HamburgerMenu({ isOpen, onClose, onSelect, items }: HamburgerMenuProps) {
+export function HamburgerMenu({ isOpen, onClose, onSelect, items, isLoggedIn, onAuthAction }: HamburgerMenuProps) {
   const handleSelect = (tab: MenuTab) => {
     onSelect(tab)
+    onClose()
+  }
+
+  const handleAuthAction = () => {
+    onAuthAction()
     onClose()
   }
 
@@ -111,11 +118,11 @@ export function HamburgerMenu({ isOpen, onClose, onSelect, items }: HamburgerMen
             {/* Footer */}
             <div className="p-6 border-t border-slate-100 bg-slate-50/50">
               <button 
-                onClick={() => handleSelect('login')}
+                onClick={handleAuthAction}
                 className="flex items-center space-x-2 text-slate-400 hover:text-red-500 transition-colors text-sm font-medium w-full px-2 py-2 rounded-lg hover:bg-red-50"
               >
-                <LogOut className="w-4 h-4" />
-                <span>Sign Out / Switch Account</span>
+                {isLoggedIn ? <LogOut className="w-4 h-4" /> : <LogIn className="w-4 h-4" />}
+                <span>{isLoggedIn ? 'Log Out' : 'Log In'}</span>
               </button>
             </div>
           </motion.div>

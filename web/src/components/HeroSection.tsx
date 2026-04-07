@@ -1,15 +1,16 @@
 import React from 'react'
 import { motion } from 'framer-motion'
 interface HeroSectionProps {
+  isLoggedIn: boolean
   onBookClick: () => void
 }
-export function HeroSection({ onBookClick }: HeroSectionProps) {
+export function HeroSection({ isLoggedIn, onBookClick }: HeroSectionProps) {
   return (
     <section className="relative min-h-[68vh] w-full flex flex-col items-center justify-center overflow-hidden px-4 pt-8 pb-6">
       <div className="absolute inset-0 z-0">
         <img
-          src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=1400&q=80"
-          alt="Salon workspace"
+          src="https://images.unsplash.com/photo-1503951458645-643d53bfd90f?auto=format&fit=crop&w=1400&q=80"
+          alt="Barber shop"
           className="h-full w-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/20 to-[#fffdf9]" />
@@ -55,7 +56,7 @@ export function HeroSection({ onBookClick }: HeroSectionProps) {
           onClick={onBookClick}
           className="w-full relative group overflow-hidden bg-emerald-600 text-white font-sans text-[15px] font-medium py-4 px-6 rounded-xl shadow-sm hover:shadow-emerald-500/30 transition-all"
         >
-          <span className="relative z-10 font-semibold tracking-wide">Book Appointment</span>
+          <span className="relative z-10 font-semibold tracking-wide">{isLoggedIn ? 'Go to Booking' : 'Login to Continue'}</span>
           <div className="absolute inset-0 h-full w-full bg-gradient-to-r from-emerald-600 to-orange-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         </motion.button>
       </div>
