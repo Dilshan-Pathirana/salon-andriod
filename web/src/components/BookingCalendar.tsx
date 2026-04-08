@@ -61,32 +61,32 @@ export function BookingCalendar({
   }
 
   return (
-    <div className="w-full mb-10">
-      <div className="flex justify-between items-center mb-6 px-2">
+    <div className="mb-10 w-full">
+      <div className="mb-4 flex items-center justify-between px-1">
         <button
           onClick={goPrevMonth}
           disabled={!canGoPrev}
-          className={`p-2 transition-colors ${canGoPrev ? 'text-slate-400 hover:text-slate-800' : 'text-slate-800/20 cursor-not-allowed'}`}
+          className={`rounded-xl p-2 transition-colors ${canGoPrev ? 'text-slate-500 hover:bg-emerald-50 hover:text-emerald-700' : 'cursor-not-allowed text-slate-300'}`}
         >
           <ChevronLeft className="w-5 h-5" />
         </button>
-        <span className="font-sans font-semibold tracking-tight text-lg text-slate-800">
+        <span className="v2-title text-lg font-bold">
           {monthLabel}
         </span>
         <button
           onClick={goNextMonth}
           disabled={!canGoNext}
-          className={`p-2 transition-colors ${canGoNext ? 'text-slate-400 hover:text-slate-800' : 'text-slate-800/20 cursor-not-allowed'}`}
+          className={`rounded-xl p-2 transition-colors ${canGoNext ? 'text-slate-500 hover:bg-emerald-50 hover:text-emerald-700' : 'cursor-not-allowed text-slate-300'}`}
         >
           <ChevronRight className="w-5 h-5" />
         </button>
       </div>
 
-      <div className="grid grid-cols-7 gap-y-6 gap-x-2 text-center">
+      <div className="v2-card grid grid-cols-7 gap-x-2 gap-y-5 p-5 text-center">
         {days.map((day, i) => (
           <div
             key={`day-${i}`}
-            className="font-inter text-xs text-slate-400 font-medium"
+            className="v2-label text-center text-[10px] text-slate-400"
           >
             {day}
           </div>
@@ -103,7 +103,7 @@ export function BookingCalendar({
           const isSelected = selectedDate === dateKey
 
           return (
-            <div key={date} className="flex justify-center items-center h-10">
+            <div key={date} className="flex h-10 items-center justify-center">
               <motion.button
                 whileTap={
                   isSelectable
@@ -114,12 +114,7 @@ export function BookingCalendar({
                 }
                 onClick={() => isSelectable && onSelectDate(dateKey)}
                 disabled={!isSelectable}
-                className={`
-                  w-10 h-10 rounded-full flex items-center justify-center font-inter text-sm transition-colors duration-300
-                  ${!isSelectable ? 'text-slate-800/20 cursor-not-allowed' : 'text-slate-800'}
-                  ${isSelected ? 'bg-emerald-600 text-white font-semibold' : ''}
-                  ${isSelectable && !isSelected ? 'hover:bg-teal-50/50' : ''}
-                `}
+                className={`h-10 w-10 rounded-2xl text-sm font-semibold transition-colors duration-300 ${!isSelectable ? 'cursor-not-allowed text-slate-300' : 'text-slate-700'} ${isSelected ? 'bg-[#006c49] text-white shadow-[0_10px_24px_rgba(0,108,73,0.2)]' : ''} ${isSelectable && !isSelected ? 'hover:bg-emerald-50' : ''}`}
               >
                 {date}
               </motion.button>

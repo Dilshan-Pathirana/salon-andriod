@@ -7,6 +7,7 @@ import {
   adminUpdateService,
   ManagedService,
 } from '../lib/api'
+import { pageMotionProps } from '../lib/motion'
 
 type ServiceCategory = 'HAIRCUT' | 'BEARD' | 'COMBO' | 'PREMIUM'
 
@@ -107,16 +108,16 @@ export function AdminServiceManagementPage() {
   }
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.35 }} className="px-4 py-6">
-      <h1 className="font-sans font-semibold tracking-tight text-3xl text-slate-900 text-center mb-8">Service Management</h1>
+    <motion.div {...pageMotionProps} className="v2-admin-shell">
+      <h1 className="v2-title mb-8 text-center text-3xl">Service Management</h1>
 
-      <div className="border border-slate-200 rounded-xl p-4 mb-8 space-y-3 bg-white shadow-sm">
-        <p className="font-inter text-xs tracking-widest uppercase text-slate-500">Add Service</p>
-        <div className="grid grid-cols-2 gap-3">
+      <div className="v2-card mb-8 v2-admin-stack p-4">
+        <p className="v2-label">Add Service</p>
+        <div className="v2-admin-grid">
           <select
             value={form.category}
             onChange={(event) => setForm((prev) => ({ ...prev, category: event.target.value as ServiceCategory }))}
-            className="bg-white border border-slate-200 rounded-lg p-3 text-sm text-slate-900"
+            className="v2-input"
           >
             {categoryOptions.map((category) => (
               <option key={category} value={category}>
@@ -128,7 +129,7 @@ export function AdminServiceManagementPage() {
             value={form.name}
             onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
             placeholder="Service name"
-            className="bg-white border border-slate-200 rounded-lg p-3 text-sm text-slate-900"
+            className="v2-input"
           />
           <input
             type="number"
@@ -136,7 +137,7 @@ export function AdminServiceManagementPage() {
             value={form.duration}
             onChange={(event) => setForm((prev) => ({ ...prev, duration: Number(event.target.value) }))}
             placeholder="Minutes"
-            className="bg-white border border-slate-200 rounded-lg p-3 text-sm text-slate-900"
+            className="v2-input"
           />
           <input
             type="number"
@@ -144,32 +145,32 @@ export function AdminServiceManagementPage() {
             value={form.price}
             onChange={(event) => setForm((prev) => ({ ...prev, price: Number(event.target.value) }))}
             placeholder="Price"
-            className="bg-white border border-slate-200 rounded-lg p-3 text-sm text-slate-900"
+            className="v2-input"
           />
         </div>
         <input
           value={form.description}
           onChange={(event) => setForm((prev) => ({ ...prev, description: event.target.value }))}
           placeholder="Description"
-          className="w-full bg-white border border-slate-200 rounded-lg p-3 text-sm text-slate-900"
+          className="v2-input"
         />
-        <button onClick={() => void handleCreate()} className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-colors rounded-lg text-xs tracking-widest uppercase font-semibold">
+        <button onClick={() => void handleCreate()} className="v2-btn-primary">
           Add Service
         </button>
       </div>
 
-      {message ? <p className="text-center text-xs text-blue-600 mb-4">{message}</p> : null}
+      {message ? <p className="text-center text-xs text-blue-600 dark:text-blue-300 mb-4">{message}</p> : null}
 
-      {isLoading ? <p className="text-slate-500 text-sm">Loading services...</p> : null}
+      {isLoading ? <p className="text-slate-500 dark:text-emerald-100/70 text-sm">Loading services...</p> : null}
 
-      <div className="space-y-3">
+      <div className="v2-admin-stack">
         {services.map((service) => (
-          <div key={service.id} className="border border-slate-200 rounded-xl p-4 bg-white shadow-sm space-y-3">
-            <div className="grid grid-cols-2 gap-3">
+          <div key={service.id} className="v2-card v2-admin-stack rounded-2xl p-4">
+            <div className="v2-admin-grid">
               <select
                 value={service.category}
                 onChange={(event) => void handleAutoSave(service.id, { category: event.target.value as ServiceCategory })}
-                className="bg-white border border-slate-200 rounded-lg p-2 text-xs text-slate-900"
+                className="v2-input !p-2 text-xs"
               >
                 {categoryOptions.map((category) => (
                   <option key={category} value={category}>
@@ -180,25 +181,25 @@ export function AdminServiceManagementPage() {
               <input
                 defaultValue={service.name}
                 onBlur={(event) => void handleAutoSave(service.id, { name: event.target.value })}
-                className="bg-white border border-slate-200 rounded-lg p-2 text-sm text-slate-900"
+                className="v2-input !p-2"
               />
               <input
                 type="number"
                 min={5}
                 defaultValue={service.duration}
                 onBlur={(event) => void handleAutoSave(service.id, { duration: Number(event.target.value) })}
-                className="bg-white border border-slate-200 rounded-lg p-2 text-sm text-slate-900"
+                className="v2-input !p-2"
               />
               <input
                 type="number"
                 min={0}
                 defaultValue={service.price}
                 onBlur={(event) => void handleAutoSave(service.id, { price: Number(event.target.value) })}
-                className="bg-white border border-slate-200 rounded-lg p-2 text-sm text-slate-900"
+                className="v2-input !p-2"
               />
             </div>
             <div className="flex items-center justify-between">
-              <label className="text-xs text-slate-500 flex items-center gap-2">
+              <label className="text-xs text-slate-500 dark:text-emerald-100/70 flex items-center gap-2">
                 <input
                   type="checkbox"
                   checked={service.isActive}
@@ -208,7 +209,7 @@ export function AdminServiceManagementPage() {
               </label>
               <button
                 onClick={() => void handleDelete(service.id)}
-                className="px-3 py-2 border border-red-400/50 rounded-lg text-xs tracking-widest uppercase text-red-300"
+                className="rounded-xl border border-red-300 px-3 py-2 text-xs font-bold uppercase tracking-widest text-red-500"
               >
                 Delete
               </button>

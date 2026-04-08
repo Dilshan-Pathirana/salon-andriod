@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import { adminGetScheduleRange, openDaySession, upsertDaySchedule } from '../lib/api'
+import { pageMotionProps } from '../lib/motion'
 
 type DayStatus = 'OPEN' | 'CLOSED'
 
@@ -119,17 +120,17 @@ export function AdminSessionManagementPage() {
   const monthLabel = viewDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.35 }} className="px-4 py-6">
-      <h1 className="font-sans font-semibold tracking-tight text-3xl text-slate-900 text-center mb-8">Session Management</h1>
+    <motion.div {...pageMotionProps} className="v2-admin-shell">
+      <h1 className="v2-title mb-8 text-center text-3xl">Session Management</h1>
 
-      <div className="border border-slate-200 rounded-xl p-4 bg-white shadow-sm mb-8">
+      <div className="v2-card mb-8 p-4">
         <div className="flex items-center justify-between mb-4">
-          <button disabled={!canPrev} onClick={() => canPrev && setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1))} className="text-xs text-slate-500 disabled:opacity-30">Prev</button>
-          <p className="font-sans font-semibold tracking-tight text-lg text-slate-900">{monthLabel}</p>
-          <button disabled={!canNext} onClick={() => canNext && setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1))} className="text-xs text-slate-500 disabled:opacity-30">Next</button>
+          <button disabled={!canPrev} onClick={() => canPrev && setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1))} className="text-xs text-slate-500 dark:text-emerald-100/70 disabled:opacity-30">Prev</button>
+          <p className="v2-title text-lg">{monthLabel}</p>
+          <button disabled={!canNext} onClick={() => canNext && setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1))} className="text-xs text-slate-500 dark:text-emerald-100/70 disabled:opacity-30">Next</button>
         </div>
 
-        <div className="grid grid-cols-7 gap-2 text-center text-xs mb-3 text-slate-500">
+        <div className="grid grid-cols-7 gap-2 text-center text-xs mb-3 text-slate-500 dark:text-emerald-100/70">
           {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, index) => (
             <span key={`weekday-${index}`}>{day}</span>
           ))}
@@ -149,15 +150,15 @@ export function AdminSessionManagementPage() {
             const statusClass = !schedule
               ? 'bg-white/70 text-slate-500'
               : schedule.status === 'OPEN'
-                ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-colors/70 text-white'
-                : 'bg-luxury-brown/80 text-slate-900'
+                ? 'bg-emerald-600 text-white shadow-sm transition-colors hover:bg-emerald-700'
+                : 'bg-orange-100 text-slate-900'
 
             return (
               <button
                 key={dateKey}
                 disabled={!inRange}
                 onClick={() => inRange && setSelectedDate(dateKey)}
-                className={`h-9 rounded-md text-xs border ${isSelected ? 'border-luxury-champagne' : 'border-transparent'} ${inRange ? statusClass : 'bg-white/40 text-slate-500/50 cursor-not-allowed'}`}
+                className={`h-9 rounded-lg border text-xs ${isSelected ? 'border-emerald-500' : 'border-transparent'} ${inRange ? statusClass : 'cursor-not-allowed bg-white/40 text-slate-500/50'}`}
               >
                 {day}
               </button>
@@ -166,30 +167,30 @@ export function AdminSessionManagementPage() {
         </div>
       </div>
 
-      <div className="border border-slate-200 rounded-xl p-4 bg-white shadow-sm space-y-3">
-        <p className="text-xs tracking-widest uppercase text-slate-500">Selected day: {selectedDate}</p>
+      <div className="v2-card v2-admin-stack p-4">
+        <p className="text-xs tracking-widest uppercase text-slate-500 dark:text-emerald-100/70">Selected day: {selectedDate}</p>
 
-        <select value={status} onChange={(event) => setStatus(event.target.value as DayStatus)} className="w-full bg-white border border-slate-200 rounded-lg p-3 text-sm text-slate-900">
+        <select value={status} onChange={(event) => setStatus(event.target.value as DayStatus)} className="v2-input">
           <option value="OPEN">OPEN</option>
           <option value="CLOSED">CLOSED</option>
         </select>
 
-        <div className="grid grid-cols-2 gap-3">
-          <input type="time" value={startTime} onChange={(event) => setStartTime(event.target.value)} className="bg-white border border-slate-200 rounded-lg p-3 text-sm text-slate-900" />
-          <input type="time" value={endTime} onChange={(event) => setEndTime(event.target.value)} className="bg-white border border-slate-200 rounded-lg p-3 text-sm text-slate-900" />
+        <div className="v2-admin-grid">
+          <input type="time" value={startTime} onChange={(event) => setStartTime(event.target.value)} className="v2-input" />
+          <input type="time" value={endTime} onChange={(event) => setEndTime(event.target.value)} className="v2-input" />
         </div>
 
-        <div className="border border-slate-200 rounded-lg p-3">
-          <p className="text-xs text-slate-500">Approximate appointments (auto)</p>
-          <p className="text-2xl font-sans font-semibold tracking-tight text-blue-600">{appointmentEstimate}</p>
-          <p className="text-xs text-slate-500">Calculated as total range minutes ÷ 30</p>
+        <div className="v2-card rounded-2xl p-3">
+          <p className="text-xs text-slate-500 dark:text-emerald-100/70">Approximate appointments (auto)</p>
+          <p className="v2-title text-2xl text-emerald-700">{appointmentEstimate}</p>
+          <p className="text-xs text-slate-500 dark:text-emerald-100/70">Calculated as total range minutes ÷ 30</p>
         </div>
 
-        <button onClick={() => void saveDay()} disabled={isSaving} className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-colors rounded-lg text-xs tracking-widest uppercase font-semibold disabled:opacity-60">
+        <button onClick={() => void saveDay()} disabled={isSaving} className="v2-btn-primary disabled:opacity-60">
           {isSaving ? 'Saving...' : 'Save Day'}
         </button>
 
-        {message ? <p className="text-xs text-blue-600">{message}</p> : null}
+        {message ? <p className="text-xs text-blue-600 dark:text-blue-300">{message}</p> : null}
       </div>
     </motion.div>
   )

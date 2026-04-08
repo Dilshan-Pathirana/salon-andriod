@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { adminCreateUser, adminDeleteUser, adminGetUsers, adminUpdateUser, ManagedUser } from '../lib/api'
+import { pageMotionProps } from '../lib/motion'
 
 const emptyForm = {
   firstName: '',
@@ -140,86 +141,82 @@ export function AdminUserManagementPage() {
   }
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.35 }} className="px-4 py-6">
-      <h1 className="font-sans font-semibold tracking-tight text-3xl text-slate-900 text-center mb-8">User Management</h1>
+    <motion.div {...pageMotionProps} className="v2-admin-shell">
+      <h1 className="v2-title mb-8 text-center text-3xl">User Management</h1>
 
-      <div className="border border-slate-200 rounded-xl p-4 mb-8 bg-white shadow-sm space-y-3">
-        <p className="text-xs tracking-widest uppercase text-slate-500">Add User</p>
-        <div className="grid grid-cols-2 gap-3">
-          <input value={form.firstName} onChange={(event) => setForm((prev) => ({ ...prev, firstName: event.target.value }))} placeholder="First name" className="bg-white border border-slate-200 rounded-lg p-3 text-sm text-slate-900" />
-          <input value={form.lastName} onChange={(event) => setForm((prev) => ({ ...prev, lastName: event.target.value }))} placeholder="Last name" className="bg-white border border-slate-200 rounded-lg p-3 text-sm text-slate-900" />
-          <input value={form.phoneNumber} onChange={(event) => setForm((prev) => ({ ...prev, phoneNumber: event.target.value }))} placeholder="Phone (10 digits)" className="bg-white border border-slate-200 rounded-lg p-3 text-sm text-slate-900" />
-          <input type="password" value={form.password} onChange={(event) => setForm((prev) => ({ ...prev, password: event.target.value }))} placeholder="Password" className="bg-white border border-slate-200 rounded-lg p-3 text-sm text-slate-900" />
+      <div className="v2-card mb-8 v2-admin-stack p-4">
+        <p className="v2-label">Add User</p>
+        <div className="v2-admin-grid">
+          <input value={form.firstName} onChange={(event) => setForm((prev) => ({ ...prev, firstName: event.target.value }))} placeholder="First name" className="v2-input" />
+          <input value={form.lastName} onChange={(event) => setForm((prev) => ({ ...prev, lastName: event.target.value }))} placeholder="Last name" className="v2-input" />
+          <input value={form.phoneNumber} onChange={(event) => setForm((prev) => ({ ...prev, phoneNumber: event.target.value }))} placeholder="Phone (10 digits)" className="v2-input" />
+          <input type="password" value={form.password} onChange={(event) => setForm((prev) => ({ ...prev, password: event.target.value }))} placeholder="Password" className="v2-input" />
         </div>
-        <select value={form.role} onChange={(event) => setForm((prev) => ({ ...prev, role: event.target.value as 'ADMIN' | 'CLIENT' }))} className="w-full bg-white border border-slate-200 rounded-lg p-3 text-sm text-slate-900">
+        <select value={form.role} onChange={(event) => setForm((prev) => ({ ...prev, role: event.target.value as 'ADMIN' | 'CLIENT' }))} className="v2-input">
           <option value="CLIENT">CLIENT</option>
           <option value="ADMIN">ADMIN</option>
         </select>
-        <button onClick={() => void addUser()} className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-colors rounded-lg text-xs tracking-widest uppercase font-semibold">Add User</button>
+        <button onClick={() => void addUser()} className="v2-btn-primary">Add User</button>
       </div>
 
-      {message ? <p className="text-xs text-blue-600 mb-4">{message}</p> : null}
-      {isLoading ? <p className="text-sm text-slate-500 mb-4">Loading users...</p> : null}
+      {message ? <p className="text-xs text-blue-600 dark:text-blue-300 mb-4">{message}</p> : null}
+      {isLoading ? <p className="text-sm text-slate-500 dark:text-emerald-100/70 mb-4">Loading users...</p> : null}
 
-      <div className="space-y-3">
+      <div className="v2-admin-stack">
         {users.map((user) => (
-          <div
-            key={user.id}
-            onClick={() => startEditUser(user)}
-            className="border border-slate-200 rounded-lg p-4 bg-white shadow-sm space-y-3 cursor-pointer"
-          >
+          <div key={user.id} onClick={() => startEditUser(user)} className="v2-card cursor-pointer v2-admin-stack rounded-2xl p-4">
             <div>
-              <p className="text-slate-900 text-sm">{user.firstName} {user.lastName}</p>
-              <p className="text-slate-500 text-xs">{user.phoneNumber}</p>
+              <p className="text-slate-900 dark:text-emerald-50 text-sm">{user.firstName} {user.lastName}</p>
+              <p className="text-slate-500 dark:text-emerald-100/70 text-xs">{user.phoneNumber}</p>
             </div>
 
             <div className="flex items-center justify-between">
-              <span className="text-xs text-blue-600 tracking-wider">{user.role}</span>
-              <span className="text-xs text-slate-500">{user.isActive ? 'Active' : 'Inactive'}</span>
+              <span className="text-xs tracking-wider text-emerald-700 dark:text-emerald-300">{user.role}</span>
+              <span className="text-xs text-slate-500 dark:text-emerald-100/70">{user.isActive ? 'Active' : 'Inactive'}</span>
             </div>
 
-            <p className="text-xs text-slate-500">Active since: {formatDate(user.createdAt)}</p>
+            <p className="text-xs text-slate-500 dark:text-emerald-100/70">Active since: {formatDate(user.createdAt)}</p>
 
             <button
               onClick={(event) => {
                 event.stopPropagation()
                 void removeUser(user.id)
               }}
-              className="px-3 py-2 border border-red-400/50 rounded-lg text-xs tracking-widest uppercase text-red-300"
+              className="rounded-xl border border-red-300 px-3 py-2 text-xs font-bold uppercase tracking-widest text-red-500"
             >
               Delete
             </button>
 
             {selectedUserId === user.id ? (
-              <div className="border-t border-slate-200 pt-3 space-y-3" onClick={(event) => event.stopPropagation()}>
-                <p className="text-xs tracking-widest uppercase text-slate-500">Edit User</p>
-                <div className="grid grid-cols-2 gap-3">
+              <div className="v2-admin-stack border-t border-slate-200 dark:border-emerald-900/60 pt-3" onClick={(event) => event.stopPropagation()}>
+                <p className="text-xs tracking-widest uppercase text-slate-500 dark:text-emerald-100/70">Edit User</p>
+                <div className="v2-admin-grid">
                   <input
                     value={editForm.firstName}
                     onChange={(event) => setEditForm((prev) => ({ ...prev, firstName: event.target.value }))}
-                    className="bg-white border border-slate-200 rounded-lg p-2 text-sm text-slate-900"
+                    className="v2-input !p-2"
                   />
                   <input
                     value={editForm.lastName}
                     onChange={(event) => setEditForm((prev) => ({ ...prev, lastName: event.target.value }))}
-                    className="bg-white border border-slate-200 rounded-lg p-2 text-sm text-slate-900"
+                    className="v2-input !p-2"
                   />
                   <input
                     value={editForm.phoneNumber}
                     onChange={(event) => setEditForm((prev) => ({ ...prev, phoneNumber: event.target.value }))}
-                    className="bg-white border border-slate-200 rounded-lg p-2 text-sm text-slate-900"
+                    className="v2-input !p-2"
                   />
                   <select
                     value={editForm.role}
                     onChange={(event) => setEditForm((prev) => ({ ...prev, role: event.target.value as 'ADMIN' | 'CLIENT' }))}
-                    className="bg-white border border-slate-200 rounded-lg p-2 text-sm text-slate-900"
+                    className="v2-input !p-2"
                   >
                     <option value="CLIENT">CLIENT</option>
                     <option value="ADMIN">ADMIN</option>
                   </select>
                 </div>
 
-                <label className="text-xs text-slate-500 flex items-center gap-2">
+                <label className="text-xs text-slate-500 dark:text-emerald-100/70 flex items-center gap-2">
                   <input
                     type="checkbox"
                     checked={editForm.isActive}
@@ -228,16 +225,16 @@ export function AdminUserManagementPage() {
                   Active
                 </label>
 
-                <div className="grid grid-cols-2 gap-2">
+                <div className="v2-admin-actions">
                   <button
                     onClick={() => void updateSelectedUser()}
-                    className="py-2 bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-colors rounded-lg text-xs tracking-widest uppercase font-semibold"
+                    className="v2-btn-primary !py-2"
                   >
                     Update User
                   </button>
                   <button
                     onClick={() => setSelectedUserId(null)}
-                    className="py-2 border border-slate-200 rounded-lg text-xs tracking-widest uppercase text-slate-500"
+                    className="py-2 border border-slate-200 dark:border-emerald-900/60 rounded-lg text-xs tracking-widest uppercase text-slate-500 dark:text-emerald-100/70"
                   >
                     Cancel
                   </button>

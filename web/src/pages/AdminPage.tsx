@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { AuthUser } from '../lib/types';
 import { getScheduleByDate, openDaySession, upsertDaySchedule } from '../lib/api';
+import { pageMotionProps } from '../lib/motion';
 
 export type AdminTab = 'services' | 'stories' | 'appointments' | 'queue';
 
@@ -31,7 +32,7 @@ export function AdminPage({ user, initialTab = 'services' }: { user: AuthUser; i
   }
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.4 }} className="px-4 py-6">
+    <motion.div {...pageMotionProps} className="v2-admin-shell">
       <h1 className="font-sans font-semibold tracking-tight text-3xl text-center text-slate-900 mb-8">Admin Control</h1>
 
       <div className="grid grid-cols-2 gap-2 mb-8">

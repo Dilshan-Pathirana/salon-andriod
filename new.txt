@@ -1,0 +1,2643 @@
+<!-- Salon Ru Zero One - Redesign Brief -->
+# SALON APP - UI/UX REDESIGN BRIEF
+
+**Application Name:** Salon Ru Zero One  
+**Type:** Mobile-First PWA (Progressive Web App) for Salon Booking & Management  
+**Target Users:** Salon Clients, Admin Staff, Salon Managers  
+**Platform:** React 18 + TypeScript + Vite + Tailwind CSS  
+
+## DESIGN SYSTEM SUMMARY
+- **Primary Colors:** Emerald Green (#10B981), Teal (#14B8A6), Orange (#F97316)
+- **Neutral Grays:** Dark (#1F2937), Medium (#6B7280), Light (#E5E7EB), Very Light (#F9FAFB)
+- **Typography:** System fonts (sans-serif), 32px Hero Titles, 16px Body.
+- **Components:** ServiceCard, AppointmentCard, StatCard, Emerald Primary Buttons.
+
+## NAVIGATION
+- **Top Bar:** Logo, Hamburger Menu (64px)
+- **Bottom Nav:** Home, Services, Appointments, Queue, Profile (64px)
+
+## CORE SCREENS
+1. Home (Landing)
+2. Services Catalog
+3. Booking Flow
+4. Appointments List
+5. Live Queue
+6. User Profile
+7. Admin Dashboard
+8. Admin Management (Appointments, Queue, Services, Users, Sessions)
+
+
+<!-- Booking Flow -->
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Salon Ru Zero One - Booking Flow</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container": "#edeeef",
+                    "primary-container": "#10b981",
+                    "primary": "#006c49",
+                    "on-primary": "#ffffff",
+                    "surface-container-highest": "#e1e3e4",
+                    "background": "#f8f9fa",
+                    "on-surface-variant": "#3c4a42",
+                    "on-surface": "#191c1d",
+                    "on-secondary-container": "#006f64",
+                    "tertiary-fixed": "#ffdbca",
+                    "outline-variant": "#bbcabf",
+                    "inverse-surface": "#2e3132",
+                    "on-tertiary-container": "#622700",
+                    "surface-tint": "#006c49",
+                    "secondary": "#006b5f",
+                    "outline": "#6c7a71",
+                    "on-tertiary-fixed-variant": "#783200",
+                    "on-tertiary-fixed": "#341100",
+                    "surface-container-lowest": "#ffffff",
+                    "on-error": "#ffffff",
+                    "primary-fixed": "#6ffbbe",
+                    "on-secondary-fixed-variant": "#005048",
+                    "secondary-fixed": "#71f8e4",
+                    "tertiary-fixed-dim": "#ffb690",
+                    "tertiary-container": "#ff7e2d",
+                    "on-error-container": "#93000a",
+                    "tertiary": "#9d4300",
+                    "surface-container-low": "#f3f4f5",
+                    "primary-fixed-dim": "#4edea3",
+                    "on-background": "#191c1d",
+                    "surface-variant": "#e1e3e4",
+                    "surface": "#f8f9fa",
+                    "inverse-primary": "#4edea3",
+                    "error-container": "#ffdad6",
+                    "on-secondary-fixed": "#00201c",
+                    "surface-dim": "#d9dadb",
+                    "surface-bright": "#f8f9fa",
+                    "secondary-container": "#6df5e1",
+                    "on-primary-fixed-variant": "#005236",
+                    "on-secondary": "#ffffff",
+                    "on-primary-container": "#00422b",
+                    "error": "#ba1a1a",
+                    "on-primary-fixed": "#002113",
+                    "on-tertiary": "#ffffff",
+                    "inverse-on-surface": "#f0f1f2",
+                    "surface-container-high": "#e7e8e9",
+                    "secondary-fixed-dim": "#4fdbc8"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Plus Jakarta Sans"],
+                    "body": ["Manrope"],
+                    "label": ["Manrope"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .tonal-transition { background: linear-gradient(to bottom, transparent, rgba(248, 249, 250, 0.8)); }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body selection:bg-primary-container selection:text-on-primary-container">
+<!-- Top Navigation Shell -->
+<nav class="fixed top-0 w-full z-50 bg-white/85 backdrop-blur-xl shadow-[0_20px_40px_rgba(0,108,73,0.04)] flex items-center justify-between px-6 h-16">
+<div class="flex items-center gap-4">
+<button class="active:scale-95 transition-transform text-emerald-700">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<span class="text-xl font-black text-emerald-900 tracking-widest font-headline uppercase">LUMINA</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="w-8 h-8 rounded-full bg-surface-container-high overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="close-up portrait of a professional male salon manager in a minimalist studio setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD9DJqAKvKHTWU3BvwBAuZ37xjZewq81kRuRgpTXCZlHj_28geQr-3EjxmS-MF36SJ6OGrFt2bfssesPczBCmcj8l0Y9rN7m_l8e3GvQ3_HXU_JQUbEh646eqPkOaXr-11ijZFOCXgagj-fUvCxnm9ga_vD65mxAu4eI_5d3ou6wkym_fhd2s5R68dJjaBa56cc8GYfxZI8Ky2ILkPA41bUWxmyg3pwTdAIkArDv4U13RHPN2d3yNiRkXF9784nbohO3Bc_pGqtrNrq"/>
+</span>
+</div>
+</nav>
+<main class="pt-24 pb-32 px-6 max-w-2xl mx-auto space-y-10">
+<!-- Service Preview Section (Intentional Asymmetry) -->
+<section class="relative">
+<div class="flex flex-col md:flex-row gap-6 items-start">
+<div class="w-full md:w-1/3 aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl relative z-10">
+<img class="w-full h-full object-cover" data-alt="professional hair stylist performing a precision cut on a client in a bright modern salon interior" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC92xVWUgpqJNbZqlpb4D3jp-Sl2Qsln_k3hIX-F-zBZPM-a-dL7TBXwJUJd4Nlq8yATVVWwdSg_hf-1vDJs9C7QBxEkivqtQEuylSaSSRhksr2A3VmUGhenTycHEfI4YuMpCx274_PV8v6qtcJUVPpJ-iUwjLAI4uPEkEfhC2sDhkXYaFl1lgQppU_QCYO1VJ6R1-5fr3qBBSEIpChl1kAfZuDHDiInUZ29DVYCnaR0c5DcSEHKXokRTiH27bYIXLL_4xhTomvNYnH"/>
+</div>
+<div class="flex-1 pt-4 md:pt-8 space-y-2">
+<span class="px-4 py-1.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold tracking-widest uppercase font-label">Selected Service</span>
+<h1 class="text-4xl font-extrabold font-headline tracking-tight text-on-surface">Signature Silk Treatment</h1>
+<div class="flex items-center gap-4 text-on-surface-variant font-medium">
+<span class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-emerald-600 scale-75">schedule</span>
+                            90 mins
+                        </span>
+<span class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-emerald-600 scale-75">payments</span>
+                            $120.00
+                        </span>
+</div>
+</div>
+</div>
+<!-- Decorative Element -->
+<div class="absolute -top-10 -right-10 w-40 h-40 bg-primary/5 rounded-full blur-3xl -z-10"></div>
+</section>
+<!-- Date Picker Section -->
+<section class="space-y-6">
+<div class="flex justify-between items-end">
+<h2 class="text-2xl font-bold font-headline">Select Date</h2>
+<span class="text-primary font-bold text-sm">October 2024</span>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-[2rem] shadow-[0_20px_40px_rgba(0,108,73,0.03)]">
+<div class="grid grid-cols-7 gap-2 mb-4">
+<div class="text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">Mo</div>
+<div class="text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">Tu</div>
+<div class="text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">We</div>
+<div class="text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">Th</div>
+<div class="text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">Fr</div>
+<div class="text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">Sa</div>
+<div class="text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">Su</div>
+</div>
+<div class="grid grid-cols-7 gap-3">
+<!-- Date Buttons -->
+<button class="aspect-square flex flex-col items-center justify-center rounded-2xl text-slate-300 pointer-events-none">24</button>
+<button class="aspect-square flex flex-col items-center justify-center rounded-2xl text-slate-300 pointer-events-none">25</button>
+<button class="aspect-square flex flex-col items-center justify-center rounded-2xl text-slate-300 pointer-events-none">26</button>
+<button class="aspect-square flex flex-col items-center justify-center rounded-2xl hover:bg-emerald-50 transition-colors">27</button>
+<button class="aspect-square flex flex-col items-center justify-center rounded-2xl hover:bg-emerald-50 transition-colors">28</button>
+<button class="aspect-square flex flex-col items-center justify-center rounded-2xl hover:bg-emerald-50 transition-colors">29</button>
+<button class="aspect-square flex flex-col items-center justify-center rounded-2xl hover:bg-emerald-50 transition-colors">30</button>
+<button class="aspect-square flex flex-col items-center justify-center rounded-2xl bg-primary text-on-primary font-bold shadow-lg shadow-primary/20 scale-110">1</button>
+<button class="aspect-square flex flex-col items-center justify-center rounded-2xl hover:bg-emerald-50 transition-colors">2</button>
+<button class="aspect-square flex flex-col items-center justify-center rounded-2xl hover:bg-emerald-50 transition-colors">3</button>
+<button class="aspect-square flex flex-col items-center justify-center rounded-2xl hover:bg-emerald-50 transition-colors">4</button>
+<button class="aspect-square flex flex-col items-center justify-center rounded-2xl hover:bg-emerald-50 transition-colors">5</button>
+<button class="aspect-square flex flex-col items-center justify-center rounded-2xl hover:bg-emerald-50 transition-colors">6</button>
+<button class="aspect-square flex flex-col items-center justify-center rounded-2xl hover:bg-emerald-50 transition-colors">7</button>
+</div>
+</div>
+</section>
+<!-- Time Slot Picker -->
+<section class="space-y-6">
+<h2 class="text-2xl font-bold font-headline">Available Slots</h2>
+<div class="grid grid-cols-3 md:grid-cols-4 gap-3">
+<button class="py-4 rounded-2xl border-none bg-surface-container-low text-on-surface-variant font-bold text-sm hover:bg-surface-container-high transition-colors">09:30</button>
+<button class="py-4 rounded-2xl border-none bg-primary text-on-primary font-bold text-sm shadow-md shadow-primary/10">10:00</button>
+<button class="py-4 rounded-2xl border-none bg-surface-container-low text-on-surface-variant font-bold text-sm hover:bg-surface-container-high transition-colors">11:00</button>
+<button class="py-4 rounded-2xl border-none bg-surface-container-low text-on-surface-variant font-bold text-sm hover:bg-surface-container-high transition-colors">13:30</button>
+<button class="py-4 rounded-2xl border-none bg-surface-container-low text-on-surface-variant font-bold text-sm hover:bg-surface-container-high transition-colors">14:00</button>
+<button class="py-4 rounded-2xl border-none bg-surface-container-low text-on-surface-variant font-bold text-sm hover:bg-surface-container-high transition-colors">15:30</button>
+<button class="py-4 rounded-2xl border-none bg-surface-container-low text-on-surface-variant font-bold text-sm hover:bg-surface-container-high transition-colors opacity-50 cursor-not-allowed line-through">16:00</button>
+<button class="py-4 rounded-2xl border-none bg-surface-container-low text-on-surface-variant font-bold text-sm hover:bg-surface-container-high transition-colors">17:00</button>
+</div>
+</section>
+<!-- Contact Info Section -->
+<section class="space-y-6">
+<h2 class="text-2xl font-bold font-headline">Contact Details</h2>
+<div class="space-y-4">
+<div class="relative">
+<label class="block text-[10px] font-bold text-emerald-800 uppercase tracking-widest mb-1 ml-1">Full Name</label>
+<input class="w-full px-0 py-3 bg-transparent border-b-2 border-emerald-100 focus:border-emerald-600 focus:ring-0 transition-all font-medium text-on-surface placeholder:text-slate-300" placeholder="Alex Rivera" type="text"/>
+</div>
+<div class="relative">
+<label class="block text-[10px] font-bold text-emerald-800 uppercase tracking-widest mb-1 ml-1">Phone Number</label>
+<input class="w-full px-0 py-3 bg-transparent border-b-2 border-emerald-100 focus:border-emerald-600 focus:ring-0 transition-all font-medium text-on-surface placeholder:text-slate-300" placeholder="+1 (555) 000-0000" type="tel"/>
+</div>
+</div>
+</section>
+<!-- Confirm Button (Bottom Stick/Floating appearance) -->
+<div class="pt-8 pb-12">
+<button class="w-full py-5 rounded-2xl bg-gradient-to-r from-primary to-primary-container text-on-primary font-bold text-lg shadow-[0_20px_40px_rgba(0,108,73,0.15)] active:scale-95 transition-all flex items-center justify-center gap-3">
+                Confirm Booking
+                <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+<p class="text-center mt-4 text-on-surface-variant/60 text-xs font-medium">By confirming, you agree to our 24h cancellation policy.</p>
+</div>
+</main>
+<!-- Bottom Navigation Shell (Persistent) -->
+<footer class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-6 pt-3 bg-white/85 backdrop-blur-xl shadow-[0_-10px_30px_rgba(0,108,73,0.05)] z-50 rounded-t-3xl md:hidden">
+<a class="flex flex-col items-center justify-center text-slate-400 px-3 py-1 active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label text-[10px] font-bold tracking-[0.05em] uppercase mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 px-3 py-1 active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">content_cut</span>
+<span class="font-label text-[10px] font-bold tracking-[0.05em] uppercase mt-1">Services</span>
+</a>
+<a class="flex flex-col items-center justify-center text-emerald-700 bg-emerald-50/50 rounded-2xl px-3 py-1 active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">calendar_month</span>
+<span class="font-label text-[10px] font-bold tracking-[0.05em] uppercase mt-1">Bookings</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 px-3 py-1 active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">hourglass_empty</span>
+<span class="font-label text-[10px] font-bold tracking-[0.05em] uppercase mt-1">Queue</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 px-3 py-1 active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label text-[10px] font-bold tracking-[0.05em] uppercase mt-1">Profile</span>
+</a>
+</footer>
+<!-- Side Decoration (Desktop) -->
+<div class="hidden lg:block fixed left-10 top-1/2 -translate-y-1/2 space-y-8 z-10">
+<div class="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 shadow-sm">
+<span class="material-symbols-outlined">spa</span>
+</div>
+<div class="w-px h-24 bg-gradient-to-b from-emerald-100 to-transparent mx-auto"></div>
+<div class="vertical-text font-label text-[10px] font-bold text-emerald-800/30 uppercase tracking-[0.5em] rotate-180" style="writing-mode: vertical-rl;">EXPERIENCE THE ART</div>
+</div>
+</body></html>
+
+<!-- Services Catalog -->
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Services Catalog - Salon Ru Zero One</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Manrope:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container": "#edeeef",
+                    "primary-container": "#10b981",
+                    "primary": "#006c49",
+                    "on-primary": "#ffffff",
+                    "surface-container-highest": "#e1e3e4",
+                    "background": "#f8f9fa",
+                    "on-surface-variant": "#3c4a42",
+                    "on-surface": "#191c1d",
+                    "on-secondary-container": "#006f64",
+                    "tertiary-fixed": "#ffdbca",
+                    "outline-variant": "#bbcabf",
+                    "inverse-surface": "#2e3132",
+                    "on-tertiary-container": "#622700",
+                    "surface-tint": "#006c49",
+                    "secondary": "#006b5f",
+                    "outline": "#6c7a71",
+                    "on-tertiary-fixed-variant": "#783200",
+                    "on-tertiary-fixed": "#341100",
+                    "surface-container-lowest": "#ffffff",
+                    "on-error": "#ffffff",
+                    "primary-fixed": "#6ffbbe",
+                    "on-secondary-fixed-variant": "#005048",
+                    "secondary-fixed": "#71f8e4",
+                    "tertiary-fixed-dim": "#ffb690",
+                    "tertiary-container": "#ff7e2d",
+                    "on-error-container": "#93000a",
+                    "tertiary": "#9d4300",
+                    "surface-container-low": "#f3f4f5",
+                    "primary-fixed-dim": "#4edea3",
+                    "on-background": "#191c1d",
+                    "surface-variant": "#e1e3e4",
+                    "surface": "#f8f9fa",
+                    "inverse-primary": "#4edea3",
+                    "error-container": "#ffdad6",
+                    "on-secondary-fixed": "#00201c",
+                    "surface-dim": "#d9dadb",
+                    "surface-bright": "#f8f9fa",
+                    "secondary-container": "#6df5e1",
+                    "on-primary-fixed-variant": "#005236",
+                    "on-secondary": "#ffffff",
+                    "on-primary-container": "#00422b",
+                    "error": "#ba1a1a",
+                    "on-primary-fixed": "#002113",
+                    "on-tertiary": "#ffffff",
+                    "inverse-on-surface": "#f0f1f2",
+                    "surface-container-high": "#e7e8e9",
+                    "secondary-fixed-dim": "#4fdbc8"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "12px",
+                    "xl": "1.5rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Plus Jakarta Sans"],
+                    "body": ["Manrope"],
+                    "label": ["Manrope"]
+            }
+          },
+        }
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .tonal-transition {
+            background-image: linear-gradient(to bottom, rgba(255,255,255,0.9), rgba(255,255,255,0));
+        }
+        .no-border { border: none !important; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface font-body min-h-screen pb-24">
+<!-- TopAppBar -->
+<header class="bg-white/85 backdrop-blur-xl fixed top-0 w-full z-50 flex items-center justify-between px-6 h-16 w-full no-border tonal-transition shadow-[0_20px_40px_rgba(0,108,73,0.04)]">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-emerald-700 active:scale-95 transition-transform cursor-pointer">menu</span>
+<h1 class="text-xl font-black text-emerald-900 tracking-widest font-headline">LUMINA</h1>
+</div>
+<div class="flex items-center gap-4">
+<div class="h-8 w-8 rounded-full overflow-hidden border-2 border-primary-container">
+<img alt="Profile" class="w-full h-full object-cover" data-alt="Close-up portrait of a professional man with a friendly expression in a modern, brightly lit office environment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA9uev0u8o429jHN3OqK4ru_xeALl-ZuTTh-DTkdugCkljDYzJ8Q3tYE7XcnobXA2aizcAk03UjKe6f8oF2i0CJJfYkrYcBEzOWm8Pfp36IeCTnAdIageKJI2GyD0tHHF0YmP8jWbq9dxUG4hibyE28Ltyla2aEnKSjHPkQ0ifHBHymPpA7Mf5wSbSdUCvCgRJZwIohzHsW65ev9hbAKLVnwT0A9P80CgdDY8zlNEfoLN70-XnweiKheE-PEeFgIB0bnPU5L9ZzAlhI"/>
+</div>
+</div>
+</header>
+<main class="pt-24 px-6 max-w-5xl mx-auto">
+<!-- Hero Search Section -->
+<section class="mb-10">
+<h2 class="font-headline font-extrabold text-4xl tracking-tight text-emerald-950 mb-6">Salon Ru Zero One</h2>
+<div class="relative group">
+<div class="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-emerald-700">search</span>
+</div>
+<input class="w-full bg-surface-container-low border-none rounded-xl py-4 pl-12 pr-4 text-on-surface focus:ring-2 focus:ring-primary-container transition-all placeholder:text-slate-400 font-medium" placeholder="Search for treatments..." type="text"/>
+</div>
+<!-- Filter Chips -->
+<div class="flex gap-2 mt-6 overflow-x-auto pb-2 no-scrollbar">
+<button class="bg-primary-container text-on-primary-container px-6 py-2 rounded-full text-sm font-bold whitespace-nowrap active:scale-95 transition-transform">All Services</button>
+<button class="bg-surface-container-lowest text-slate-600 px-6 py-2 rounded-full text-sm font-bold whitespace-nowrap hover:bg-slate-100 transition-colors">Hair Styling</button>
+<button class="bg-surface-container-lowest text-slate-600 px-6 py-2 rounded-full text-sm font-bold whitespace-nowrap hover:bg-slate-100 transition-colors">Skincare</button>
+<button class="bg-surface-container-lowest text-slate-600 px-6 py-2 rounded-full text-sm font-bold whitespace-nowrap hover:bg-slate-100 transition-colors">Nail Art</button>
+<button class="bg-surface-container-lowest text-slate-600 px-6 py-2 rounded-full text-sm font-bold whitespace-nowrap hover:bg-slate-100 transition-colors">Massage</button>
+</div>
+</section>
+<!-- Service Cards Grid -->
+<section class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+<!-- Service Card 1 -->
+<div class="group bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_20px_40px_rgba(0,108,73,0.02)] hover:shadow-[0_20px_40px_rgba(0,108,73,0.08)] transition-all duration-300">
+<div class="aspect-[4/3] relative overflow-hidden">
+<img alt="Signature Haircut" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Professional stylist cutting long dark hair in a sleek, modern salon with bright emerald green decor accents" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCHTPxKfY9NSoE7q_nn-PX6VAJjmTdbxhL_Yk1sstCxTTP9ApLQeX8KFV8HzgRJAjcz8LtBGM6IkYc5f6BmI3XSvGZXeZtgb9at35nbjKgNQg0h2m3Urhp2Zkm64T4rXiEyDGoAUA99VJl1m8H3qZqhBhmVF19TA9jU7vRAEOuGGx9KQQ9MJboBzkAMSFlrbxygqXS8nvLyyrOuQuIZVne8Wx0B9HoV_IXOXXFfpDhuDw4GRsVhy4ypGix8cgrYEaE_Q6-yRfiWtvns"/>
+<div class="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-tertiary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-xs font-bold text-on-surface">4.8</span>
+</div>
+</div>
+<div class="p-6">
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-headline font-bold text-xl text-emerald-950">Signature Haircut</h3>
+<span class="font-label font-extrabold text-emerald-700 tracking-tight">Rs. 2,500</span>
+</div>
+<p class="text-on-surface-variant text-sm mb-6 line-clamp-2 font-medium">Expert precision cut tailored to your face shape, including wash and luxury conditioning.</p>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2 text-slate-500">
+<span class="material-symbols-outlined text-[18px]">schedule</span>
+<span class="text-xs font-bold tracking-widest uppercase font-label">30 mins</span>
+</div>
+<button class="bg-primary text-on-primary px-5 py-2 rounded-lg text-sm font-bold shadow-lg shadow-primary/20 active:scale-95 transition-all">Book Now</button>
+</div>
+</div>
+</div>
+<!-- Service Card 2 -->
+<div class="group bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_20px_40px_rgba(0,108,73,0.02)] hover:shadow-[0_20px_40px_rgba(0,108,73,0.08)] transition-all duration-300">
+<div class="aspect-[4/3] relative overflow-hidden">
+<img alt="Revitalizing Facial" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Close-up of a luxurious facial treatment being applied with soft brushes, warm ambient lighting, peaceful atmosphere" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD4w4ZzPMj1OFGWU7WBE9-q-wjEcIo3zyvysMO_hmOaTc0IphZhc_dB1YN5FkvSSBz9xkFlQM-CMGlDcXB6CxFXQctT-iSmhufqrhwERFAikbGPTL4JVE_Y76ahnzzGTpF1lomeiUcFZwLUoXfPWUI8aj1mSRfxrZ2zzbRiKkvJ6SL-mp4bsTgcYsTQtxADulfOkUmalRg328DEWNpSMyxPf87mM2EYGGU68_AJW-MIPBEs6TbyVdPQ-M-70y9ndfjyscPDHrXESLyz"/>
+<div class="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-tertiary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-xs font-bold text-on-surface">4.9</span>
+</div>
+</div>
+<div class="p-6">
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-headline font-bold text-xl text-emerald-950">Revitalizing Facial</h3>
+<span class="font-label font-extrabold text-emerald-700 tracking-tight">Rs. 3,800</span>
+</div>
+<p class="text-on-surface-variant text-sm mb-6 line-clamp-2 font-medium">Deep cleansing ritual using organic emerald algae extracts for ultimate skin glow.</p>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2 text-slate-500">
+<span class="material-symbols-outlined text-[18px]">schedule</span>
+<span class="text-xs font-bold tracking-widest uppercase font-label">45 mins</span>
+</div>
+<button class="bg-primary text-on-primary px-5 py-2 rounded-lg text-sm font-bold shadow-lg shadow-primary/20 active:scale-95 transition-all">Book Now</button>
+</div>
+</div>
+</div>
+<!-- Service Card 3 -->
+<div class="group bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_20px_40px_rgba(0,108,73,0.02)] hover:shadow-[0_20px_40px_rgba(0,108,73,0.08)] transition-all duration-300">
+<div class="aspect-[4/3] relative overflow-hidden">
+<img alt="Balayage Artistry" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Beautifully colored hair with sun-kissed blonde highlights, editorial style photography, soft focus background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBU6z-01uCdjJb38Y5TN4KlX8H7JEyTtvuT988gUf__D2qOiLQar6oYozmBO231NfVY1YDyeMBEhUxtfboStcX8dGYLlG7cB3atEL5qDADe7mLXZnxkcW9qojQmFcq6rVsYiwpqMdzpZlbM9ayclP-ik3j5VBO83_L034_YM9CA3jJy_QKC9z57dGpv9-M9vqWZuJh7Aq0WDw5_Kq8eOpd7vXq8YLDXCeM0CwfEE8lcp4asZfOcC0GvPdZQ1f9Xe00nybWD1tvSG8cw"/>
+<div class="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-tertiary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-xs font-bold text-on-surface">4.7</span>
+</div>
+</div>
+<div class="p-6">
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-headline font-bold text-xl text-emerald-950">Balayage Artistry</h3>
+<span class="font-label font-extrabold text-emerald-700 tracking-tight">Rs. 8,500</span>
+</div>
+<p class="text-on-surface-variant text-sm mb-6 line-clamp-2 font-medium">Hand-painted highlights that blend seamlessly for a natural, sun-kissed finish.</p>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2 text-slate-500">
+<span class="material-symbols-outlined text-[18px]">schedule</span>
+<span class="text-xs font-bold tracking-widest uppercase font-label">120 mins</span>
+</div>
+<button class="bg-primary text-on-primary px-5 py-2 rounded-lg text-sm font-bold shadow-lg shadow-primary/20 active:scale-95 transition-all">Book Now</button>
+</div>
+</div>
+</div>
+<!-- Service Card 4 -->
+<div class="group bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_20px_40px_rgba(0,108,73,0.02)] hover:shadow-[0_20px_40px_rgba(0,108,73,0.08)] transition-all duration-300">
+<div class="aspect-[4/3] relative overflow-hidden">
+<img alt="Scalp Therapy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Relaxing head massage and scalp treatment being performed with essential oils in a zen-like spa setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDcVWwf-JcQi446-0NCglRC8z_q7yIGg6quGnr_9TWos49nsIzg3mn8eXbf_hIJ6t3dG4ot4gyR_gFD7T4uqgsVIINCoVBavtMVIT4uNIERhAKnpEZ4x5cirI-TPx8CM_UHZNzcZGn_TqzwuW2UX2sExSWSK4PD4KNafTaXmcvWLuClrcaxpv4ASNbfECULwGc7wU2bDkPkjs7f_CcLb8idPid_tmBTshGStrMKXAqeRG9HFR7pbBR6OHptLW5S5zO32OL1Gvzm86S_"/>
+<div class="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-tertiary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-xs font-bold text-on-surface">4.8</span>
+</div>
+</div>
+<div class="p-6">
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-headline font-bold text-xl text-emerald-950">Scalp Therapy</h3>
+<span class="font-label font-extrabold text-emerald-700 tracking-tight">Rs. 2,500</span>
+</div>
+<p class="text-on-surface-variant text-sm mb-6 line-clamp-2 font-medium">Invigorating treatment to promote hair health and provide deep relaxation.</p>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2 text-slate-500">
+<span class="material-symbols-outlined text-[18px]">schedule</span>
+<span class="text-xs font-bold tracking-widest uppercase font-label">30 mins</span>
+</div>
+<button class="bg-primary text-on-primary px-5 py-2 rounded-lg text-sm font-bold shadow-lg shadow-primary/20 active:scale-95 transition-all">Book Now</button>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-6 pt-3 bg-white/85 backdrop-blur-xl z-50 rounded-t-3xl no-border bg-surface-container-low shadow-[0_-10px_30px_rgba(0,108,73,0.05)]">
+<a class="flex flex-col items-center justify-center text-slate-400 px-3 py-1 hover:text-emerald-600 transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-['Manrope'] text-[10px] font-bold tracking-[0.05em] uppercase mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-emerald-700 bg-emerald-50/50 rounded-2xl px-3 py-1 active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">content_cut</span>
+<span class="font-['Manrope'] text-[10px] font-bold tracking-[0.05em] uppercase mt-1">Services</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 px-3 py-1 hover:text-emerald-600 transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">calendar_month</span>
+<span class="font-['Manrope'] text-[10px] font-bold tracking-[0.05em] uppercase mt-1">Bookings</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 px-3 py-1 hover:text-emerald-600 transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">hourglass_empty</span>
+<span class="font-['Manrope'] text-[10px] font-bold tracking-[0.05em] uppercase mt-1">Queue</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 px-3 py-1 hover:text-emerald-600 transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-['Manrope'] text-[10px] font-bold tracking-[0.05em] uppercase mt-1">Profile</span>
+</a>
+</nav>
+</body></html>
+
+<!-- Home Page -->
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container": "#edeeef",
+                    "primary-container": "#10b981",
+                    "primary": "#006c49",
+                    "on-primary": "#ffffff",
+                    "surface-container-highest": "#e1e3e4",
+                    "background": "#f8f9fa",
+                    "on-surface-variant": "#3c4a42",
+                    "on-surface": "#191c1d",
+                    "on-secondary-container": "#006f64",
+                    "tertiary-fixed": "#ffdbca",
+                    "outline-variant": "#bbcabf",
+                    "inverse-surface": "#2e3132",
+                    "on-tertiary-container": "#622700",
+                    "surface-tint": "#006c49",
+                    "secondary": "#006b5f",
+                    "outline": "#6c7a71",
+                    "on-tertiary-fixed-variant": "#783200",
+                    "on-tertiary-fixed": "#341100",
+                    "surface-container-lowest": "#ffffff",
+                    "on-error": "#ffffff",
+                    "primary-fixed": "#6ffbbe",
+                    "on-secondary-fixed-variant": "#005048",
+                    "secondary-fixed": "#71f8e4",
+                    "tertiary-fixed-dim": "#ffb690",
+                    "tertiary-container": "#ff7e2d",
+                    "on-error-container": "#93000a",
+                    "tertiary": "#9d4300",
+                    "surface-container-low": "#f3f4f5",
+                    "primary-fixed-dim": "#4edea3",
+                    "on-background": "#191c1d",
+                    "surface-variant": "#e1e3e4",
+                    "surface": "#f8f9fa",
+                    "inverse-primary": "#4edea3",
+                    "error-container": "#ffdad6",
+                    "on-secondary-fixed": "#00201c",
+                    "surface-dim": "#d9dadb",
+                    "surface-bright": "#f8f9fa",
+                    "secondary-container": "#6df5e1",
+                    "on-primary-fixed-variant": "#005236",
+                    "on-secondary": "#ffffff",
+                    "on-primary-container": "#00422b",
+                    "error": "#ba1a1a",
+                    "on-primary-fixed": "#002113",
+                    "on-tertiary": "#ffffff",
+                    "inverse-on-surface": "#f0f1f2",
+                    "surface-container-high": "#e7e8e9",
+                    "secondary-fixed-dim": "#4fdbc8"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Plus Jakarta Sans"],
+                    "body": ["Manrope"],
+                    "label": ["Manrope"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopAppBar -->
+<header class="bg-white/85 dark:bg-slate-900/85 backdrop-blur-xl shadow-[0_20px_40px_rgba(0,108,73,0.04)] fixed top-0 w-full z-50 flex items-center justify-between px-6 h-16 w-full">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-emerald-700 dark:text-emerald-400 active:scale-95 transition-transform cursor-pointer">menu</span>
+<span class="font-['Plus_Jakarta_Sans'] font-black text-emerald-900 dark:text-emerald-50 tracking-widest text-xl">LUMINA</span>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-slate-500 hover:opacity-80 transition-opacity">search</span>
+<div class="w-8 h-8 rounded-full bg-surface-container-high overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Professional portrait of a male user with a clean smile in a modern studio setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-zyiMM2sYdJKhU4Dwmp-9lPhIfivGzlrEpLoDj_qRjLdtMkf3OYr3RsTmswrqNnwQUa85ZHKD_vjoe9GrgdDB0Uvg_aCu4XokkHT90Dhl5VUnKtXy8n9wAvt4Hfwddqm9SBDONvCnYf_u0K5of4I9RzmNLLz2pNO0KE9QIf1gS7NvR1U3PWs4FOG80p-5TvORu66dPA6BhGNjkL2SZDoGyLTPJInpyNvltQEmRGUKP_vKeIQO2bN0Y3xM2tU7pZv9J65jL8QPnAy6"/>
+</div>
+</div>
+</header>
+<main class="pt-16 pb-24">
+<!-- Hero Section -->
+<section class="relative h-[751px] w-full overflow-hidden flex flex-col justify-end p-8">
+<img class="absolute inset-0 w-full h-full object-cover" data-alt="Luxurious high-end hair salon interior with elegant emerald accents, soft ambient lighting, and minimalist furniture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA7J0Cvya2DhAuQf5kq47X08_I7Xg08hfsUMmspracY5LmiXd14XgZizWhYP4Xi-GiAY-2K9OP51CPAbzepCzFFgALR7Hvb9RzF4KxZhjqh10CN2flRsMw1tu2GNFtRkEvkNRe3pq7XArI3admich0oHFM-pCc8ENQpaXhb1elaNaEg1_2WkuNJf4TgJUm0G8y1RvHDeYpmrqUgX4NAedUd8482qbP8ka3JhIPhV5roR26K7WeTtIrsVOTcaFa3jIJpMyniIjZq_j30"/>
+<div class="absolute inset-0 bg-gradient-to-t from-emerald-950/80 via-transparent to-transparent"></div>
+<div class="relative z-10 space-y-6">
+<h1 class="font-headline text-5xl font-extrabold text-white leading-[1.1] tracking-tight">
+                    Book Your <br/>Perfect Look
+                </h1>
+<p class="text-white/80 font-body text-lg max-w-[280px]">
+                    Experience sensory minimalism in the heart of Salon Ru Zero One.
+                </p>
+<button class="bg-gradient-to-r from-primary to-primary-container text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg active:scale-95 transition-transform inline-flex items-center gap-2">
+                    Book Now
+                    <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</section>
+<!-- Quick Stats -->
+<section class="px-6 -mt-12 relative z-20">
+<div class="grid grid-cols-3 gap-3">
+<div class="bg-surface-container-lowest p-4 rounded-2xl shadow-[0_20px_40px_rgba(0,108,73,0.05)] flex flex-col items-center text-center">
+<span class="text-primary font-headline font-bold text-xl">500+</span>
+<span class="text-on-surface-variant font-label text-[10px] uppercase tracking-wider">Happy Clients</span>
+</div>
+<div class="bg-surface-container-lowest p-4 rounded-2xl shadow-[0_20px_40px_rgba(0,108,73,0.05)] flex flex-col items-center text-center border-t-4 border-tertiary-container">
+<span class="text-primary font-headline font-bold text-xl">50+</span>
+<span class="text-on-surface-variant font-label text-[10px] uppercase tracking-wider">Services</span>
+</div>
+<div class="bg-surface-container-lowest p-4 rounded-2xl shadow-[0_20px_40px_rgba(0,108,73,0.05)] flex flex-col items-center text-center">
+<span class="text-primary font-headline font-bold text-xl">Expert</span>
+<span class="text-on-surface-variant font-label text-[10px] uppercase tracking-wider">Team</span>
+</div>
+</div>
+</section>
+<!-- Service Spotlight -->
+<section class="mt-16 px-6">
+<div class="flex justify-between items-end mb-8">
+<h2 class="font-headline text-3xl font-bold tracking-tight text-on-surface">Service<br/>Spotlight</h2>
+<span class="text-primary font-bold font-label text-sm uppercase tracking-widest pb-1">View All</span>
+</div>
+<div class="space-y-6">
+<!-- Service Card 1 -->
+<div class="bg-surface-container-low rounded-3xl overflow-hidden flex flex-col md:flex-row shadow-sm transition-all hover:shadow-md">
+<div class="relative h-48 md:w-1/3">
+<img class="w-full h-full object-cover" data-alt="Close-up of professional stylist cutting long hair with precision scissors in a bright, modern studio" src="https://lh3.googleusercontent.com/aida-public/AB6AXuATTGPvHs7b7I6rwTJZWz2D1V1fLMzbe9uSMZ-DI4TIExZbWzf_uHCgD6HADNF6-btRVPHwNYJNFtdYetUtTvAO4l2khkbjtXq6DUEdJsdahL6-Q7F8lEkPTGPe1GR01gVnBmzv5XTSxVmznOjnxSpy48Tqr0yqyakXi_72NwauQBRSDP7iJbGMLDRgD71VCdo-72F4qPCDXajOGuvrYtPsKGFNhSJNG3h3exP-nQMyjWLfcHnD4QWk6KxTmf1wE4NHhQkcaybKyYk4"/>
+<div class="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-tertiary-container text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-[12px] font-bold text-on-surface">4.9</span>
+</div>
+</div>
+<div class="p-6 flex flex-col justify-between flex-grow">
+<div>
+<h3 class="font-headline text-xl font-bold text-emerald-900">Elite Hair Cut</h3>
+<p class="text-on-surface-variant text-sm mt-1">Custom styling &amp; wash included.</p>
+</div>
+<div class="mt-4 flex items-center justify-between">
+<span class="text-primary font-headline font-bold text-lg">Rs. 1,500</span>
+<button class="bg-primary-container/10 text-primary px-4 py-2 rounded-full font-bold text-sm">Select</button>
+</div>
+</div>
+</div>
+<!-- Service Card 2 -->
+<div class="bg-surface-container-low rounded-3xl overflow-hidden flex flex-col md:flex-row shadow-sm">
+<div class="relative h-48 md:w-1/3">
+<img class="w-full h-full object-cover" data-alt="Artistic shot of colorful hair dye being applied to locks of hair in a luxury beauty setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAAxEdDuyoLq74H12HxsXe9qNWrq3JteI_Puz2I0VZDLYykL2LcZSbAfydahcIu4u4pglaKL_HJc1HygVILofmrnFp_KEjEaSIDeCruJDr4bqaFgAt5CN7OIYW5d-K859mtWDUddvhoV68Mcgf18UrpVxdGOjP1bXEM8w6ootoQNLVs-fIy-CnfTy-cyA8gg8E0lmfxSVXgV9ffj6NI4OdUC61zNOWjFt5l7pDUxiINt1-iaoypdGoFIe9uThDWOOXPs9LyuNZQJ-dT"/>
+<div class="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-tertiary-container text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-[12px] font-bold text-on-surface">4.8</span>
+</div>
+</div>
+<div class="p-6 flex flex-col justify-between flex-grow">
+<div>
+<h3 class="font-headline text-xl font-bold text-emerald-900">Color Glow</h3>
+<p class="text-on-surface-variant text-sm mt-1">Premium ammonia-free coloring.</p>
+</div>
+<div class="mt-4 flex items-center justify-between">
+<span class="text-primary font-headline font-bold text-lg">Rs. 4,200</span>
+<button class="bg-primary-container/10 text-primary px-4 py-2 rounded-full font-bold text-sm">Select</button>
+</div>
+</div>
+</div>
+<!-- Service Card 3 -->
+<div class="bg-surface-container-low rounded-3xl overflow-hidden flex flex-col md:flex-row shadow-sm">
+<div class="relative h-48 md:w-1/3">
+<img class="w-full h-full object-cover" data-alt="Woman receiving a relaxing facial spa treatment with smooth botanical products in a serene atmosphere" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDFrHKfIPt2rsly8swKsuCMLjHwPbdbrg6OdvLApGFmHns6IcbI6nzPuj1Rh2KJs4430f-upN27WVUvGSHlAqJywt801B2Qgb-5OAoH5ChICkJSsJfNnFWug2LV5ENRGejOa3aZWhX7CCZXdXf_5xLk-3-JTqFhVuHQDJljj8NCUQATSfeqXZjCwo_sBwIbyxooG9cQo7hU3rNKaOOm6bA7RGk7M6vMceX3TJjv1m39pp_CVnE9lX3noXbFSys6UN8kOqk3G_DIxlPt"/>
+<div class="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-tertiary-container text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-[12px] font-bold text-on-surface">5.0</span>
+</div>
+</div>
+<div class="p-6 flex flex-col justify-between flex-grow">
+<div>
+<h3 class="font-headline text-xl font-bold text-emerald-900">Silk Facial</h3>
+<p class="text-on-surface-variant text-sm mt-1">Deep cleansing &amp; hydration therapy.</p>
+</div>
+<div class="mt-4 flex items-center justify-between">
+<span class="text-primary font-headline font-bold text-lg">Rs. 2,800</span>
+<button class="bg-primary-container/10 text-primary px-4 py-2 rounded-full font-bold text-sm">Select</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Testimonials -->
+<section class="mt-20 overflow-hidden bg-emerald-50/30 py-12">
+<h2 class="px-6 font-headline text-3xl font-bold tracking-tight text-on-surface mb-8">Client<br/>Whispers</h2>
+<div class="flex overflow-x-auto no-scrollbar gap-6 px-6 pb-4 snap-x snap-mandatory">
+<!-- Review 1 -->
+<div class="min-w-[300px] snap-center bg-white p-8 rounded-[2rem] shadow-[0_10px_30px_rgba(0,108,73,0.03)] border border-emerald-50">
+<div class="flex gap-1 mb-4">
+<span class="material-symbols-outlined text-tertiary-container text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-tertiary-container text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-tertiary-container text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-tertiary-container text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-tertiary-container text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<p class="italic text-on-surface-variant font-body mb-6 leading-relaxed">"The sensory experience here is unmatched. It's not just a haircut, it's a reset for my soul."</p>
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-slate-200">
+<img class="w-full h-full object-cover rounded-full" data-alt="Headshot of a happy woman with a modern hairstyle and natural look" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAgx2V-TfLYnKJ6EmemL7E3DdYxje5jwGZYwKAZOG8VDq4Obbbycig-x8DpJb1Qc4uCEAjE_Lx5eRZSZ3s92ViPFMbJkdtSm4jS_xdNqvzh66xzDNvqyRmJpl3pTZbb1rRrqvFsJPSaEtIcbItAQosEcP7Gl3jv-ZFDvGtj2cp4HZD05ICi9z6YyALzj_0Dluw703CslA2Wzyjog-KDmFbLrc-_KVufAjWXfnNlAebbBD8jehIiQHbFNmOgwlIS_JqE8Wo8FpmwCC0L"/>
+</div>
+<div>
+<p class="font-bold text-on-surface text-sm">Sarah Jenkins</p>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-widest">Fashion Editor</p>
+</div>
+</div>
+</div>
+<!-- Review 2 -->
+<div class="min-w-[300px] snap-center bg-white p-8 rounded-[2rem] shadow-[0_10px_30px_rgba(0,108,73,0.03)] border border-emerald-50">
+<div class="flex gap-1 mb-4">
+<span class="material-symbols-outlined text-tertiary-container text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-tertiary-container text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-tertiary-container text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-tertiary-container text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-tertiary-container text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<p class="italic text-on-surface-variant font-body mb-6 leading-relaxed">"Lumina transformed my look completely. The stylists are true artists who listen to your needs."</p>
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-slate-200">
+<img class="w-full h-full object-cover rounded-full" data-alt="Portrait of a well-groomed man with a sharp, clean beard and stylish hair" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBiHl60U4tVUjLd1kAMkdYbodBrM8HCBKzsrUg20ueMDidfY8UALoqyeBSBUfX5cjFmD5hHWg7yXaWr9MmHwOlQLkLGwxgUmMWDKz50Hf0FMbuGC18J4VOyji5VM1JsmSB1InB2ddf8wRN3gpk55s5Gmul-ejLq18sbE8Sdpzcj_8DIo_L-Mb4ehOZyq9X61PxLtnADp0Ef9Equ6cbH5EOR1W5CdfIl3WMm5zGhaXQ_AOhNnHgd9OvJaluj2Ngu1CQ8PAS5eU6-Jqp9"/>
+</div>
+<div>
+<p class="font-bold text-on-surface text-sm">David Chen</p>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-widest">Architect</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="bg-white/85 dark:bg-slate-900/85 backdrop-blur-xl shadow-[0_-10px_30px_rgba(0,108,73,0.05)] fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-6 pt-3 z-50 rounded-t-3xl">
+<a class="flex flex-col items-center justify-center text-emerald-700 dark:text-emerald-400 bg-emerald-50/50 dark:bg-emerald-900/20 rounded-2xl px-3 py-1 transition-all duration-200 active:scale-90" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-['Manrope'] text-[10px] font-bold tracking-[0.05em] uppercase mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-3 py-1 transition-all duration-200 hover:text-emerald-600 active:scale-90" href="#">
+<span class="material-symbols-outlined">content_cut</span>
+<span class="font-['Manrope'] text-[10px] font-bold tracking-[0.05em] uppercase mt-1">Services</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-3 py-1 transition-all duration-200 hover:text-emerald-600 active:scale-90" href="#">
+<span class="material-symbols-outlined">calendar_month</span>
+<span class="font-['Manrope'] text-[10px] font-bold tracking-[0.05em] uppercase mt-1">Bookings</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-3 py-1 transition-all duration-200 hover:text-emerald-600 active:scale-90" href="#">
+<span class="material-symbols-outlined">hourglass_empty</span>
+<span class="font-['Manrope'] text-[10px] font-bold tracking-[0.05em] uppercase mt-1">Queue</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-3 py-1 transition-all duration-200 hover:text-emerald-600 active:scale-90" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-['Manrope'] text-[10px] font-bold tracking-[0.05em] uppercase mt-1">Profile</span>
+</a>
+</nav>
+</body></html>
+
+<!-- Live Queue -->
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>LUMINA - Live Queue</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Manrope:wght@400;500;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container": "#edeeef",
+                    "primary-container": "#10b981",
+                    "primary": "#006c49",
+                    "on-primary": "#ffffff",
+                    "surface-container-highest": "#e1e3e4",
+                    "background": "#f8f9fa",
+                    "on-surface-variant": "#3c4a42",
+                    "on-surface": "#191c1d",
+                    "on-secondary-container": "#006f64",
+                    "tertiary-fixed": "#ffdbca",
+                    "outline-variant": "#bbcabf",
+                    "inverse-surface": "#2e3132",
+                    "on-tertiary-container": "#622700",
+                    "surface-tint": "#006c49",
+                    "secondary": "#006b5f",
+                    "outline": "#6c7a71",
+                    "on-tertiary-fixed-variant": "#783200",
+                    "on-tertiary-fixed": "#341100",
+                    "surface-container-lowest": "#ffffff",
+                    "on-error": "#ffffff",
+                    "primary-fixed": "#6ffbbe",
+                    "on-secondary-fixed-variant": "#005048",
+                    "secondary-fixed": "#71f8e4",
+                    "tertiary-fixed-dim": "#ffb690",
+                    "tertiary-container": "#ff7e2d",
+                    "on-error-container": "#93000a",
+                    "tertiary": "#9d4300",
+                    "surface-container-low": "#f3f4f5",
+                    "primary-fixed-dim": "#4edea3",
+                    "on-background": "#191c1d",
+                    "surface-variant": "#e1e3e4",
+                    "surface": "#f8f9fa",
+                    "inverse-primary": "#4edea3",
+                    "error-container": "#ffdad6",
+                    "on-secondary-fixed": "#00201c",
+                    "surface-dim": "#d9dadb",
+                    "surface-bright": "#f8f9fa",
+                    "secondary-container": "#6df5e1",
+                    "on-primary-fixed-variant": "#005236",
+                    "on-secondary": "#ffffff",
+                    "on-primary-container": "#00422b",
+                    "error": "#ba1a1a",
+                    "on-primary-fixed": "#002113",
+                    "on-tertiary": "#ffffff",
+                    "inverse-on-surface": "#f0f1f2",
+                    "surface-container-high": "#e7e8e9",
+                    "secondary-fixed-dim": "#4fdbc8"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "12px",
+                    "xl": "1.5rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Plus Jakarta Sans"],
+                    "body": ["Manrope"],
+                    "label": ["Manrope"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .tonal-transition {
+            background: linear-gradient(to bottom, rgba(248, 249, 250, 0.9), rgba(248, 249, 250, 0));
+        }
+        .glass-card {
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.85);
+        }
+        .status-halo {
+            box-shadow: 0 0 40px rgba(255, 126, 45, 0.2);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface font-body min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-white/85 dark:bg-slate-900/85 backdrop-blur-xl flex items-center justify-between px-6 h-16 shadow-[0_20px_40px_rgba(0,108,73,0.04)]">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-emerald-700 active:scale-95 transition-transform cursor-pointer" data-icon="menu">menu</span>
+<h1 class="text-xl font-black text-emerald-900 tracking-widest font-headline">LUMINA</h1>
+</div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-slate-500 hover:opacity-80 transition-opacity cursor-pointer" data-icon="notifications">notifications</span>
+<div class="w-8 h-8 rounded-full bg-surface-container-high overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="professional male portrait with friendly expression in soft studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAtuCzutWUI2LKIqUnwikCe-VqGVKFmUw1Y_28H2g6Kef20WUmc9ZTstm5Q7S9djZXo4OI_E2c-hCkOxVhjqUe8RolFkgj6sS-ixxXXEe26RZjPMoqDO3sv-t9VV5e_wqXlb_78WhvkklxtIR5FO3DOipegoX8R3eYurYK14Ww8irFTForZBL_L0XdR1tQX216HNX8hg8i3XS3pItTitUOZRjnLyJSyspJRcTO9I_6flzMCACG0mv3Pv2Tk8LGtaN0TERnAQJes2G6P"/>
+</div>
+</div>
+</header>
+<main class="pt-24 px-6 max-w-2xl mx-auto">
+<!-- Brand Header Section -->
+<section class="mb-8">
+<div class="flex justify-between items-end">
+<div>
+<span class="text-xs font-bold text-tertiary tracking-[0.1em] uppercase font-label">Salon Ru Zero One</span>
+<h2 class="text-3xl font-extrabold text-on-surface font-headline leading-tight mt-1">Live Queue</h2>
+</div>
+<div class="flex flex-col items-end">
+<span class="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest">Store Status</span>
+<div class="flex items-center gap-2 text-primary font-bold">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+<span class="text-sm">Active</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Current Status Hero Card -->
+<div class="relative overflow-hidden rounded-xl p-8 mb-10 bg-gradient-to-br from-primary to-primary-container text-on-primary shadow-[0_20px_40px_rgba(0,108,73,0.15)]">
+<div class="relative z-10">
+<div class="flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-sm" data-icon="hourglass_empty">hourglass_empty</span>
+<span class="text-xs font-bold tracking-widest uppercase opacity-90">Live Tracking</span>
+</div>
+<h3 class="text-4xl font-black font-headline mb-2">You are #5 in queue</h3>
+<p class="text-lg font-medium opacity-90 mb-6">Est. wait: 45 minutes</p>
+<div class="flex gap-3">
+<button class="bg-white/20 backdrop-blur-md px-6 py-3 rounded-full text-sm font-bold active:scale-95 transition-all">Check-in Details</button>
+<button class="bg-on-primary text-primary px-6 py-3 rounded-full text-sm font-bold shadow-lg active:scale-95 transition-all">Notify Me</button>
+</div>
+</div>
+<!-- Abstract background shape -->
+<div class="absolute -right-12 -top-12 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
+</div>
+<!-- Vertical Queue List -->
+<section class="space-y-6 relative">
+<div class="absolute left-[27px] top-4 bottom-4 w-0.5 bg-surface-container-highest"></div>
+<!-- Spot 1: In Service (Orange) -->
+<div class="flex items-center gap-6 group">
+<div class="relative z-10 w-14 h-14 rounded-full bg-tertiary-container flex items-center justify-center text-white font-black text-lg shadow-[0_10px_20px_rgba(255,126,45,0.3)] status-halo">
+                    1
+                </div>
+<div class="flex-1 bg-surface-container-lowest p-5 rounded-xl flex justify-between items-center shadow-sm border-l-4 border-tertiary-container">
+<div>
+<h4 class="font-bold text-on-surface">Client: Sarah M.</h4>
+<p class="text-xs font-bold text-tertiary uppercase tracking-wider mt-1">In Service</p>
+</div>
+<div class="w-12 h-12 rounded-full overflow-hidden border-2 border-tertiary-fixed">
+<img class="w-full h-full object-cover" data-alt="professional stylist portrait with warm smile and stylish hair in a high-end salon setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCTTQ6jOieQXYbAmAU0AXjlbm5WM6voxbrHRwyQLKHIrfEp3oFFMcEEpL9l9z5Hr2tiJGcGXN6khfs2iy2U0m4nVc4Gq29SZm_yvl19J6lGMEsb2dARnJIOrwZT51IqmGGJ2tE5PtEMwz36hIVrBL0TSb87vXRjmKO4dtAXs4OPzTVi6VVPIvO97CgyhLQNcL93ytZb40lGeypvgrv9kc-LsrNfLXsjm7brgKSgvdh2XRY82Mi95F4nuS6p1eSAbfxa_FTpRMLG6rpB"/>
+</div>
+</div>
+</div>
+<!-- Spot 2-4: Neutral Gray -->
+<div class="flex items-center gap-6 opacity-60">
+<div class="relative z-10 w-14 h-14 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant font-bold text-lg">
+                    2
+                </div>
+<div class="flex-1 bg-surface-container-low p-5 rounded-xl flex justify-between items-center">
+<div>
+<h4 class="font-bold text-on-surface-variant">Client: Michael K.</h4>
+<p class="text-xs font-medium text-outline uppercase tracking-wider mt-1">Waiting • 12m left</p>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-6 opacity-60">
+<div class="relative z-10 w-14 h-14 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant font-bold text-lg">
+                    3
+                </div>
+<div class="flex-1 bg-surface-container-low p-5 rounded-xl">
+<h4 class="font-bold text-on-surface-variant">Client: Elena R.</h4>
+<p class="text-xs font-medium text-outline uppercase tracking-wider mt-1">Waiting • 24m left</p>
+</div>
+</div>
+<div class="flex items-center gap-6 opacity-60">
+<div class="relative z-10 w-14 h-14 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant font-bold text-lg">
+                    4
+                </div>
+<div class="flex-1 bg-surface-container-low p-5 rounded-xl">
+<h4 class="font-bold text-on-surface-variant">Client: David W.</h4>
+<p class="text-xs font-medium text-outline uppercase tracking-wider mt-1">Waiting • 35m left</p>
+</div>
+</div>
+<!-- Spot 5: YOU (Teal) -->
+<div class="flex items-center gap-6">
+<div class="relative z-10 w-14 h-14 rounded-full bg-primary flex items-center justify-center text-on-primary font-black text-xl shadow-[0_10px_25px_rgba(0,108,73,0.25)] ring-4 ring-primary/20">
+                    5
+                </div>
+<div class="flex-1 bg-primary-fixed/20 p-5 rounded-xl flex justify-between items-center border-2 border-primary/30">
+<div>
+<h4 class="font-black text-primary text-lg">YOU</h4>
+<p class="text-xs font-bold text-on-primary-fixed-variant uppercase tracking-wider mt-1">Your Turn: ~14:45</p>
+</div>
+<span class="material-symbols-outlined text-primary text-3xl" data-icon="person" style="font-variation-settings: 'FILL' 1;">person</span>
+</div>
+</div>
+</section>
+<!-- Tips & Info Section -->
+<section class="mt-12 mb-8">
+<h3 class="text-xl font-bold font-headline mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="lightbulb">lightbulb</span>
+                Tips &amp; Info
+            </h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="bg-surface-container-low p-6 rounded-xl">
+<span class="material-symbols-outlined text-tertiary mb-3" data-icon="coffee">coffee</span>
+<h4 class="font-bold text-on-surface mb-2">Complimentary Brews</h4>
+<p class="text-sm text-on-surface-variant leading-relaxed">Feel free to grab a fresh espresso at our coffee bar while you wait.</p>
+</div>
+<div class="bg-surface-container-low p-6 rounded-xl">
+<span class="material-symbols-outlined text-primary mb-3" data-icon="wifi">wifi</span>
+<h4 class="font-bold text-on-surface mb-2">High-Speed Fiber</h4>
+<p class="text-sm text-on-surface-variant leading-relaxed">Connect to 'Salon-Guest' for seamless remote work during your wait.</p>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-6 pt-3 bg-white/85 dark:bg-slate-900/85 backdrop-blur-xl z-50 rounded-t-3xl shadow-[0_-10px_30px_rgba(0,108,73,0.05)]">
+<div class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-3 py-1 hover:text-emerald-600 active:scale-90 transition-all">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-['Manrope'] text-[10px] font-bold tracking-[0.05em] uppercase mt-1">Home</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-3 py-1 hover:text-emerald-600 active:scale-90 transition-all">
+<span class="material-symbols-outlined" data-icon="content_cut">content_cut</span>
+<span class="font-['Manrope'] text-[10px] font-bold tracking-[0.05em] uppercase mt-1">Services</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-3 py-1 hover:text-emerald-600 active:scale-90 transition-all">
+<span class="material-symbols-outlined" data-icon="calendar_month">calendar_month</span>
+<span class="font-['Manrope'] text-[10px] font-bold tracking-[0.05em] uppercase mt-1">Bookings</span>
+</div>
+<div class="flex flex-col items-center justify-center text-emerald-700 dark:text-emerald-400 bg-emerald-50/50 dark:bg-emerald-900/20 rounded-2xl px-3 py-1 active:scale-90 transition-all">
+<span class="material-symbols-outlined" data-icon="hourglass_empty" style="font-variation-settings: 'FILL' 1;">hourglass_empty</span>
+<span class="font-['Manrope'] text-[10px] font-bold tracking-[0.05em] uppercase mt-1">Queue</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-3 py-1 hover:text-emerald-600 active:scale-90 transition-all">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-['Manrope'] text-[10px] font-bold tracking-[0.05em] uppercase mt-1">Profile</span>
+</div>
+</nav>
+</body></html>
+
+<!-- Design System -->
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Salon Elite Management Suite</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Manrope:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#006c49",
+                        "tertiary-container": "#ff7e2d",
+                        "primary-fixed": "#6ffbbe",
+                        "surface-dim": "#d9dadb",
+                        "surface-container-highest": "#e1e3e4",
+                        "on-primary": "#ffffff",
+                        "on-primary-fixed": "#002113",
+                        "primary-container": "#10b981",
+                        "secondary": "#006b5f",
+                        "outline-variant": "#bbcabf",
+                        "tertiary-fixed": "#ffdbca",
+                        "secondary-fixed": "#71f8e4",
+                        "error-container": "#ffdad6",
+                        "on-secondary-container": "#006f64",
+                        "surface-variant": "#e1e3e4",
+                        "tertiary-fixed-dim": "#ffb690",
+                        "surface": "#f8f9fa",
+                        "secondary-container": "#6df5e1",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-fixed": "#341100",
+                        "on-secondary-fixed": "#00201c",
+                        "on-error": "#ffffff",
+                        "outline": "#6c7a71",
+                        "on-tertiary-container": "#622700",
+                        "inverse-primary": "#4edea3",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-tint": "#006c49",
+                        "surface-container-low": "#f3f4f5",
+                        "secondary-fixed-dim": "#4fdbc8",
+                        "on-tertiary-fixed-variant": "#783200",
+                        "on-background": "#191c1d",
+                        "on-primary-container": "#00422b",
+                        "on-secondary-fixed-variant": "#005048",
+                        "surface-container-high": "#e7e8e9",
+                        "inverse-surface": "#2e3132",
+                        "on-surface": "#191c1d",
+                        "on-secondary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "surface-bright": "#f8f9fa",
+                        "on-surface-variant": "#3c4a42",
+                        "on-primary-fixed-variant": "#005236",
+                        "tertiary": "#9d4300",
+                        "inverse-on-surface": "#f0f1f2",
+                        "background": "#f8f9fa",
+                        "primary-fixed-dim": "#4edea3",
+                        "surface-container": "#edeeef",
+                        "error": "#ba1a1a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    }
+                },
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Manrope', sans-serif; background-color: #f8f9fa; }
+        h1, h2, h3, .headline { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface overflow-x-hidden">
+<!-- SideNavBar (Shared Component) -->
+<aside class="bg-emerald-900 dark:bg-emerald-950 h-screen w-64 fixed left-0 top-0 shadow-2xl z-50 transition-all duration-300 ease-in-out flex flex-col h-full py-8 px-4 font-['Plus_Jakarta_Sans'] tracking-tight">
+<div class="mb-10 px-4">
+<h1 class="text-2xl font-bold text-white tracking-widest uppercase">Salon Elite</h1>
+<p class="text-emerald-400/80 text-xs font-semibold tracking-wider">Management Suite</p>
+</div>
+<nav class="flex-1 space-y-2">
+<a class="flex items-center space-x-3 px-4 py-3 text-white bg-emerald-700/50 rounded-lg font-semibold" href="#">
+<span class="material-symbols-outlined">calendar_today</span>
+<span>Appointments</span>
+</a>
+<a class="flex items-center space-x-3 px-4 py-3 text-emerald-100/70 hover:text-white transition-colors hover:bg-emerald-800/40" href="#">
+<span class="material-symbols-outlined">format_list_numbered</span>
+<span>Queue</span>
+</a>
+<a class="flex items-center space-x-3 px-4 py-3 text-emerald-100/70 hover:text-white transition-colors hover:bg-emerald-800/40" href="#">
+<span class="material-symbols-outlined">spa</span>
+<span>Services</span>
+</a>
+<a class="flex items-center space-x-3 px-4 py-3 text-emerald-100/70 hover:text-white transition-colors hover:bg-emerald-800/40" href="#">
+<span class="material-symbols-outlined">group</span>
+<span>User Management</span>
+</a>
+</nav>
+<div class="mt-auto px-2">
+<button class="w-full bg-primary-container text-on-primary-container py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:opacity-90 active:scale-95 transition-all">
+<span class="material-symbols-outlined">add</span>
+                Book New Service
+            </button>
+<div class="mt-8 flex items-center space-x-3 px-2 border-t border-emerald-800/50 pt-6">
+<img class="w-10 h-10 rounded-full object-cover border-2 border-emerald-500" data-alt="Professional administrator headshot in a luxury office setting with natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDZUbCu_t--egOT8IcPa-N1X0wQPm1W24bjL2hDlaMPovXQriYClSGUC1GLIdASDHcKvrBrqj-uWngnUN7bMhVzTacSp6vQO34txlvqM72FGNpoxYYrIaaPI91PWhoXD8Tr3nQzkSD_96-WT42cDEx_d4AMwuMWetwb1VbYvG6ad9lnULcfi4-D2TKcLzvwXELmpDFEopGjOJIU68gudstCpyjeoxGyhf1tBuhVIptmoK9CLDH401tJsk8kJs7cPT31EeWWJmA_U8IB"/>
+<div class="overflow-hidden">
+<p class="text-white text-sm font-bold truncate">Admin Profile</p>
+<p class="text-emerald-400 text-xs truncate">Administrator</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- TopNavBar (Shared Component) -->
+<header class="fixed top-0 right-0 w-[calc(100%-16rem)] h-20 bg-white/85 dark:bg-slate-900/85 backdrop-blur-xl border-b border-slate-100 dark:border-slate-800 shadow-sm flex justify-between items-center px-8 z-40 font-['Plus_Jakarta_Sans']">
+<div class="flex items-center gap-6">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="bg-surface-container-low border-none rounded-full pl-10 pr-6 py-2 text-sm w-80 focus:ring-2 focus:ring-primary transition-all" placeholder="Search appointments..." type="text"/>
+</div>
+<h2 class="text-lg font-bold text-slate-900 dark:text-white">Dashboard</h2>
+</div>
+<div class="flex items-center space-x-6">
+<button class="relative text-on-surface-variant hover:text-emerald-500 transition-colors cursor-pointer active:opacity-70">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-0 right-0 w-2 h-2 bg-tertiary rounded-full"></span>
+</button>
+<button class="text-on-surface-variant hover:text-emerald-500 transition-colors cursor-pointer active:opacity-70">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="h-8 w-px bg-surface-container-highest"></div>
+<div class="flex items-center gap-3">
+<div class="text-right">
+<p class="text-xs font-bold text-on-surface">Salon Ru Zero One</p>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-wider">Operational Mode</p>
+</div>
+<img class="w-10 h-10 rounded-lg object-cover" data-alt="Luxury salon interior branding logo placeholder with soft focus marble background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBxw9g9hLpc_v1R4clnVtlg9eVZvp1E4sU26sL7c4N7ETAZ9CB-zjv2R92lCrQxeguNJYWceHufpisKU9xTi_zSL7qHFUAEs94b_INSm1cB_szYg-Vc4oh5ZcvfbG012xG34RkMz-uvhxKxqmRq2iEQkUc0UjvTKj0KdSYUuq56PbkqT2LqNwCAR7G38SmY35X9TxT8hwwkH1wwn7TUspiiGwfuwmUsL5qlwK1BBtbwDS8X12y3KxlMpPnP1vxI1bFTxZdHfsum2pEk"/>
+</div>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="ml-64 pt-20 p-8 min-h-screen">
+<!-- Section 1: Quick Stats (Bento Grid) -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+<!-- Card 1 -->
+<div class="bg-surface-container-lowest p-6 rounded-[2rem] shadow-[0_20px_40px_rgba(0,108,73,0.04)] hover:shadow-[0_20px_40px_rgba(0,108,73,0.08)] transition-all flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<div class="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">calendar_month</span>
+</div>
+<span class="text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full text-[10px] font-bold">+12%</span>
+</div>
+<div class="mt-4">
+<p class="text-on-surface-variant text-sm font-medium">Total Bookings</p>
+<h3 class="text-4xl font-extrabold text-on-surface mt-1">12</h3>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container-lowest p-6 rounded-[2rem] shadow-[0_20px_40px_rgba(0,108,73,0.04)] hover:shadow-[0_20px_40px_rgba(0,108,73,0.08)] transition-all flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<div class="w-12 h-12 bg-tertiary/10 rounded-2xl flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">groups</span>
+</div>
+<span class="text-tertiary bg-tertiary-fixed px-2 py-1 rounded-full text-[10px] font-bold">Active Now</span>
+</div>
+<div class="mt-4">
+<p class="text-on-surface-variant text-sm font-medium">Clients in Queue</p>
+<h3 class="text-4xl font-extrabold text-on-surface mt-1">8</h3>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-surface-container-lowest p-6 rounded-[2rem] shadow-[0_20px_40px_rgba(0,108,73,0.04)] hover:shadow-[0_20px_40px_rgba(0,108,73,0.08)] transition-all flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<div class="w-12 h-12 bg-primary-fixed-dim/20 rounded-2xl flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">person_add</span>
+</div>
+</div>
+<div class="mt-4">
+<p class="text-on-surface-variant text-sm font-medium">Total Clients</p>
+<h3 class="text-4xl font-extrabold text-on-surface mt-1">156</h3>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="bg-surface-container-lowest p-6 rounded-[2rem] shadow-[0_20px_40px_rgba(0,108,73,0.04)] hover:shadow-[0_20px_40px_rgba(0,108,73,0.08)] transition-all flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<div class="w-12 h-12 bg-yellow-500/10 rounded-2xl flex items-center justify-center text-yellow-600">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+</div>
+<div class="mt-4">
+<p class="text-on-surface-variant text-sm font-medium">Avg. Rating</p>
+<h3 class="text-4xl font-extrabold text-on-surface mt-1">4.8</h3>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-12 gap-8">
+<!-- Section 2: Today's Appointments Timeline (Main Area) -->
+<div class="col-span-12 lg:col-span-8">
+<div class="flex items-center justify-between mb-6">
+<h2 class="text-2xl font-bold tracking-tight">Today's Appointments</h2>
+<div class="flex gap-2">
+<button class="p-2 hover:bg-surface-container-low rounded-full transition-colors">
+<span class="material-symbols-outlined">filter_list</span>
+</button>
+<button class="p-2 hover:bg-surface-container-low rounded-full transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</div>
+<div class="space-y-4">
+<!-- Timeline Item: In Service -->
+<div class="bg-surface-container-lowest p-5 rounded-2xl flex items-center gap-6 border-l-4 border-tertiary-container shadow-sm hover:shadow-md transition-shadow">
+<div class="text-center min-w-[60px]">
+<p class="text-lg font-extrabold text-on-surface">10:30</p>
+<p class="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest">AM</p>
+</div>
+<div class="flex-1 flex items-center gap-4">
+<div class="relative">
+<img class="w-12 h-12 rounded-full object-cover" data-alt="Portrait of a young woman client with soft natural lighting and warm skin tones" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDXuexbO-8OygcDBaBhlLCnX2Do1omy61rRetSXCtNOYL4fEQLikHCq2qYRVKM-ZznMQ_47wXc99BMVRkgIBBI9ylA6aArgiYiPcfDgyU15zC6PhoYQFbAAKuId7UXK0N9ylPjoDEsrFI5yxy0lCjBydue3RI5lTQlOA1FDKGMdVuLTo1Efg6J1nu7zqfjEciBn02ciXhjCRU5GCCKXVy0nTKKob0tdU1HDFpQomcvytnVcYxbNqauJElDtExHoRoSOsMobnCBEvYlY"/>
+<div class="absolute -bottom-1 -right-1 w-4 h-4 bg-tertiary-container rounded-full border-2 border-white animate-pulse"></div>
+</div>
+<div>
+<h4 class="font-bold text-on-surface leading-tight">Amara Singh</h4>
+<p class="text-sm text-on-surface-variant">Signature Silk Treatment • Senior Stylist</p>
+</div>
+</div>
+<div>
+<span class="bg-tertiary-fixed text-on-tertiary-fixed-variant px-4 py-1.5 rounded-full text-xs font-extrabold tracking-tighter uppercase">IN SERVICE</span>
+</div>
+</div>
+<!-- Timeline Item: Waitlisted -->
+<div class="bg-surface-container-lowest p-5 rounded-2xl flex items-center gap-6 border-l-4 border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+<div class="text-center min-w-[60px]">
+<p class="text-lg font-extrabold text-on-surface">11:15</p>
+<p class="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest">AM</p>
+</div>
+<div class="flex-1 flex items-center gap-4">
+<img class="w-12 h-12 rounded-full object-cover" data-alt="Portrait of a male client with groomed beard and professional lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuASUStuG_DhsPbF_vrL44bu4ujBjCMmgzQxbeB0JU9TWJzVTuWJvI62Kqe8nFoeoVKdwLJYukfoOy7ul4wYhQ3QVppYpQhVQuJMuZ2gRl5QbpNWY18HthUcsKg2VhWzSZn76BPrmojNEF1jR91Ll2IGM6Fp-RHYeOWsRdQcqi8h4-6aDFwmP-bv3rFtGu_4SHTt52N7bMqFAcagBPk1jugFEvZV8WwEFilisUF7HCoBGEhIuq7qqepRydP8nx2fDAZAuraMyiqa8gjk"/>
+<div>
+<h4 class="font-bold text-on-surface leading-tight">Julian Reed</h4>
+<p class="text-sm text-on-surface-variant">Mens' Precision Cut • Lead Barber</p>
+</div>
+</div>
+<div>
+<span class="bg-surface-container-high text-on-surface-variant px-4 py-1.5 rounded-full text-xs font-extrabold tracking-tighter uppercase">WAITLISTED</span>
+</div>
+</div>
+<!-- Timeline Item: Completed -->
+<div class="bg-surface-container-low opacity-75 p-5 rounded-2xl flex items-center gap-6 border-l-4 border-primary-container shadow-sm">
+<div class="text-center min-w-[60px]">
+<p class="text-lg font-extrabold text-on-surface-variant">09:00</p>
+<p class="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest">AM</p>
+</div>
+<div class="flex-1 flex items-center gap-4">
+<img class="w-12 h-12 rounded-full object-cover grayscale" data-alt="Portrait of a smiling woman client with soft window lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDPfMtivWNqp2Y3FtCVLGUkPeSRiJ-uobLJYugJfA9FXitTm1FkhD0LLfuNsvfEGSCI9nu7Tzc1I0U7vLp8y9wwrbKMtLQSlP_ZW_4FJIY_6a2h5dIy7P-upD48MLpegS8wFpvFZuD-___tmCfeJzr1njFTqpH7ACCJNrDTLCQUg3vxGB5AAHzBriqhlMZKtOk73NyoB61d74z1oRVLw1G_zvA-2gZtv4uLmTVRiKxg41m9WHx73tiHRiZdi3sNA8P3wVwjA-JqiRmZ"/>
+<div>
+<h4 class="font-bold text-on-surface-variant leading-tight line-through">Elena Petrova</h4>
+<p class="text-sm text-on-surface-variant">Hydra-Facial Luxe • Skin Specialist</p>
+</div>
+</div>
+<div>
+<span class="bg-primary/10 text-primary px-4 py-1.5 rounded-full text-xs font-extrabold tracking-tighter uppercase">COMPLETED</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Section 3 & 4: Sidebar Info -->
+<div class="col-span-12 lg:col-span-4 space-y-8">
+<!-- Revenue Overview -->
+<div class="bg-emerald-900 rounded-[2.5rem] p-8 text-white relative overflow-hidden">
+<!-- Decorative Background Glow -->
+<div class="absolute -top-24 -right-24 w-64 h-64 bg-emerald-500/20 blur-[100px] rounded-full"></div>
+<p class="text-emerald-300/80 text-sm font-semibold tracking-widest uppercase mb-1">Today's Revenue</p>
+<h2 class="text-4xl font-extrabold tracking-tight mb-6">Rs. 42,500</h2>
+<div class="space-y-4 pt-6 border-t border-emerald-800">
+<div class="flex justify-between items-center">
+<span class="text-emerald-200/70 text-sm">Avg. Service Price</span>
+<span class="font-bold">Rs. 3,540</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-emerald-200/70 text-sm">Product Sales</span>
+<span class="font-bold">Rs. 8,200</span>
+</div>
+</div>
+</div>
+<!-- Quick Actions -->
+<div class="bg-surface-container-low rounded-[2.5rem] p-8">
+<h3 class="text-xl font-bold mb-6 tracking-tight">Quick Actions</h3>
+<div class="grid grid-cols-2 gap-4">
+<button class="bg-tertiary-container text-white p-4 rounded-3xl flex flex-col items-center gap-2 hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-tertiary/20">
+<span class="material-symbols-outlined">play_circle</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">Mark In Service</span>
+</button>
+<button class="bg-primary-container text-white p-4 rounded-3xl flex flex-col items-center gap-2 hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined">check_circle</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">Complete</span>
+</button>
+<button class="bg-white text-on-surface p-4 rounded-3xl flex flex-col items-center gap-2 hover:bg-surface-container-high active:scale-95 transition-all border border-slate-100">
+<span class="material-symbols-outlined">person_off</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">No Show</span>
+</button>
+<button class="bg-white text-on-surface p-4 rounded-3xl flex flex-col items-center gap-2 hover:bg-surface-container-high active:scale-95 transition-all border border-slate-100">
+<span class="material-symbols-outlined">event_repeat</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">Reschedule</span>
+</button>
+</div>
+</div>
+<!-- Next Shift Preview -->
+<div class="bg-surface-container-lowest rounded-[2.5rem] p-6 border border-slate-100">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-secondary/10 rounded-full flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined">schedule</span>
+</div>
+<div>
+<p class="text-on-surface-variant text-xs font-bold uppercase tracking-widest">Next Shift Starts</p>
+<p class="text-lg font-extrabold">01:00 PM</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Floating Action Button (Optional Contextual Add) -->
+<button class="fixed bottom-8 right-8 w-16 h-16 bg-primary rounded-full flex items-center justify-center text-white shadow-2xl hover:scale-110 transition-transform active:scale-95 z-50">
+<span class="material-symbols-outlined text-3xl">add</span>
+</button>
+</body></html>
+
+<!-- Admin Dashboard -->
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Salon Ru Zero One Admin</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed": "#ffdbca",
+                        "surface-tint": "#006c49",
+                        "secondary": "#006b5f",
+                        "tertiary": "#9d4300",
+                        "on-secondary-fixed-variant": "#005048",
+                        "tertiary-fixed-dim": "#ffb690",
+                        "on-error": "#ffffff",
+                        "surface-container-high": "#e7e8e9",
+                        "inverse-on-surface": "#f0f1f2",
+                        "secondary-container": "#6df5e1",
+                        "secondary-fixed": "#71f8e4",
+                        "on-secondary": "#ffffff",
+                        "surface-variant": "#e1e3e4",
+                        "on-tertiary": "#ffffff",
+                        "on-surface": "#191c1d",
+                        "on-secondary-fixed": "#00201c",
+                        "on-primary-fixed-variant": "#005236",
+                        "surface-dim": "#d9dadb",
+                        "surface-container-highest": "#e1e3e4",
+                        "secondary-fixed-dim": "#4fdbc8",
+                        "primary-container": "#10b981",
+                        "on-primary-container": "#00422b",
+                        "surface-bright": "#f8f9fa",
+                        "on-tertiary-fixed-variant": "#783200",
+                        "inverse-primary": "#4edea3",
+                        "surface-container": "#edeeef",
+                        "surface": "#f8f9fa",
+                        "inverse-surface": "#2e3132",
+                        "primary-fixed-dim": "#4edea3",
+                        "primary": "#006c49",
+                        "primary-fixed": "#6ffbbe",
+                        "on-primary-fixed": "#002113",
+                        "on-error-container": "#93000a",
+                        "outline": "#6c7a71",
+                        "error-container": "#ffdad6",
+                        "background": "#f8f9fa",
+                        "surface-container-lowest": "#ffffff",
+                        "outline-variant": "#bbcabf",
+                        "on-tertiary-container": "#622700",
+                        "on-background": "#191c1d",
+                        "on-surface-variant": "#3c4a42",
+                        "surface-container-low": "#f3f4f5",
+                        "error": "#ba1a1a",
+                        "on-tertiary-fixed": "#341100",
+                        "on-secondary-container": "#006f64",
+                        "tertiary-container": "#ff7e2d",
+                        "on-primary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "12px",
+                        "xl": "24px",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body { font-family: 'Manrope', sans-serif; background-color: #f8f9fa; }
+        .headline { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="text-on-surface bg-surface min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="sticky top-0 w-full z-50 bg-white/85 backdrop-blur-xl shadow-[0_20px_40px_rgba(0,108,73,0.08)] flex justify-between items-center px-6 py-4 w-full">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-emerald-100 overflow-hidden border-2 border-emerald-500/20">
+<img class="w-full h-full object-cover" data-alt="close-up portrait of a professional male salon manager with a clean groomed look and confident expression" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAQ8i35iLr1r0AftNjIgFHs27DL26EYZL5DqB8sjhKHZGjzh_sbfT3S1QXfYkiODZYHajcxT8bErs458yERmSIO_GJKu-fzn3vmpNW5Jab9BTpXadSLmfbRnwPVyt7UQQCsg7OnVuTO4mEeLq1J8dvafiYeiJRT9u30Z5Ud40Wutz1sWZEin14mVQifLZutzK4cL2pPqqfYjRxIni6sFJ5UFA--zJG0k4VW61sOv3VD1biQ7uueCSZrQE41T1mXYV_1oI3gjc_jnDEE"/>
+</div>
+<span class="text-xl font-black text-emerald-800 font-['Plus_Jakarta_Sans'] tracking-tight">Lumiere Salon</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="w-10 h-10 flex items-center justify-center rounded-full text-emerald-700 hover:bg-emerald-50/50 transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</div>
+</header>
+<main class="px-6 pt-6 space-y-8 max-w-lg mx-auto">
+<!-- Store Status & Welcome -->
+<section class="space-y-2">
+<div class="flex justify-between items-end">
+<div>
+<p class="text-on-surface-variant text-sm font-medium tracking-wide">Good Morning, Admin</p>
+<h1 class="text-3xl font-extrabold text-on-surface headline leading-tight">Dashboard</h1>
+</div>
+<div class="flex items-center gap-2 bg-emerald-50 px-4 py-2 rounded-full border border-emerald-100 shadow-sm">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+</span>
+<span class="text-emerald-800 text-xs font-bold uppercase tracking-widest">Operational</span>
+</div>
+</div>
+</section>
+<!-- Quick Actions Grid -->
+<section class="grid grid-cols-2 gap-4">
+<button class="flex flex-col items-center justify-center gap-3 p-6 bg-gradient-to-br from-primary to-primary-container text-white rounded-xl shadow-[0_12px_24px_rgba(0,108,73,0.15)] active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-3xl">how_to_reg</span>
+<span class="text-sm font-bold headline">Check-in Client</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-3 p-6 bg-surface-container-lowest text-primary border-outline-variant/15 rounded-xl shadow-[0_12px_24px_rgba(0,0,0,0.03)] active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-3xl">add_circle</span>
+<span class="text-sm font-bold headline">Start Session</span>
+</button>
+</section>
+<!-- Operational Overview - Bento Grid -->
+<section class="grid grid-cols-2 grid-rows-2 gap-4">
+<div class="bg-surface-container-low p-5 rounded-xl space-y-2 border border-white/40">
+<div class="w-8 h-8 rounded-lg bg-white flex items-center justify-center text-primary shadow-sm">
+<span class="material-symbols-outlined text-xl">calendar_month</span>
+</div>
+<div>
+<p class="text-on-surface-variant text-[11px] font-bold uppercase tracking-widest">Today's Bookings</p>
+<p class="text-2xl font-black headline text-on-surface">12</p>
+</div>
+</div>
+<div class="bg-surface-container-low p-5 rounded-xl space-y-2 border border-white/40">
+<div class="w-8 h-8 rounded-lg bg-white flex items-center justify-center text-tertiary shadow-sm">
+<span class="material-symbols-outlined text-xl">hourglass_empty</span>
+</div>
+<div>
+<p class="text-on-surface-variant text-[11px] font-bold uppercase tracking-widest">In Queue</p>
+<p class="text-2xl font-black headline text-on-surface">08</p>
+</div>
+</div>
+<div class="bg-surface-container-low p-5 rounded-xl space-y-2 border border-white/40">
+<div class="w-8 h-8 rounded-lg bg-white flex items-center justify-center text-secondary shadow-sm">
+<span class="material-symbols-outlined text-xl">group</span>
+</div>
+<div>
+<p class="text-on-surface-variant text-[11px] font-bold uppercase tracking-widest">Active Staff</p>
+<p class="text-2xl font-black headline text-on-surface">05</p>
+</div>
+</div>
+<div class="bg-emerald-800 p-5 rounded-xl space-y-2 border border-emerald-700/50 shadow-lg">
+<div class="w-8 h-8 rounded-lg bg-emerald-700 flex items-center justify-center text-primary-fixed shadow-sm">
+<span class="material-symbols-outlined text-xl">payments</span>
+</div>
+<div>
+<p class="text-emerald-100/60 text-[11px] font-bold uppercase tracking-widest">Revenue Today</p>
+<p class="text-2xl font-black headline text-white">Rs. 42k</p>
+</div>
+</div>
+</section>
+<!-- Real-time Status List -->
+<section class="space-y-6">
+<div class="flex items-center justify-between">
+<h2 class="text-xl font-extrabold headline">Current Queue</h2>
+<button class="text-primary text-xs font-bold uppercase tracking-wider">View All</button>
+</div>
+<div class="space-y-4">
+<!-- Appointment Card 1 - In Service -->
+<div class="bg-surface-container-lowest p-4 rounded-xl shadow-[0_8px_16px_rgba(0,108,73,0.04)] flex items-center gap-4">
+<div class="relative">
+<img class="w-14 h-14 rounded-full object-cover" data-alt="side view of a stylish woman with modern short hair receiving a consultation in a luxury salon" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAPMj9oyn5ylmHbtacFRrZCOS_PWcz1sFkCCWh9pxVAPlxe_8yrZdk536sRrVfbuC8uMqEWtug5u8EOkVoOWD8MjRHmNIodCZQYCcOUcd-RMB-kT2nm8Mfi8IppUgON8iDhYDIRadkWnAns2MtXf5ByPVh9kU3VelKarlLSOsdDl5X9TFMNnZ3p8h6mQ1FXtEi0EJZaYhxV5ZBPrDQD27E4hUpxsKABDSfD6vweBKaD3by3g0mSVW_UVoJ1n80YoGX_FaZj_56Mksr4"/>
+<div class="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-emerald-500 border-4 border-white flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-[10px] font-bold" style="font-variation-settings: 'FILL' 1;">bolt</span>
+</div>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<h3 class="font-bold text-on-surface">Elena Rodriguez</h3>
+<span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 uppercase tracking-tighter">In Service</span>
+</div>
+<p class="text-xs text-on-surface-variant font-medium mt-0.5">Hydrafacial Deluxe • 10:30 AM</p>
+<div class="flex items-center gap-1 mt-2">
+<div class="w-3.5 h-3.5 rounded-full bg-tertiary-container/30 flex items-center justify-center">
+<div class="w-1.5 h-1.5 rounded-full bg-tertiary animate-pulse"></div>
+</div>
+<span class="text-[10px] font-bold text-on-tertiary-container/70">Stylist: Marc A.</span>
+</div>
+</div>
+</div>
+<!-- Appointment Card 2 - Waiting -->
+<div class="bg-surface-container-low p-4 rounded-xl border-l-4 border-orange-400 flex items-center gap-4">
+<div class="w-14 h-14 rounded-full bg-white flex items-center justify-center text-on-surface-variant/40 headline font-black text-lg">
+                        SK
+                    </div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<h3 class="font-bold text-on-surface">Saritha Kapoor</h3>
+<span class="text-[10px] font-bold px-2 py-0.5 rounded bg-orange-100 text-orange-800 uppercase tracking-tighter">Waiting</span>
+</div>
+<p class="text-xs text-on-surface-variant font-medium mt-0.5">Balayage Refresh • 11:15 AM</p>
+</div>
+</div>
+<!-- Appointment Card 3 - Next -->
+<div class="bg-surface-container-low p-4 rounded-xl flex items-center gap-4 opacity-70">
+<img class="w-14 h-14 rounded-full object-cover" data-alt="professional headshot of a well-dressed man with subtle beard in soft office lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCn23yh4W4ZSzSv0n-HpN00HCyv21GAeXm8zeJ_7iCOPzLip6h2ZdRD1dZFDEZGmpfofk9uGhLVNk9w8Qbq_5dXlXhYJvH_HaMBfPA6g1V_u-xTrUHs5l2D-l4RXh2mvrRV7VzIvCBFJ37WMIKPxgEe8QyBUxbWMgupgK518M12SQYe-VvtAhyIAZQxhAA6pImA3Fqr9SD1wV79pP651GQBSFwgaj5jVBP_7Ewz3cgbQlGp2DzT6APOGslBW5D15TtbaM7M8i27HQG7"/>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<h3 class="font-bold text-on-surface">James Wilson</h3>
+<span class="text-[10px] font-bold px-2 py-0.5 rounded bg-neutral-100 text-neutral-600 uppercase tracking-tighter">Up Next</span>
+</div>
+<p class="text-xs text-on-surface-variant font-medium mt-0.5">Executive Grooming • 11:45 AM</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Service Insights Area -->
+<section class="bg-emerald-900 rounded-xl p-6 text-white relative overflow-hidden">
+<div class="relative z-10 space-y-4">
+<div class="space-y-1">
+<h3 class="text-lg font-bold headline">Capacity Alert</h3>
+<p class="text-emerald-100/70 text-xs">Peak hours expected between 12 PM - 3 PM. Suggest allocating extra support to the Hair Station.</p>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex-1 bg-emerald-800 h-2 rounded-full overflow-hidden">
+<div class="bg-primary-container h-full w-[85%]"></div>
+</div>
+<span class="text-xs font-black headline">85% Full</span>
+</div>
+</div>
+<!-- Decorative Grain/Abstract -->
+<div class="absolute top-0 right-0 w-32 h-32 bg-emerald-500/20 rounded-full blur-3xl -mr-10 -mt-10"></div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full bg-white/85 backdrop-blur-xl z-50 flex justify-around items-center px-4 pb-6 pt-3 shadow-[0_-10px_30px_rgba(0,108,73,0.05)] rounded-t-[24px]">
+<!-- Dashboard (Active) -->
+<a class="flex flex-col items-center justify-center bg-emerald-100/50 text-emerald-900 rounded-2xl px-3 py-1.5 active:scale-90 duration-150" href="#">
+<span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span class="font-['Manrope'] text-[10px] font-semibold tracking-wider uppercase mt-1">Dashboard</span>
+</a>
+<!-- Bookings -->
+<a class="flex flex-col items-center justify-center text-neutral-400 px-3 py-1.5 hover:text-emerald-600 transition-colors" href="#">
+<span class="material-symbols-outlined text-[24px]">calendar_month</span>
+<span class="font-['Manrope'] text-[10px] font-semibold tracking-wider uppercase mt-1">Bookings</span>
+</a>
+<!-- Queue -->
+<a class="flex flex-col items-center justify-center text-neutral-400 px-3 py-1.5 hover:text-emerald-600 transition-colors" href="#">
+<span class="material-symbols-outlined text-[24px]">hourglass_empty</span>
+<span class="font-['Manrope'] text-[10px] font-semibold tracking-wider uppercase mt-1">Queue</span>
+</a>
+<!-- Services -->
+<a class="flex flex-col items-center justify-center text-neutral-400 px-3 py-1.5 hover:text-emerald-600 transition-colors" href="#">
+<span class="material-symbols-outlined text-[24px]">content_cut</span>
+<span class="font-['Manrope'] text-[10px] font-semibold tracking-wider uppercase mt-1">Services</span>
+</a>
+<!-- Staff -->
+<a class="flex flex-col items-center justify-center text-neutral-400 px-3 py-1.5 hover:text-emerald-600 transition-colors" href="#">
+<span class="material-symbols-outlined text-[24px]">group</span>
+<span class="font-['Manrope'] text-[10px] font-semibold tracking-wider uppercase mt-1">Staff</span>
+</a>
+</nav>
+</body></html>
+
+<!-- Mobile Admin Dashboard -->
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Salon Admin - Appointment Management</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Manrope:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                "primary-container": "#10b981",
+                "surface-variant": "#e1e3e4",
+                "on-primary-fixed": "#002113",
+                "tertiary-fixed": "#ffdbca",
+                "inverse-primary": "#4edea3",
+                "secondary": "#006b5f",
+                "outline-variant": "#bbcabf",
+                "error": "#ba1a1a",
+                "surface": "#f8f9fa",
+                "secondary-fixed-dim": "#4fdbc8",
+                "surface-container-lowest": "#ffffff",
+                "surface-tint": "#006c49",
+                "on-primary": "#ffffff",
+                "inverse-surface": "#2e3132",
+                "surface-container-highest": "#e1e3e4",
+                "inverse-on-surface": "#f0f1f2",
+                "tertiary-fixed-dim": "#ffb690",
+                "surface-container": "#edeeef",
+                "secondary-fixed": "#71f8e4",
+                "on-surface": "#191c1d",
+                "surface-container-high": "#e7e8e9",
+                "surface-dim": "#d9dadb",
+                "primary-fixed-dim": "#4edea3",
+                "on-tertiary-fixed": "#341100",
+                "on-error": "#ffffff",
+                "primary-fixed": "#6ffbbe",
+                "on-secondary-fixed": "#00201c",
+                "primary": "#006c49",
+                "on-primary-container": "#00422b",
+                "surface-container-low": "#f3f4f5",
+                "surface-bright": "#f8f9fa",
+                "secondary-container": "#6df5e1",
+                "on-tertiary-fixed-variant": "#783200",
+                "on-secondary": "#ffffff",
+                "outline": "#6c7a71",
+                "on-error-container": "#93000a",
+                "background": "#f8f9fa",
+                "tertiary-container": "#ff7e2d",
+                "on-surface-variant": "#3c4a42",
+                "error-container": "#ffdad6",
+                "on-tertiary": "#ffffff",
+                "on-secondary-container": "#006f64",
+                "tertiary": "#9d4300",
+                "on-secondary-fixed-variant": "#005048",
+                "on-primary-fixed-variant": "#005236",
+                "on-background": "#191c1d",
+                "on-tertiary-container": "#622700"
+            },
+            "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+            },
+            "fontFamily": {
+                "headline": ["Plus Jakarta Sans"],
+                "body": ["Manrope"],
+                "label": ["Manrope"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Manrope', sans-serif; -webkit-font-smoothing: antialiased; }
+        h1, h2, h3 { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .glass-nav { backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+        .custom-shadow { box-shadow: 0 20px 40px rgba(0,108,73,0.08); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface leading-relaxed">
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-emerald-50/85 backdrop-blur-xl">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-emerald-700" data-icon="menu">menu</span>
+<h1 class="text-xl font-bold tracking-tight text-emerald-900">Salon Admin</h1>
+</div>
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-emerald-100">
+<img alt="Admin Profile Portrait" class="w-full h-full object-cover" data-alt="professional portrait of a confident salon manager woman with a warm smile in a modern office setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDqD6QY0Z3vqmALf9C9JPIgPsXhBWInVKbT5rLYUQtabyV8IinNxRtstG5sUOk_cpTxMFK6Leslr5cJRqL4rmykzNAtbt1zuMw0BnmYGV9FzWfE34wc0PMYGVSWKJiQHH504DfOYZOz5nL7-xuMWS3vhj8q_TML_YHdte0XQvBy_DCqN7qWTmNeDcoY5dc90_EM7U8NXsxJ5y07wOwXQ2qcJfSaX4U-G2FGeBWcfQDpUPq1ZfqhlANM4QCEaiQP9PZT2vFwwIGCYaTq"/>
+</div>
+</header>
+<main class="pt-20 pb-28 px-4 max-w-md mx-auto">
+<section class="mb-6">
+<div class="relative group">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline" data-icon="search">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-full py-4 pl-12 pr-6 focus:ring-2 focus:ring-primary-container transition-all text-on-surface placeholder:text-on-surface-variant" placeholder="Search clients or services..." type="text"/>
+</div>
+</section>
+<section class="mb-8 overflow-x-auto no-scrollbar flex gap-3 pb-2">
+<button class="bg-primary text-on-primary px-6 py-2.5 rounded-full font-bold text-sm tracking-wide transition-all shadow-lg shadow-primary/20">All</button>
+<button class="bg-surface-container-high text-on-surface px-6 py-2.5 rounded-full font-bold text-sm tracking-wide hover:bg-emerald-100/50 transition-colors">Upcoming</button>
+<button class="bg-surface-container-high text-on-surface px-6 py-2.5 rounded-full font-bold text-sm tracking-wide hover:bg-emerald-100/50 transition-colors whitespace-nowrap">In Service</button>
+<button class="bg-surface-container-high text-on-surface px-6 py-2.5 rounded-full font-bold text-sm tracking-wide hover:bg-emerald-100/50 transition-colors">Completed</button>
+</section>
+<div class="space-y-4">
+<article class="bg-surface-container-lowest rounded-[24px] p-5 custom-shadow">
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-4">
+<div class="relative">
+<div class="absolute inset-0 bg-tertiary-container blur-md opacity-20 rounded-full animate-pulse"></div>
+<img alt="Client" class="w-12 h-12 rounded-full relative z-10" data-alt="portrait of a young woman with vibrant hair color in a professional studio setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB_3qNaQIvTB48XX6LG8kknTe9cTgXu7Q_q1JsRlAPug72INLkA_1lCmGcvO-CAzBXGJnLgBI4jUoGB9N81Ir1dliEqePYUCXYS0LQ5pE9-ScaSefYOpn7qx5ItZtb_dci1XQllckWqhFVAf690n192TSDbOWF055Eruip-ytcI1pdhyvm4WjwDUMz0hUSYcPzY1NotaFpKOQeaXqroBxIcjz1izcjQB8lYuP02bAl_iV5LIt2UaeeyLR7__guneQoTSRLxtDnLCzYN"/>
+</div>
+<div>
+<h3 class="font-bold text-lg text-on-surface">Elena Rodriguez</h3>
+<p class="text-sm text-on-surface-variant font-medium">Balayage &amp; Silk Press</p>
+</div>
+</div>
+<span class="bg-tertiary-fixed text-on-tertiary-fixed-variant px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">In Service</span>
+</div>
+<div class="flex items-center gap-6 mb-6 text-sm">
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-primary text-lg" data-icon="schedule">schedule</span>
+<span class="font-semibold">10:30 AM</span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-primary text-lg" data-icon="person">person</span>
+<span class="font-semibold">Stylist: Marcus</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<button class="flex items-center justify-center gap-2 bg-surface-container-high text-on-surface py-3 rounded-xl font-bold text-xs hover:bg-emerald-100/50 transition-all active:scale-95">
+<span class="material-symbols-outlined text-sm" data-icon="edit_calendar">edit_calendar</span>
+                        Reschedule
+                    </button>
+<button class="flex items-center justify-center gap-2 bg-emerald-50 text-primary py-3 rounded-xl font-bold text-xs hover:bg-primary hover:text-on-primary transition-all active:scale-95">
+<span class="material-symbols-outlined text-sm" data-icon="how_to_reg">how_to_reg</span>
+                        Check-in
+                    </button>
+</div>
+</article>
+<article class="bg-surface-container-low/50 rounded-[24px] p-5 border-l-4 border-primary">
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-4">
+<img alt="Client" class="w-12 h-12 rounded-full" data-alt="portrait of a handsome man with a sharp haircut and groomed beard in a lifestyle setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD1VmRmVqWvw82AiaLla7t6vKpEsMIHEk4WVNO_U-dAUKt9f4kM490hAbAMGBG27IOy0FxUC0s2lbpGjTXZY7_2Wqnbzo0Pl_uZm0sgYIagM1Ua_FuczZiBNTWH2y4mp_SkA6anzjgbtMz4Ij9yreLIkvK_0xkiHU3HuQfh1KqkHZb1tzzk6cUx1zS100imqE1fkuCnNPpyts1sWV75351hBp04Smr_AJyA8AiI_QG58KEvZ4l2ULc75F8PIQOhJ791yP0862nzlnAe"/>
+<div>
+<h3 class="font-bold text-lg text-on-surface">Julian Vane</h3>
+<p class="text-sm text-on-surface-variant font-medium">Gentleman's Cut &amp; Beard</p>
+</div>
+</div>
+<span class="bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">Upcoming</span>
+</div>
+<div class="flex items-center gap-6 mb-6 text-sm">
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-primary text-lg" data-icon="schedule">schedule</span>
+<span class="font-semibold">12:15 PM</span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-primary text-lg" data-icon="person">person</span>
+<span class="font-semibold">Stylist: Sarah L.</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<button class="flex items-center justify-center gap-2 bg-surface-container-high text-on-surface py-3 rounded-xl font-bold text-xs active:scale-95">
+<span class="material-symbols-outlined text-sm" data-icon="edit_calendar">edit_calendar</span>
+                        Reschedule
+                    </button>
+<button class="flex items-center justify-center gap-2 bg-primary text-on-primary py-3 rounded-xl font-bold text-xs active:scale-95 shadow-md shadow-primary/20">
+<span class="material-symbols-outlined text-sm" data-icon="how_to_reg">how_to_reg</span>
+                        Check-in
+                    </button>
+</div>
+</article>
+<article class="bg-surface-container-lowest rounded-[24px] p-5 custom-shadow">
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-4">
+<img alt="Client" class="w-12 h-12 rounded-full" data-alt="portrait of a middle aged woman with elegant short hair and stylish glasses" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAQdYd4B_dD9YJACLFukaPUJ4F8tetLk5qq_75I0FISGvbqcb9wilA2ksUulCaSDHciSjj4QDlNHo-X5LyMzTbX1HCngn-vutpxJn-FioNC-8FW3ug7PJObNDSLbUpDpEx2NRJYZ3GHF3e9kkzPytTfU4p6wJcBkKBJdswtrvwxWAQ7_-1euM_0Ww2iPJrJFf49_rOKD6GJ0P_uS8f1knJDO_1DRSprdrmPlqLkdB0npea6FBDZlOahK_4Am8CMFK9OHjM3OcUPPGkl"/>
+<div>
+<h3 class="font-bold text-lg text-on-surface">Sophia Chen</h3>
+<p class="text-sm text-on-surface-variant font-medium">Deep Conditioning Treatment</p>
+</div>
+</div>
+<span class="bg-slate-200 text-slate-600 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">Completed</span>
+</div>
+<div class="flex items-center gap-6 mb-6 text-sm">
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-primary text-lg" data-icon="schedule">schedule</span>
+<span class="font-semibold">09:00 AM</span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-primary text-lg" data-icon="person">person</span>
+<span class="font-semibold">Stylist: Marcus</span>
+</div>
+</div>
+<button class="w-full flex items-center justify-center gap-2 bg-secondary text-on-secondary py-3 rounded-xl font-bold text-xs active:scale-95">
+<span class="material-symbols-outlined text-sm" data-icon="receipt_long">receipt_long</span>
+                    View Invoice
+                </button>
+</article>
+</div>
+</main>
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pt-2 pb-6 bg-white/85 backdrop-blur-xl rounded-t-[24px] z-50">
+<a class="flex flex-col items-center justify-center bg-emerald-100 text-emerald-800 rounded-2xl px-5 py-2" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_month" style="font-variation-settings: 'FILL' 1;">calendar_month</span>
+<span class="text-[10px] tracking-[0.05em] uppercase font-bold mt-1">Booking</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 hover:text-emerald-600 transition-colors px-5 py-2" href="#">
+<span class="material-symbols-outlined" data-icon="groups">groups</span>
+<span class="text-[10px] tracking-[0.05em] uppercase font-bold mt-1">Team</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 hover:text-emerald-600 transition-colors px-5 py-2" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span class="text-[10px] tracking-[0.05em] uppercase font-bold mt-1">Revenue</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 hover:text-emerald-600 transition-colors px-5 py-2" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="text-[10px] tracking-[0.05em] uppercase font-bold mt-1">Settings</span>
+</a>
+</nav>
+<button class="fixed bottom-24 right-6 w-14 h-14 bg-gradient-to-tr from-primary to-primary-container text-on-primary rounded-full shadow-2xl flex items-center justify-center active:scale-95 transition-transform z-40 custom-shadow">
+<span class="material-symbols-outlined text-3xl" data-icon="add">add</span>
+</button>
+</body></html>
+
+<!-- Admin Appointments List -->
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Salon Admin - Team Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "primary-container": "#10b981",
+                    "surface-variant": "#e1e3e4",
+                    "on-primary-fixed": "#002113",
+                    "tertiary-fixed": "#ffdbca",
+                    "inverse-primary": "#4edea3",
+                    "secondary": "#006b5f",
+                    "outline-variant": "#bbcabf",
+                    "error": "#ba1a1a",
+                    "surface": "#f8f9fa",
+                    "secondary-fixed-dim": "#4fdbc8",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-tint": "#006c49",
+                    "on-primary": "#ffffff",
+                    "inverse-surface": "#2e3132",
+                    "surface-container-highest": "#e1e3e4",
+                    "inverse-on-surface": "#f0f1f2",
+                    "tertiary-fixed-dim": "#ffb690",
+                    "surface-container": "#edeeef",
+                    "secondary-fixed": "#71f8e4",
+                    "on-surface": "#191c1d",
+                    "surface-container-high": "#e7e8e9",
+                    "surface-dim": "#d9dadb",
+                    "primary-fixed-dim": "#4edea3",
+                    "on-tertiary-fixed": "#341100",
+                    "on-error": "#ffffff",
+                    "primary-fixed": "#6ffbbe",
+                    "on-secondary-fixed": "#00201c",
+                    "primary": "#006c49",
+                    "on-primary-container": "#00422b",
+                    "surface-container-low": "#f3f4f5",
+                    "surface-bright": "#f8f9fa",
+                    "secondary-container": "#6df5e1",
+                    "on-tertiary-fixed-variant": "#783200",
+                    "on-secondary": "#ffffff",
+                    "outline": "#6c7a71",
+                    "on-error-container": "#93000a",
+                    "background": "#f8f9fa",
+                    "tertiary-container": "#ff7e2d",
+                    "on-surface-variant": "#3c4a42",
+                    "error-container": "#ffdad6",
+                    "on-tertiary": "#ffffff",
+                    "on-secondary-container": "#006f64",
+                    "tertiary": "#9d4300",
+                    "on-secondary-fixed-variant": "#005048",
+                    "on-primary-fixed-variant": "#005236",
+                    "on-background": "#191c1d",
+                    "on-tertiary-container": "#622700"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Plus Jakarta Sans"],
+                    "body": ["Manrope"],
+                    "label": ["Manrope"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Manrope', sans-serif; }
+        h1, h2, h3 { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .status-halo {
+            position: relative;
+        }
+        .status-halo::after {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            right: -4px;
+            bottom: -4px;
+            border-radius: 50%;
+            background: #ff7e2d;
+            opacity: 0.15;
+            filter: blur(8px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-emerald-50/85 dark:bg-slate-900/85 backdrop-blur-xl flex justify-between items-center px-6 h-16 w-full">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-emerald-700 dark:text-emerald-400">menu</span>
+<span class="text-xl font-bold tracking-tight text-emerald-900 dark:text-emerald-50">Salon Admin</span>
+</div>
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-container-high ring-2 ring-primary/10">
+<img alt="Admin Profile Portrait" class="w-full h-full object-cover" data-alt="close-up portrait of a professional salon administrator with a clean and sophisticated look" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBENiJS6aYvP9wvA_Na83xYRa22kfd4eu93W0UCgzPO6Xk3Rd7I342gAuw55n-CowjwVemWhmtCryDd7jgwiv88jK-9Iee7S2RhOWtP20-9FRoaGeBpvJhGOUUbK45epl_15Q7cod3ZIFT0jFmn6rPbqXBi5PzkgV4oiNweWEDJ2e8rksVNjqe9nhI1SCDSDW5_frfi2m3upnsP59PHZIL0n18cO6k4mxjvbLPeAY0yiveb2Mn9jikdnZU7tNsZXPjK7tBw7Zu1jeG7"/>
+</div>
+</header>
+<main class="pt-24 px-6">
+<!-- Hero Section -->
+<section class="mb-8">
+<div class="flex flex-col gap-2">
+<span class="text-primary font-bold tracking-[0.05em] uppercase text-xs">Team Directory</span>
+<h1 class="text-4xl font-extrabold tracking-tight text-on-surface">Manage Staff</h1>
+<p class="text-on-surface-variant text-sm leading-relaxed max-w-[280px]">Curate your elite team of stylists and professionals.</p>
+</div>
+<!-- Primary Action Button -->
+<button class="mt-6 w-full py-4 px-6 rounded-xl bg-gradient-to-r from-primary to-primary-container text-white font-bold text-lg flex items-center justify-center gap-2 shadow-[0_20px_40px_rgba(0,108,73,0.15)] active:scale-95 transition-transform">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">add_circle</span>
+                + Add Team Member
+            </button>
+</section>
+<!-- Bento Grid Layout for Staff -->
+<div class="grid grid-cols-1 gap-6">
+<!-- Staff Card 1 (Active/Now Serving) -->
+<div class="bg-surface-container-lowest p-6 rounded-[24px] shadow-[0_10px_30px_rgba(0,108,73,0.03)] flex flex-col gap-5 border-l-4 border-tertiary-container">
+<div class="flex items-center gap-4">
+<div class="relative w-16 h-16">
+<div class="status-halo w-full h-full rounded-full overflow-hidden">
+<img alt="Staff Portrait" class="w-full h-full object-cover" data-alt="professional headshot of a female salon stylist with styled hair and a warm smile" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBHyW-vVVQVKG1us4tIeL3MMENK1HntvFz279Ow2F2lNnRU6bknP64ddlXxA6EzryVY5R0l7TUYhSRE9BRKSh9KZX2uVcYHhVxoqB8fE-hIi642ekAlpPIWdgQ6aYPViSZVeReq88-qJKZbU63E6OpEofJq16znQk_U7dreWicC3TxAC9MoMu590yRuTyp7x_1fQJggo442wNbleMagM_frtVHx_1XJn_h6eOrI3fswttE0Ma4DzW3kVXRUiJtlum2qpePb6pjdNpNv"/>
+</div>
+<div class="absolute -bottom-1 -right-1 w-5 h-5 bg-tertiary-container border-2 border-white rounded-full"></div>
+</div>
+<div class="flex flex-col">
+<h3 class="text-xl font-bold text-on-surface">Elena Rodriguez</h3>
+<span class="text-sm font-semibold text-primary tracking-wide">Senior Stylist</span>
+</div>
+</div>
+<div class="flex items-center gap-3 px-4 py-3 bg-surface-container-low rounded-xl">
+<span class="material-symbols-outlined text-on-surface-variant text-lg">call</span>
+<span class="text-sm font-medium text-on-surface">+1 (555) 012-3456</span>
+</div>
+<div class="flex gap-3 mt-1">
+<button class="flex-1 py-3 rounded-full bg-surface-container-high text-on-surface font-bold text-sm hover:bg-emerald-100/50 transition-colors">Edit</button>
+<button class="flex-1 py-3 rounded-full bg-white text-error font-bold text-sm outline-variant outline-1 outline outline-opacity-20">Deactivate</button>
+</div>
+</div>
+<!-- Staff Card 2 -->
+<div class="bg-surface-container-lowest p-6 rounded-[24px] shadow-[0_10px_30px_rgba(0,108,73,0.03)] flex flex-col gap-5">
+<div class="flex items-center gap-4">
+<div class="w-16 h-16 rounded-full overflow-hidden">
+<img alt="Staff Portrait" class="w-full h-full object-cover" data-alt="male salon professional with a neatly groomed beard and trendy haircut" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDkWl9zKaeYiea3U-nHmQ6EkEEIzsTZIJXqbXdFWNj7WlMkc0gE7xWuQbFn4ZDgkuA4rWx6HUc27X9-SgGWN7RVPI82yKKTi3qxo8795VnE8PgaweKvnNQpfHrFRdDoyy-VHCWDOKq19nv3gqxTy-fwTJlPMFYs7LZVVGcXWJ5zAQChRH_ZqGcUWHvSlomYM1M70gGkHe2o_VBCsVcVFUlQn7Zx-cOg4O5MAkNs3NsOkZ1s0_wfrWGtT56E0PMdxau2X7yCuxahpEoU"/>
+</div>
+<div class="flex flex-col">
+<h3 class="text-xl font-bold text-on-surface">Marcus Thorne</h3>
+<span class="text-sm font-semibold text-primary tracking-wide">Master Barber</span>
+</div>
+</div>
+<div class="flex items-center gap-3 px-4 py-3 bg-surface-container-low rounded-xl">
+<span class="material-symbols-outlined text-on-surface-variant text-lg">call</span>
+<span class="text-sm font-medium text-on-surface">+1 (555) 012-7890</span>
+</div>
+<div class="flex gap-3 mt-1">
+<button class="flex-1 py-3 rounded-full bg-surface-container-high text-on-surface font-bold text-sm">Edit</button>
+<button class="flex-1 py-3 rounded-full bg-white text-error font-bold text-sm outline-variant outline-1 outline">Deactivate</button>
+</div>
+</div>
+<!-- Staff Card 3 -->
+<div class="bg-surface-container-lowest p-6 rounded-[24px] shadow-[0_10px_30px_rgba(0,108,73,0.03)] flex flex-col gap-5">
+<div class="flex items-center gap-4">
+<div class="w-16 h-16 rounded-full overflow-hidden">
+<img alt="Staff Portrait" class="w-full h-full object-cover" data-alt="professional female beautician with elegant makeup and clear skin" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBDv0C3qKxhvhzUBMKR22eHYPgLzWWSX94W0g8Lnwn2uFF5jYuNx_eDW6qkGsoTIz1IZDUIEGjkcXFXp9qS8gjy9PhHFD0fSXb6NQF7dG27fYd4eRS_Xxja5TPeikyXnkeY2NK4VSdgPvKY3DAFudtD4EbpicQDSLIV3XHGZnuww8KfT03RXAc_N7bJ2BB4MjLVCAMwIL5VPa1ssotfhWeA8c4sV3IlFKqdWexXca_qe_27HaYfwlgjQFUCiSLBmmdlF3oQOCUoqJJi"/>
+</div>
+<div class="flex flex-col">
+<h3 class="text-xl font-bold text-on-surface">Sofia Chen</h3>
+<span class="text-sm font-semibold text-primary tracking-wide">Beautician</span>
+</div>
+</div>
+<div class="flex items-center gap-3 px-4 py-3 bg-surface-container-low rounded-xl">
+<span class="material-symbols-outlined text-on-surface-variant text-lg">call</span>
+<span class="text-sm font-medium text-on-surface">+1 (555) 012-9988</span>
+</div>
+<div class="flex gap-3 mt-1">
+<button class="flex-1 py-3 rounded-full bg-surface-container-high text-on-surface font-bold text-sm">Edit</button>
+<button class="flex-1 py-3 rounded-full bg-white text-error font-bold text-sm outline-variant outline-1 outline">Deactivate</button>
+</div>
+</div>
+<!-- Staff Card 4 (Inactive Tonal State) -->
+<div class="bg-surface-container p-6 rounded-[24px] flex flex-col gap-5 opacity-70 border border-dashed border-outline-variant">
+<div class="flex items-center gap-4">
+<div class="w-16 h-16 rounded-full overflow-hidden grayscale">
+<img alt="Staff Portrait" class="w-full h-full object-cover" data-alt="casual portrait of a young male professional in a monochrome gray tone" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC0U2OVEAVnb1aVrxlmaOjfZ1H51uFTZZwNAeHUu8KcLfKviJEcm7wM3BE6V2fQQbtlxz6pGwdLb6BoYseKdpQLRvjNizwa7EmNIA3hFXQHQvJ_gqBLGV6KCCoDXOo3Qh_Gu9KLV0_zNQDcZiJoneFMEdvFY5RMNaVg5v2-Ta_vFRrX3Xrelw8aHNT_OIojXamQbI2pxaKolhXxhdQVaiknmTCJHTqW6jaIwsluRy5uGUe8NPj0VjyiNWwNv3r81oUEJu5ZAtoh5-gY"/>
+</div>
+<div class="flex flex-col">
+<h3 class="text-xl font-bold text-on-surface">Jordan Mills</h3>
+<span class="text-sm font-semibold text-on-surface-variant tracking-wide">Junior Stylist</span>
+</div>
+</div>
+<div class="flex items-center justify-center gap-2 px-4 py-3 bg-white/50 rounded-xl">
+<span class="material-symbols-outlined text-on-surface-variant text-sm">block</span>
+<span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Inactive Account</span>
+</div>
+<div class="flex gap-3 mt-1">
+<button class="flex-1 py-3 rounded-full bg-primary text-white font-bold text-sm">Reactivate</button>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pt-2 pb-6 bg-white/85 dark:bg-slate-950/85 backdrop-blur-xl rounded-t-[24px] z-50 shadow-[0_-10px_30px_rgba(0,108,73,0.05)]">
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 px-5 py-2 hover:text-emerald-600 dark:hover:text-emerald-300" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="calendar_month">calendar_month</span>
+<span class="text-[10px] font-bold uppercase tracking-[0.05em]">Booking</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-100 rounded-2xl px-5 py-2 active:scale-95 transition-all" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="groups" style="font-variation-settings: 'FILL' 1;">groups</span>
+<span class="text-[10px] font-bold uppercase tracking-[0.05em]">Team</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 px-5 py-2 hover:text-emerald-600 dark:hover:text-emerald-300" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="payments">payments</span>
+<span class="text-[10px] font-bold uppercase tracking-[0.05em]">Revenue</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 px-5 py-2 hover:text-emerald-600 dark:hover:text-emerald-300" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="settings">settings</span>
+<span class="text-[10px] font-bold uppercase tracking-[0.05em]">Settings</span>
+</a>
+</nav>
+</body></html>
+
+<!-- Staff Management -->
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Salon Ru 01 - Service Management</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-lowest": "#ffffff",
+                        "on-surface-variant": "#3c4a42",
+                        "on-background": "#191c1d",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-fixed": "#341100",
+                        "tertiary-fixed-dim": "#ffb690",
+                        "primary-fixed": "#6ffbbe",
+                        "on-tertiary-fixed-variant": "#783200",
+                        "on-secondary-fixed-variant": "#005048",
+                        "primary-fixed-dim": "#4edea3",
+                        "secondary": "#006b5f",
+                        "surface-container-highest": "#e1e3e4",
+                        "surface-container": "#edeeef",
+                        "surface-tint": "#006c49",
+                        "surface-bright": "#f8f9fa",
+                        "on-tertiary": "#ffffff",
+                        "primary": "#006c49",
+                        "surface-container-low": "#f3f4f5",
+                        "on-secondary-container": "#006f64",
+                        "inverse-surface": "#2e3132",
+                        "tertiary-container": "#ff7e2d",
+                        "on-primary-fixed-variant": "#005236",
+                        "on-primary-fixed": "#002113",
+                        "error": "#ba1a1a",
+                        "surface-dim": "#d9dadb",
+                        "surface": "#f8f9fa",
+                        "on-error": "#ffffff",
+                        "surface-variant": "#e1e3e4",
+                        "inverse-primary": "#4edea3",
+                        "secondary-container": "#6df5e1",
+                        "background": "#f8f9fa",
+                        "on-surface": "#191c1d",
+                        "outline-variant": "#bbcabf",
+                        "inverse-on-surface": "#f0f1f2",
+                        "error-container": "#ffdad6",
+                        "primary-container": "#10b981",
+                        "on-tertiary-container": "#622700",
+                        "on-secondary-fixed": "#00201c",
+                        "on-primary-container": "#00422b",
+                        "on-primary": "#ffffff",
+                        "secondary-fixed": "#71f8e4",
+                        "on-secondary": "#ffffff",
+                        "tertiary": "#9d4300",
+                        "surface-container-high": "#e7e8e9",
+                        "secondary-fixed-dim": "#4fdbc8",
+                        "tertiary-fixed": "#ffdbca",
+                        "outline": "#6c7a71"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-nav {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        body {
+            font-family: 'Manrope', sans-serif;
+            background-color: #f8f9fa;
+        }
+        h1, h2, h3 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen pb-32">
+<!-- Top AppBar -->
+<header class="fixed top-0 w-full z-50 bg-white/85 dark:bg-emerald-950/85 backdrop-blur-xl flex items-center justify-between px-6 h-16 w-full">
+<div class="flex items-center gap-3">
+<button class="text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/40 transition-colors p-2 rounded-full active:scale-95 duration-200">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+<h1 class="text-emerald-900 dark:text-emerald-50 font-black tracking-tighter font-plus-jakarta text-lg">Salon Ru 01</h1>
+</div>
+<div class="flex items-center">
+<div class="w-10 h-10 rounded-full border-2 border-primary-container overflow-hidden active:scale-95 duration-200 cursor-pointer">
+<img alt="Admin Profile" data-alt="professional headshot of a smiling male administrator in a clean white office setting with soft studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDCFyHqj__YSlDQS4GOlx37YZ-AcwI0uPfyl-eiLbwQjTbDOzFvzyZrcbx8IoDKLsR2ACJwoc6W1APcvv0SheAhmaUHA89g0Ii8qO__DazJ57bwL4iG6yS3WrGcYf56mUZ3VAXgbpRT2utVup7cGk5jnLdt2SVwNPKdCWh8FbvYDv9fHcwfSFihYtVN1h_V2_kx1Um8HqUKsJ5itRNLN8_J2gf3z_mdFyGK2pG5TLmWeyS935VT41UKw2IDYbh5hqdOPa0XzAsKWMU6"/>
+</div>
+</div>
+</header>
+<main class="pt-24 px-6 max-w-md mx-auto">
+<!-- Header Section with Asymmetry -->
+<div class="mb-10 relative">
+<div class="absolute -top-4 -left-4 w-24 h-24 bg-primary/5 rounded-full blur-3xl"></div>
+<h2 class="text-4xl font-extrabold text-on-background tracking-tight leading-tight mb-2">Manage Services</h2>
+<p class="text-on-surface-variant font-medium text-sm tracking-wide opacity-70">Curating the Elite Salon Portfolio</p>
+</div>
+<!-- Primary Action -->
+<button class="w-full mb-10 py-5 bg-gradient-to-r from-primary to-primary-container text-on-primary rounded-xl font-headline font-bold text-lg shadow-[0_20px_40px_rgba(0,108,73,0.15)] flex items-center justify-center gap-2 active:scale-[0.98] transition-transform">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+            Add New Service
+        </button>
+<!-- Services Grid (Asymmetric List Cards) -->
+<div class="space-y-8">
+<!-- Service Card 1 -->
+<div class="group relative bg-surface-container-lowest rounded-2xl p-4 shadow-[0_10px_30px_rgba(0,0,0,0.03)] flex gap-4 border border-transparent hover:border-outline-variant transition-all duration-300">
+<div class="w-24 h-24 rounded-xl overflow-hidden flex-shrink-0">
+<img alt="Signature Haircut" class="w-full h-full object-cover" data-alt="high-end salon haircut session with sharp scissors and professional lighting, showing clean hair textures and premium atmosphere" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBxhOuFKImYZyhCGzAedqgBsdsSspK4WQcV_5ttY_qnsI_2gKL9h9dXGms7wKrBqh9wwIVr1CxPTEOyF3Rw8MX6snlD6UgRr0lLm_ikdqVwLJtUPZ05Jkpg4AD4tPX0oQpTgl7-s8zOVSliGtUUM6Qd3w8H43FveO1EUXN4gWw6U9_Te5pKqTEGLpdoQcuRBaOtIshM4pbS4b0PnwEx2GXu0i-WF5RHsORnC-8Aiq_HXv98QeFjeVMiMVresUtvL3DlK5YUS09UaJrk"/>
+</div>
+<div class="flex flex-col justify-between flex-grow">
+<div>
+<h3 class="text-lg font-bold text-on-surface leading-tight">Signature Haircut</h3>
+<div class="flex items-center gap-2 text-on-surface-variant/70 mt-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="schedule">schedule</span>
+<span class="font-label text-xs tracking-wider uppercase font-semibold">45 mins</span>
+</div>
+</div>
+<div class="flex items-end justify-between">
+<span class="text-primary font-bold text-xl">Rs. 1,200</span>
+<div class="flex gap-2">
+<button class="p-2 rounded-lg bg-surface-container-low text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]" data-icon="edit">edit</span>
+</button>
+<button class="p-2 rounded-lg bg-surface-container-low text-error hover:bg-error-container transition-colors">
+<span class="material-symbols-outlined text-[20px]" data-icon="delete">delete</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Service Card 2 -->
+<div class="group relative bg-surface-container-lowest rounded-2xl p-4 shadow-[0_10px_30px_rgba(0,0,0,0.03)] flex gap-4 border border-transparent hover:border-outline-variant transition-all duration-300">
+<div class="w-24 h-24 rounded-xl overflow-hidden flex-shrink-0">
+<img alt="Revitalizing Facial" class="w-full h-full object-cover" data-alt="soothing facial spa treatment with organic cream application and warm atmospheric lighting in a luxury wellness center" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBbP5JUjoujmQgncTTY39h6t8lwYFSdFeOl0iXyYCQUMYLiJGEtORrwgdHXQTWN-uJi0_-KGUL7j2XwT9Lux874INg2k8kPea1E7dvmzFFUWpqonQPXuGxuNDA3CZM6PFNdv-ICW0Ieyp8PwKVL-zZwsIdvFbsnnojcSkVS0AgADYnQb_1DTTBkF5DaLthmiA6FZykRchc3v5pVnVYaN9GQmaDC_sVbZ9a6uYpAtSLLjRwiMTq-Vt9N-ievhXoQj981MuovJgMBrQ3T"/>
+</div>
+<div class="flex flex-col justify-between flex-grow">
+<div>
+<h3 class="text-lg font-bold text-on-surface leading-tight">Revitalizing Facial</h3>
+<div class="flex items-center gap-2 text-on-surface-variant/70 mt-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="schedule">schedule</span>
+<span class="font-label text-xs tracking-wider uppercase font-semibold">60 mins</span>
+</div>
+</div>
+<div class="flex items-end justify-between">
+<span class="text-primary font-bold text-xl">Rs. 2,500</span>
+<div class="flex gap-2">
+<button class="p-2 rounded-lg bg-surface-container-low text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]" data-icon="edit">edit</span>
+</button>
+<button class="p-2 rounded-lg bg-surface-container-low text-error hover:bg-error-container transition-colors">
+<span class="material-symbols-outlined text-[20px]" data-icon="delete">delete</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Service Card 3 -->
+<div class="group relative bg-surface-container-lowest rounded-2xl p-4 shadow-[0_10px_30px_rgba(0,0,0,0.03)] flex gap-4 border border-transparent hover:border-outline-variant transition-all duration-300">
+<div class="w-24 h-24 rounded-xl overflow-hidden flex-shrink-0">
+<img alt="Beard Sculpting" class="w-full h-full object-cover" data-alt="professional beard grooming with precision tools and steam in a classic modern barbershop setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhq2f1VuVkczqSVOnfSMS9D-W0qftT9hxC4VDWm4bJ8FtX33FFrIw--tkrnNtc0GyiYhuJ6koyj8gk14FgKDfaDi2gHpGCgunRp3RMsDKtQG2fDuKrC8L6NHfYpvs9d11xXEKj4zzq9peG1KjhlANOXx3wVFw7xQkWdl7qbzH6mWkX9JSS-KoiRuPmiMToGRq2UVvyOsVxFWoxDEIbuHvbrm1W6ryzyx6JSLHu3TW1RxdEkmU98ods48z0PoxTRYQb8EnsLvcMMxpJ"/>
+</div>
+<div class="flex flex-col justify-between flex-grow">
+<div>
+<h3 class="text-lg font-bold text-on-surface leading-tight">Beard Sculpting</h3>
+<div class="flex items-center gap-2 text-on-surface-variant/70 mt-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="schedule">schedule</span>
+<span class="font-label text-xs tracking-wider uppercase font-semibold">30 mins</span>
+</div>
+</div>
+<div class="flex items-end justify-between">
+<span class="text-primary font-bold text-xl">Rs. 800</span>
+<div class="flex gap-2">
+<button class="p-2 rounded-lg bg-surface-container-low text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]" data-icon="edit">edit</span>
+</button>
+<button class="p-2 rounded-lg bg-surface-container-low text-error hover:bg-error-container transition-colors">
+<span class="material-symbols-outlined text-[20px]" data-icon="delete">delete</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Service Card 4 (Tonal Nesting Example) -->
+<div class="group relative bg-surface-container-lowest rounded-2xl p-4 shadow-[0_10px_30px_rgba(0,0,0,0.03)] flex gap-4 border border-transparent hover:border-outline-variant transition-all duration-300">
+<div class="w-24 h-24 rounded-xl overflow-hidden flex-shrink-0">
+<img alt="Silk Hair Treatment" class="w-full h-full object-cover" data-alt="shiny healthy long hair with soft light reflecting off smooth strands in a premium hair salon environment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA0bhhFfOb_JNxTcuDlSPpWLaTq4HZ2wW61TdaJUrrTJUfendN9lHr6-i1eDAh5QwCKLvctElIYxAQbus0Us8CZ1XEfDOTJy5kvOdqkuD5pqu7t38Lwz0mUKeR4m0TbgO777nFvgYNHHHmSp43j6SntjpAyCLk-7aH5Asd_8dqfO8zFvmu2eLr-_kD92_v7cawlB0t1FPLQOxz9Csmx43rWOWAG_F1NPaAzO_apSSoP71MSqTRr_C0Vum0fXH9Eak04VXjqoJvwZ7-h"/>
+</div>
+<div class="flex flex-col justify-between flex-grow">
+<div>
+<h3 class="text-lg font-bold text-on-surface leading-tight">Silk Hair Treatment</h3>
+<div class="flex items-center gap-2 text-on-surface-variant/70 mt-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="schedule">schedule</span>
+<span class="font-label text-xs tracking-wider uppercase font-semibold">90 mins</span>
+</div>
+</div>
+<div class="flex items-end justify-between">
+<span class="text-primary font-bold text-xl">Rs. 4,500</span>
+<div class="flex gap-2">
+<button class="p-2 rounded-lg bg-surface-container-low text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]" data-icon="edit">edit</span>
+</button>
+<button class="p-2 rounded-lg bg-surface-container-low text-error hover:bg-error-container transition-colors">
+<span class="material-symbols-outlined text-[20px]" data-icon="delete">delete</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Shell -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pt-3 pb-6 bg-white/85 dark:bg-emerald-950/85 backdrop-blur-xl z-50 rounded-t-3xl shadow-[0_-10px_40px_rgba(0,108,73,0.08)]">
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-emerald-300/40 px-5 py-2 hover:opacity-80 transition-opacity active:scale-90 duration-300 ease-out" href="#">
+<span class="material-symbols-outlined" data-icon="format_list_numbered">format_list_numbered</span>
+<span class="font-manrope text-[11px] font-bold tracking-widest uppercase mt-1">Queue</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-100 rounded-2xl px-5 py-2 hover:opacity-80 transition-opacity active:scale-90 duration-300 ease-out" href="#">
+<span class="material-symbols-outlined" data-icon="content_cut" style="font-variation-settings: 'FILL' 1;">content_cut</span>
+<span class="font-manrope text-[11px] font-bold tracking-widest uppercase mt-1">Services</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-emerald-300/40 px-5 py-2 hover:opacity-80 transition-opacity active:scale-90 duration-300 ease-out" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-manrope text-[11px] font-bold tracking-widest uppercase mt-1">Staff</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-emerald-300/40 px-5 py-2 hover:opacity-80 transition-opacity active:scale-90 duration-300 ease-out" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="font-manrope text-[11px] font-bold tracking-widest uppercase mt-1">Stats</span>
+</a>
+</nav>
+</body></html>
+
+<!-- Admin Service Management -->
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600;700;800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-lowest": "#ffffff",
+                    "on-surface-variant": "#3c4a42",
+                    "on-background": "#191c1d",
+                    "on-error-container": "#93000a",
+                    "on-tertiary-fixed": "#341100",
+                    "tertiary-fixed-dim": "#ffb690",
+                    "primary-fixed": "#6ffbbe",
+                    "on-tertiary-fixed-variant": "#783200",
+                    "on-secondary-fixed-variant": "#005048",
+                    "primary-fixed-dim": "#4edea3",
+                    "secondary": "#006b5f",
+                    "surface-container-highest": "#e1e3e4",
+                    "surface-container": "#edeeef",
+                    "surface-tint": "#006c49",
+                    "surface-bright": "#f8f9fa",
+                    "on-tertiary": "#ffffff",
+                    "primary": "#006c49",
+                    "surface-container-low": "#f3f4f5",
+                    "on-secondary-container": "#006f64",
+                    "inverse-surface": "#2e3132",
+                    "tertiary-container": "#ff7e2d",
+                    "on-primary-fixed-variant": "#005236",
+                    "on-primary-fixed": "#002113",
+                    "error": "#ba1a1a",
+                    "surface-dim": "#d9dadb",
+                    "surface": "#f8f9fa",
+                    "on-error": "#ffffff",
+                    "surface-variant": "#e1e3e4",
+                    "inverse-primary": "#4edea3",
+                    "secondary-container": "#6df5e1",
+                    "background": "#f8f9fa",
+                    "on-surface": "#191c1d",
+                    "outline-variant": "#bbcabf",
+                    "inverse-on-surface": "#f0f1f2",
+                    "error-container": "#ffdad6",
+                    "primary-container": "#10b981",
+                    "on-tertiary-container": "#622700",
+                    "on-secondary-fixed": "#00201c",
+                    "on-primary-container": "#00422b",
+                    "on-primary": "#ffffff",
+                    "secondary-fixed": "#71f8e4",
+                    "on-secondary": "#ffffff",
+                    "tertiary": "#9d4300",
+                    "surface-container-high": "#e7e8e9",
+                    "secondary-fixed-dim": "#4fdbc8",
+                    "tertiary-fixed": "#ffdbca",
+                    "outline": "#6c7a71"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Plus Jakarta Sans"],
+                    "body": ["Manrope"],
+                    "label": ["Manrope"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .no-line { border: none !important; }
+      .boundary-via-tonal-nesting { background-clip: padding-box; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface font-body text-on-surface min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-white/85 backdrop-blur-xl flex items-center justify-between px-6 h-16 w-full shadow-none">
+<div class="flex items-center gap-4">
+<button class="flex items-center justify-center p-2 rounded-full hover:bg-emerald-50 active:scale-95 duration-200 text-emerald-700">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+<h1 class="font-headline text-lg font-bold tracking-tight text-emerald-900">Salon Ru 01</h1>
+</div>
+<div class="flex items-center">
+<div class="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center overflow-hidden border-2 border-primary-container">
+<img alt="Admin Profile" class="w-full h-full object-cover" data-alt="Professional headshot of a senior salon administrator with a warm friendly expression in a modern bright office environment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCIYqR5G46VMBGx0KkomLLXLkYut3-MV5Zrh8mCW-7KHD2q4ORINlcCEsASbsr7umsA_ADvn4OylveKYeOH-_c96vWczLE8vvsE66s8R0E_1Ug4fd35Kk8aa_a9glDkq6ib9RJpngC6TPynnzkUuivBGI4yUWqzxkg7KRhtkKMEobUYwLBtpcMqhsUfHm6uV_JUsJzntL1qvk5JzvXsnNCihw6nwolqMb7zQ9y147OVN90yWstVyDNvuK2-3LNhECwkGK7TCVgIy9fo"/>
+</div>
+</div>
+</header>
+<main class="pt-20 px-6 max-w-md mx-auto">
+<!-- Content Header -->
+<div class="mb-8 mt-4">
+<div class="flex items-center justify-between items-end">
+<div>
+<h2 class="font-headline text-3xl font-extrabold tracking-tighter text-on-surface">Manage Queue</h2>
+<p class="text-on-surface-variant text-sm mt-1">Live updates • 4 clients waiting</p>
+</div>
+<button class="bg-surface-container-high p-3 rounded-full text-on-surface hover:opacity-80 active:scale-90 transition-all">
+<span class="material-symbols-outlined" data-icon="refresh">refresh</span>
+</button>
+</div>
+</div>
+<!-- Queue Section: Bento Style Cards -->
+<div class="space-y-4">
+<!-- Active Service Item (High Contrast) -->
+<div class="bg-surface-container-lowest p-5 rounded-3xl shadow-[0_20px_40px_rgba(0,108,73,0.06)] relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-4">
+<span class="material-symbols-outlined text-emerald-300" data-icon="drag_handle">drag_handle</span>
+</div>
+<div class="flex items-start gap-4">
+<div class="relative">
+<div class="w-16 h-16 rounded-2xl overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Close-up portrait of a woman with styled hair in a salon setting, soft lighting, professional photography" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD3rhdLpYDXmlz_h9p-nVUZxnwNfVRBni2H5WyfRnVRZ9UGYmb826OuCSqGJp0jfuNL45shNsmCZTWfDYGaWhP_EeW-G1-_50fdWFfbQJDPEfzQ3XCIWJuQJOH70b_p0rXrevc6b46u855T0erX-zWV1FX3Nh8PkLzUO6W6Q5y97KnE7ap3p7QuYCZ7h-hNYaALHdkL82scrm4dZeNzRfMpS8Ih2PdWFdLz4W9zqE6M7LU_v8uTszrBSjnW0237tP8IOiqs1CC7cTOv"/>
+</div>
+<!-- Status Halo -->
+<div class="absolute -bottom-1 -right-1 w-6 h-6 bg-tertiary-container rounded-full flex items-center justify-center border-2 border-white shadow-lg animate-pulse">
+<span class="material-symbols-outlined text-[14px] text-on-tertiary-container" data-icon="play_arrow" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</div>
+</div>
+<div class="flex-1">
+<span class="font-label text-[10px] tracking-widest uppercase font-bold text-tertiary">In Service</span>
+<h3 class="font-headline text-xl font-bold leading-tight">Elena Gilbert</h3>
+<p class="text-on-surface-variant text-xs mt-1">Silk Press &amp; Trim • Stylist: Marc</p>
+</div>
+<div class="text-right">
+<span class="text-3xl font-black text-emerald-100 italic">01</span>
+</div>
+</div>
+</div>
+<!-- Waiting Items (Tonal Nesting) -->
+<div class="bg-surface-container-low p-5 rounded-3xl flex items-center gap-4 group active:scale-[0.98] transition-transform">
+<div class="w-12 h-12 rounded-xl overflow-hidden grayscale">
+<img class="w-full h-full object-cover" data-alt="Profile photo of a man waiting in a queue, minimalist aesthetic, neutral background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuASHQhp6bFOAPqPWhU4bHIgcRlrWJbIL1eJQ86aWUm9m9zxhjeplKqO69aaFFR7XZ1NXBBxsHpuJIwlK6o9tan3gsTxotnCCAZ33MljM_joD4VvftnHFMvtbvDWnnsMY9iE66YpA_CvM0rlw5IGcOneIGD_d5hphQcQPaSCyVWZ6Xzuf2Vy1zTAaraFEQIZAh8Lhud6oNIoBCbKdK8UWgUuwSHLrmyLSs9buwJj-f4cu4cE75UYCNQmzjOjGf7EsV-ChBANw_xMoIcN"/>
+</div>
+<div class="flex-1">
+<div class="flex items-center gap-2">
+<h3 class="font-headline font-bold text-on-surface">James Wilson</h3>
+<span class="px-2 py-0.5 bg-white text-[10px] font-bold rounded-full text-on-surface-variant uppercase tracking-wider">Waiting</span>
+</div>
+<p class="text-on-surface-variant text-xs">Men's Cut • 15m est.</p>
+</div>
+<div class="flex flex-col items-end">
+<span class="text-xl font-bold text-outline-variant">02</span>
+<span class="material-symbols-outlined text-outline-variant" data-icon="drag_indicator">drag_indicator</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-5 rounded-3xl flex items-center gap-4 group active:scale-[0.98] transition-transform">
+<div class="w-12 h-12 rounded-xl overflow-hidden grayscale">
+<img class="w-full h-full object-cover" data-alt="Modern profile photo of a young woman for a luxury app interface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDN7OZ5k_cpzlcseFFXE_8yOlm6w3uP1HKq0aeF0hO2sWIW_cu0XXhoboBgrRuL6ZKOj2bhfG1Pr_HYB8bx4Jo8Ois4CQnQxw28McM5W0-RiU4GQnOeGJBr6D8JdtQdRTZyMdteVDgNhvsbbsRQMV-rqRBKTjFA_EH1DLppfl0PXVjsXENZlyqZl7DEcnHJVn_8Bhkfce9KPVuwwSKsScvLY1U0uwnjsqwX_6N5b5ZQUfoPYiW0S3DzwKKfhdZepSw9QpmWTm1-P2mE"/>
+</div>
+<div class="flex-1">
+<div class="flex items-center gap-2">
+<h3 class="font-headline font-bold text-on-surface">Sarah Chen</h3>
+<span class="px-2 py-0.5 bg-white text-[10px] font-bold rounded-full text-on-surface-variant uppercase tracking-wider">Waiting</span>
+</div>
+<p class="text-on-surface-variant text-xs">Color Retouch • 45m est.</p>
+</div>
+<div class="flex flex-col items-end">
+<span class="text-xl font-bold text-outline-variant">03</span>
+<span class="material-symbols-outlined text-outline-variant" data-icon="drag_indicator">drag_indicator</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-5 rounded-3xl flex items-center gap-4 group active:scale-[0.98] transition-transform">
+<div class="w-12 h-12 rounded-xl overflow-hidden grayscale opacity-60">
+<img class="w-full h-full object-cover" data-alt="Candid portrait of a customer in a bright minimalist setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDoWDZi-2BtEREeaLzK68NGNhhVNMAN4Swz3HlJytQwtL4dchvgw3eKQwQj4KsHnJnxeR-H0wF7JoGdHQsj3uqkphs6Sr0ACxnyu8sR7osBRzlq7NyvFH7NE3qtEAEEzl4cbK51cqOTcLEp0s7mYMaUkQQMbV02T80YRO-slYx1rNSEGZi-xzymcZCOrjdJWnkqOdx8B7G470aI3_pPnNIqeKsNFz5WEkzulcPkIRcc91J2NZFKwNke62ESkLQt0dtSiCDLYG8JVqOC"/>
+</div>
+<div class="flex-1">
+<div class="flex items-center gap-2">
+<h3 class="font-headline font-bold text-on-surface">Michael Ross</h3>
+<span class="px-2 py-0.5 bg-white text-[10px] font-bold rounded-full text-on-surface-variant uppercase tracking-wider">Waiting</span>
+</div>
+<p class="text-on-surface-variant text-xs">Beard Grooming • 10m est.</p>
+</div>
+<div class="flex flex-col items-end">
+<span class="text-xl font-bold text-outline-variant">04</span>
+<span class="material-symbols-outlined text-outline-variant" data-icon="drag_indicator">drag_indicator</span>
+</div>
+</div>
+</div>
+<!-- Action Section -->
+<div class="mt-10 space-y-3 pb-8">
+<button class="w-full py-4 rounded-2xl bg-gradient-to-r from-primary to-primary-container text-on-primary font-headline font-bold text-lg shadow-[0_10px_20px_rgba(0,108,73,0.2)] active:scale-95 transition-transform flex items-center justify-center gap-2">
+<span class="material-symbols-outlined" data-icon="check_circle">check_circle</span>
+                Conclude Queue
+            </button>
+<p class="text-center text-[11px] font-label font-bold tracking-widest text-outline uppercase">End of operational day actions</p>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 bg-white/85 backdrop-blur-xl flex justify-around items-center px-4 pt-3 pb-6 rounded-t-3xl shadow-[0_-10px_40px_rgba(0,108,73,0.08)] no-line">
+<a class="flex flex-col items-center justify-center bg-emerald-100 text-emerald-800 rounded-2xl px-5 py-2 active:scale-90 duration-300 ease-out" href="#">
+<span class="material-symbols-outlined" data-icon="format_list_numbered" style="font-variation-settings: 'FILL' 1;">format_list_numbered</span>
+<span class="font-manrope text-[11px] font-bold tracking-widest uppercase mt-1">Queue</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 px-5 py-2 hover:opacity-80 transition-opacity active:scale-90 duration-300 ease-out" href="#">
+<span class="material-symbols-outlined" data-icon="content_cut">content_cut</span>
+<span class="font-manrope text-[11px] font-bold tracking-widest uppercase mt-1">Services</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 px-5 py-2 hover:opacity-80 transition-opacity active:scale-90 duration-300 ease-out" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-manrope text-[11px] font-bold tracking-widest uppercase mt-1">Staff</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 px-5 py-2 hover:opacity-80 transition-opacity active:scale-90 duration-300 ease-out" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="font-manrope text-[11px] font-bold tracking-widest uppercase mt-1">Stats</span>
+</a>
+</nav>
+</body></html>

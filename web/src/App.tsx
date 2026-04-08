@@ -205,15 +205,15 @@ export function App() {
       : 'home'
 
   return (
-    <div className="relative h-screen w-full overflow-hidden bg-[#fdf8f5] font-sans text-slate-900 flex justify-center selection:bg-orange-100 selection:text-orange-900">
+    <div className="relative h-screen w-full overflow-hidden bg-[#f8f9fa] text-slate-900 flex justify-center selection:bg-emerald-100 selection:text-emerald-900">
       <div className="pointer-events-none absolute inset-0 flex justify-center">
-        <div className="absolute top-[-5%] left-[-12%] w-[45%] h-[45%] rounded-full bg-rose-300/20 blur-[90px]" />
-        <div className="absolute bottom-[8%] right-[-10%] w-[55%] h-[55%] rounded-full bg-amber-300/25 blur-[110px]" />
+        <div className="absolute top-[-6%] left-[-14%] h-[46%] w-[46%] rounded-full bg-emerald-300/20 blur-[110px]" />
+        <div className="absolute bottom-[10%] right-[-10%] h-[52%] w-[52%] rounded-full bg-orange-300/20 blur-[120px]" />
       </div>
 
-      <div className="relative w-full max-w-[480px] h-full flex flex-col overflow-hidden bg-[#fffdf9] shadow-2xl shadow-orange-200/50 sm:border-x sm:border-orange-100 z-10">
+      <div className="relative z-10 flex h-full w-full max-w-[480px] flex-col overflow-hidden bg-white/80 shadow-[0_24px_70px_rgba(0,108,73,0.12)] sm:border-x sm:border-emerald-100/70">
         {!isOnline && (
-          <div className="relative z-50 flex items-center justify-center gap-2 bg-orange-500 px-4 py-2 text-xs font-medium text-white">
+          <div className="relative z-50 flex items-center justify-center gap-2 bg-orange-500 px-4 py-2 text-xs font-semibold text-white">
             <span>⚠</span>
             <span>You are offline. Some features may not be available.</span>
           </div>
@@ -229,7 +229,7 @@ export function App() {
           onAuthAction={handleMenuAuthAction}
         />
 
-        <div className="flex-1 overflow-y-auto bg-transparent pb-24">
+        <div className="flex-1 overflow-y-auto bg-transparent pb-28">
           <AnimatePresence mode="wait">
             <Routes>
               <Route

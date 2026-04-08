@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { getServices } from '../lib/api'
+import { pageMotionProps } from '../lib/motion'
 
 type ServiceRow = {
   id: string
@@ -39,25 +40,19 @@ export function ServicesPage() {
   }, [])
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.4 }}
-      className="px-4 py-6"
-    >
-      <h1 className="font-sans font-semibold tracking-tight text-3xl text-center mb-8">Services</h1>
+    <motion.div {...pageMotionProps} className="px-4 py-6">
+      <h1 className="v2-title mb-8 text-center text-3xl">Services</h1>
 
-      {isLoading ? <p className="text-sm text-slate-400">Loading services...</p> : null}
+      {isLoading ? <p className="text-sm text-slate-500">Loading services...</p> : null}
 
       <div className="space-y-3">
         {rows.map((service) => (
-          <div key={service.id} className="border border-teal-100 rounded-xl bg-white p-4 flex justify-between items-start gap-4 shadow-sm">
+          <div key={service.id} className="v2-card flex items-start justify-between gap-4 p-4">
             <div>
-              <p className="text-slate-800 text-base font-medium">{service.name}</p>
+              <p className="text-base font-bold text-slate-800">{service.name}</p>
               <p className="text-slate-500 text-xs mt-1 leading-relaxed">{service.description || 'Premium salon service'}</p>
             </div>
-            <p className="font-sans font-semibold tracking-tight text-teal-700 text-lg">${service.price}</p>
+            <p className="v2-title text-lg font-bold text-emerald-700">${service.price}</p>
           </div>
         ))}
       </div>

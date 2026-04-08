@@ -4,6 +4,7 @@ import { BookingCalendar } from '../components/BookingCalendar'
 import { TimeSlots } from '../components/TimeSlots'
 import { Check } from 'lucide-react'
 import { createAppointment, getClientScheduleByDate, getServices, isSessionAuthenticated } from '../lib/api'
+import { pageMotionProps } from '../lib/motion'
 
 const services = [
   {
@@ -169,27 +170,14 @@ export function BookingPage({ onRequireAuth, onBookingComplete }: BookingPagePro
   }
   return (
     <motion.div
-      initial={{
-        opacity: 0,
-        y: 10,
-      }}
-      animate={{
-        opacity: 1,
-        y: 0,
-      }}
-      exit={{
-        opacity: 0,
-      }}
-      transition={{
-        duration: 0.5,
-      }}
+      {...pageMotionProps}
       className="px-4 py-6"
     >
-      <h1 className="font-sans font-semibold tracking-tight text-3xl text-slate-800 mb-6 text-center">
+      <h1 className="v2-title mb-6 text-center text-3xl">
         Reserve Your Time
       </h1>
 
-      <p className="text-xs text-slate-400 tracking-widest uppercase mb-3">Step 1 - Pick a date</p>
+      <p className="v2-label mb-3">Step 1 - Pick a date</p>
 
       <BookingCalendar
         selectedDate={selectedDate}
@@ -212,8 +200,8 @@ export function BookingPage({ onRequireAuth, onBookingComplete }: BookingPagePro
             }}
             className="mb-12 overflow-hidden"
           >
-            <p className="text-xs text-slate-400 tracking-widest uppercase mb-3">Step 2 - Pick a service</p>
-            <h3 className="font-sans font-semibold tracking-tight text-xl text-slate-800 mb-6">
+            <p className="v2-label mb-3">Step 2 - Pick a service</p>
+            <h3 className="v2-title mb-6 text-xl font-bold">
               Select Service
             </h3>
             <div className="space-y-3">
@@ -226,17 +214,14 @@ export function BookingPage({ onRequireAuth, onBookingComplete }: BookingPagePro
                       scale: 0.98,
                     }}
                     onClick={() => setSelectedService(service.id)}
-                    className={`
-                      w-full flex justify-between items-center p-4 rounded-xl border transition-all duration-300
-                      ${isSelected ? 'border-teal-500 border-l-[4px] bg-teal-50/60' : 'border-teal-100 bg-white hover:border-teal-200'}
-                    `}
+                    className={`w-full rounded-2xl border p-4 transition-all duration-300 ${isSelected ? 'border-emerald-600 border-l-[4px] bg-emerald-50/80 shadow-[0_14px_28px_rgba(0,108,73,0.08)]' : 'border-emerald-100 bg-white hover:border-emerald-300'}`}
                   >
                     <span
-                      className={`font-inter text-base ${isSelected ? 'text-slate-800 font-medium' : 'text-slate-400'}`}
+                      className={`text-base ${isSelected ? 'font-semibold text-slate-800' : 'text-slate-500'}`}
                     >
                       {service.name}
                     </span>
-                    <span className="font-sans font-semibold tracking-tight text-teal-700 text-lg">
+                    <span className="v2-title text-lg font-bold text-emerald-700">
                       ${service.price}
                     </span>
                   </motion.button>
@@ -263,7 +248,7 @@ export function BookingPage({ onRequireAuth, onBookingComplete }: BookingPagePro
             }}
             className="overflow-hidden"
           >
-            <p className="text-xs text-slate-400 tracking-widest uppercase mb-3">Step 3 - Pick a time slot</p>
+            <p className="v2-label mb-3">Step 3 - Pick a time slot</p>
             {loadingSlots ? (
               <div className="flex items-center justify-center py-8">
                 <div className="w-6 h-6 border-2 border-teal-500 border-t-transparent rounded-full animate-spin" />
@@ -282,7 +267,7 @@ export function BookingPage({ onRequireAuth, onBookingComplete }: BookingPagePro
               />
             )}
 
-            <p className="text-xs text-slate-400 tracking-widest uppercase mb-3">Step 4 - Confirm booking</p>
+            <p className="v2-label mb-3">Step 4 - Confirm booking</p>
 
             {message ? <p className="text-sm text-rose-600 mb-4">{message}</p> : null}
 
@@ -300,10 +285,7 @@ export function BookingPage({ onRequireAuth, onBookingComplete }: BookingPagePro
               }}
               onClick={() => void handleConfirm()}
               disabled={!selectedTime}
-              className={`
-                w-full py-4 rounded-[14px] font-inter text-[13px] font-semibold tracking-widest uppercase transition-all duration-500
-                ${selectedTime && !isSubmitting ? 'bg-gradient-to-r from-teal-600 to-emerald-500 text-white shadow-lg' : 'bg-teal-100/50 text-slate-400 cursor-not-allowed'}
-              `}
+              className="v2-btn-primary"
             >
               {isSubmitting ? 'Booking...' : 'Confirm Reservation'}
             </motion.button>

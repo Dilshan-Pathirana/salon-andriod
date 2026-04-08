@@ -6,6 +6,7 @@ import {
   adminGetAppointments,
   ManagedAppointment,
 } from '../lib/api'
+import { pageMotionProps } from '../lib/motion'
 
 function dateOnly(date: Date): Date {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate())
@@ -51,6 +52,9 @@ function toDateKey(date: Date): string {
   const day = String(date.getDate()).padStart(2, '0')
   return `${year}-${month}-${day}`
 }
+
+const sectionText = 'text-slate-900 dark:text-emerald-50'
+const sectionMutedText = 'text-slate-500 dark:text-emerald-100/70'
 
 export function AdminAppointmentManagementPage() {
   const [rows, setRows] = useState<ManagedAppointment[]>([])
@@ -149,24 +153,24 @@ export function AdminAppointmentManagementPage() {
 
   const Section = ({ title, items }: { title: string; items: ManagedAppointment[] }) => (
     <section className="mb-8">
-      <h2 className="font-sans font-semibold tracking-tight text-xl text-slate-900 mb-3">{title}</h2>
+      <h2 className="v2-title mb-3 text-xl">{title}</h2>
       {items.length === 0 ? (
-        <p className="font-inter text-sm text-slate-500">No appointments</p>
+        <p className={`font-inter text-sm ${sectionMutedText}`}>No appointments</p>
       ) : (
-        <div className="space-y-3">
+        <div className="v2-admin-stack">
           {items.map((item) => (
-            <div key={item.id} className="border border-slate-200 rounded-lg p-4 bg-white shadow-sm">
+            <div key={item.id} className="v2-card rounded-2xl p-4">
               <div className="flex justify-between items-start gap-3">
                 <div>
-                  <p className="text-slate-900 text-sm">{item.userName || 'Reserved'}</p>
-                  <p className="text-slate-500 text-xs">{item.phoneNumber || '-'}</p>
-                  <p className="text-slate-500 text-xs mt-1">{item.date} · {item.timeSlot}</p>
+                  <p className={`text-sm ${sectionText}`}>{item.userName || 'Reserved'}</p>
+                  <p className={`text-xs ${sectionMutedText}`}>{item.phoneNumber || '-'}</p>
+                  <p className={`text-xs mt-1 ${sectionMutedText}`}>{item.date} · {item.timeSlot}</p>
                 </div>
                 <div className="text-right">
-                  <span className="text-xs text-blue-600 tracking-wider block">{item.isReserved ? 'RESERVED' : item.status}</span>
+                  <span className="block text-xs tracking-wider text-emerald-700 dark:text-emerald-300">{item.isReserved ? 'RESERVED' : item.status}</span>
                   <button
                     onClick={() => void deleteAppointment(item.id)}
-                    className="mt-2 px-3 py-2 border border-red-400/50 rounded-lg text-xs tracking-widest uppercase text-red-300"
+                    className="mt-2 rounded-xl border border-red-300 px-3 py-2 text-xs font-bold uppercase tracking-widest text-red-500"
                   >
                     Delete
                   </button>
@@ -180,22 +184,22 @@ export function AdminAppointmentManagementPage() {
   )
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.35 }} className="px-4 py-6">
-      <h1 className="font-sans font-semibold tracking-tight text-3xl text-slate-900 text-center mb-8">Appointment Management</h1>
+    <motion.div {...pageMotionProps} className="v2-admin-shell">
+      <h1 className="v2-title mb-8 text-center text-3xl">Appointment Management</h1>
 
-      <div className="border border-slate-200 rounded-xl p-4 mb-8 bg-white shadow-sm space-y-3">
-        <p className="text-xs tracking-widest uppercase text-slate-500">Add Reserved Appointment</p>
-        <div className="grid grid-cols-2 gap-3">
-          <input type="date" value={reservedDate} onChange={(event) => setReservedDate(event.target.value)} className="bg-white border border-slate-200 rounded-lg p-3 text-sm text-slate-900" />
-          <input type="time" value={reservedTime} onChange={(event) => setReservedTime(event.target.value)} className="bg-white border border-slate-200 rounded-lg p-3 text-sm text-slate-900" />
+      <div className="v2-card mb-8 v2-admin-stack p-4">
+        <p className="v2-label">Add Reserved Appointment</p>
+        <div className="v2-admin-grid">
+          <input type="date" value={reservedDate} onChange={(event) => setReservedDate(event.target.value)} className="v2-input" />
+          <input type="time" value={reservedTime} onChange={(event) => setReservedTime(event.target.value)} className="v2-input" />
         </div>
-        <button onClick={() => void createReserved()} className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-colors rounded-lg text-xs tracking-widest uppercase font-semibold">
+        <button onClick={() => void createReserved()} className="v2-btn-primary">
           Save Reserved Slot
         </button>
       </div>
 
-      {message ? <p className="text-xs text-blue-600 mb-4">{message}</p> : null}
-      {isLoading ? <p className="text-sm text-slate-500">Loading appointments...</p> : null}
+      {message ? <p className="text-xs text-blue-600 dark:text-blue-300 mb-4">{message}</p> : null}
+      {isLoading ? <p className={`text-sm ${sectionMutedText}`}>Loading appointments...</p> : null}
 
       {!isLoading ? (
         <>

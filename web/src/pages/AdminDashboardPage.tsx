@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Users, Scissors, CalendarDays, Clock, Activity, CheckCircle2 } from 'lucide-react'
 import { adminGetDashboardStats, AdminDashboardStats } from '../lib/api'
+import { pageMotionProps } from '../lib/motion'
 
 function formatDayLabel(isoDay: string): string {
   const date = new Date(isoDay)
@@ -48,11 +49,11 @@ export function AdminDashboardPage() {
   }, [stats])
 
   return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.35 }} className="px-4 py-6 max-w-5xl mx-auto">
+    <motion.div {...pageMotionProps} className="v2-admin-shell mx-auto max-w-5xl">
       <div className="flex items-center justify-between mb-8">
-        <h1 className="font-sans font-semibold tracking-tight text-3xl text-slate-900">Dashboard</h1>
+        <h1 className="v2-title text-3xl">Dashboard</h1>
         {stats && (
-          <span className="px-3 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full flex items-center gap-1.5 shadow-sm">
+          <span className="flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700 shadow-sm">
             <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
             Live
           </span>
@@ -66,21 +67,21 @@ export function AdminDashboardPage() {
       ) : null}
       
       {message ? (
-        <div className="bg-red-50 text-red-600 p-4 rounded-xl text-sm border border-red-100 flex items-center gap-3">
+        <div className="bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-200 p-4 rounded-xl text-sm border border-red-100 dark:border-red-900/60 flex items-center gap-3">
           <Activity className="w-4 h-4" />
           {message}
         </div>
       ) : null}
 
       {stats ? (
-        <div className="space-y-6">
+        <div className="v2-admin-stack">
           <div className="grid grid-cols-2 gap-4">
-            <motion.div whileHover={{ y: -2 }} className="border border-slate-200 rounded-2xl p-5 bg-gradient-to-br from-white to-slate-50/50 shadow-sm relative overflow-hidden group">
+            <motion.div whileHover={{ y: -2 }} className="group v2-card relative overflow-hidden p-5">
               <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
                 <Users className="w-12 h-12" />
               </div>
               <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
+                <div className="rounded-lg bg-emerald-100 p-2 text-emerald-700">
                   <Users className="w-4 h-4" />
                 </div>
                 <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Users</p>
@@ -88,12 +89,12 @@ export function AdminDashboardPage() {
               <p className="text-3xl font-bold tracking-tight text-slate-900">{stats.registeredUsers}</p>
             </motion.div>
             
-            <motion.div whileHover={{ y: -2 }} className="border border-slate-200 rounded-2xl p-5 bg-gradient-to-br from-white to-slate-50/50 shadow-sm relative overflow-hidden group">
+            <motion.div whileHover={{ y: -2 }} className="group v2-card relative overflow-hidden p-5">
               <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
                 <Scissors className="w-12 h-12" />
               </div>
               <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 bg-purple-50 text-purple-600 rounded-lg">
+                <div className="rounded-lg bg-emerald-100 p-2 text-emerald-700">
                   <Scissors className="w-4 h-4" />
                 </div>
                 <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Services</p>
@@ -101,7 +102,7 @@ export function AdminDashboardPage() {
               <p className="text-3xl font-bold tracking-tight text-slate-900">{stats.activeServices}</p>
             </motion.div>
             
-            <motion.div whileHover={{ y: -2 }} className="border border-slate-200 rounded-2xl p-5 bg-gradient-to-br from-white to-slate-50/50 shadow-sm relative overflow-hidden group">
+            <motion.div whileHover={{ y: -2 }} className="group v2-card relative overflow-hidden p-5">
               <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
                 <CalendarDays className="w-12 h-12" />
               </div>
@@ -114,12 +115,12 @@ export function AdminDashboardPage() {
               <p className="text-3xl font-bold tracking-tight text-slate-900">{stats.appointmentsToday}</p>
             </motion.div>
             
-            <motion.div whileHover={{ y: -2 }} className="border border-slate-200 rounded-2xl p-5 bg-gradient-to-br from-white to-slate-50/50 shadow-sm relative overflow-hidden group">
+            <motion.div whileHover={{ y: -2 }} className="group v2-card relative overflow-hidden p-5">
               <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
                 <Clock className="w-12 h-12" />
               </div>
               <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 bg-orange-50 text-orange-600 rounded-lg">
+                <div className="rounded-lg bg-orange-100 p-2 text-orange-600">
                   <Clock className="w-4 h-4" />
                 </div>
                 <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Avg Time</p>
@@ -128,11 +129,11 @@ export function AdminDashboardPage() {
             </motion.div>
           </div>
 
-          <div className="border border-slate-200 rounded-2xl p-5 bg-white shadow-sm">
+          <div className="v2-card p-5">
             <div className="flex items-center justify-between mb-6">
               <p className="font-semibold text-slate-900">User Growth Trend</p>
               <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-blue-600"></span>
+                <span className="w-2 h-2 rounded-full bg-emerald-600"></span>
                 <span className="text-xs text-slate-500 font-medium">New Registrations</span>
               </div>
             </div>
@@ -140,8 +141,8 @@ export function AdminDashboardPage() {
               <svg viewBox="0 0 300 120" className="w-full h-40 overflow-visible">
                 <defs>
                   <linearGradient id="lineGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.2"/>
-                    <stop offset="100%" stopColor="#3b82f6" stopOpacity="0"/>
+                    <stop offset="0%" stopColor="#10b981" stopOpacity="0.2"/>
+                    <stop offset="100%" stopColor="#10b981" stopOpacity="0"/>
                   </linearGradient>
                 </defs>
                 {trendPoints && (
@@ -150,7 +151,7 @@ export function AdminDashboardPage() {
                     fill="url(#lineGradient)" 
                   />
                 )}
-                <polyline fill="none" stroke="#2563eb" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" points={trendPoints} />
+                <polyline fill="none" stroke="#006c49" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" points={trendPoints} />
                 {(stats.userRegistrationTrend || []).map((item, index, arr) => {
                   const width = 300
                   const height = 120
@@ -159,7 +160,7 @@ export function AdminDashboardPage() {
                   const y = height - (item.count / maxCount) * height
                   return (
                     <g key={item.day}>
-                      <circle cx={x} cy={y} r="5" fill="#fff" stroke="#2563eb" strokeWidth="2" className="transition-all hover:r-[6]" />
+                      <circle cx={x} cy={y} r="5" fill="#fff" stroke="#006c49" strokeWidth="2" className="transition-all hover:r-[6]" />
                     </g>
                   )
                 })}
@@ -173,7 +174,7 @@ export function AdminDashboardPage() {
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="border border-slate-200 rounded-xl p-4 bg-gradient-to-br from-slate-50 to-white shadow-sm flex items-center justify-between">
+            <div className="v2-card flex items-center justify-between rounded-2xl p-4">
               <div>
                 <p className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-1">In Queue</p>
                 <p className="text-2xl font-bold text-slate-900">{stats.inQueue}</p>
@@ -182,7 +183,7 @@ export function AdminDashboardPage() {
                 <Activity className="w-5 h-5" />
               </div>
             </div>
-            <div className="border border-slate-200 rounded-xl p-4 bg-gradient-to-br from-emerald-50/50 to-white shadow-sm flex items-center justify-between">
+            <div className="v2-card flex items-center justify-between rounded-2xl p-4">
               <div>
                 <p className="text-xs font-medium text-emerald-600 uppercase tracking-wider mb-1">Completed</p>
                 <p className="text-2xl font-bold text-emerald-700">{stats.completed}</p>

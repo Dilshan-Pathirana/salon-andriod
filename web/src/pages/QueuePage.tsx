@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { GoldSpinner } from '../components/GoldSpinner'
 import { getCurrentSession, getLiveQueue, LiveQueueItem } from '../lib/api'
+import { pageMotionProps } from '../lib/motion'
 
 function toDateKey(date: Date): string {
   const year = date.getFullYear()
@@ -45,22 +46,8 @@ export function QueuePage() {
     )
   }
   return (
-    <motion.div
-      initial={{
-        opacity: 0,
-      }}
-      animate={{
-        opacity: 1,
-      }}
-      exit={{
-        opacity: 0,
-      }}
-      transition={{
-        duration: 0.6,
-      }}
-      className="px-4 py-6 min-h-screen flex flex-col"
-    >
-      <h1 className="font-sans font-semibold tracking-tight text-3xl text-slate-800 mb-8 text-center">
+    <motion.div {...pageMotionProps} className="px-4 py-6 min-h-screen flex flex-col">
+      <h1 className="v2-title mb-8 text-center text-3xl">
         Live Queue
       </h1>
 
@@ -73,9 +60,9 @@ export function QueuePage() {
       ) : (
         <>
           {myQueueItem ? (
-            <div className="mb-6 border border-teal-200 rounded-xl p-4 bg-teal-50/70 text-center">
-              <p className="text-xs tracking-widest uppercase text-slate-400">Your Slot Number</p>
-              <p className="font-sans font-semibold tracking-tight text-4xl text-teal-700 mt-2">{myQueueItem.position}</p>
+            <div className="v2-card mb-6 p-4 text-center">
+              <p className="v2-label text-slate-500">Your Slot Number</p>
+              <p className="v2-title mt-2 text-4xl text-emerald-700">{myQueueItem.position}</p>
               <p className="text-xs text-slate-400 mt-2">Approx wait: {myQueueItem.estimatedWaitMins} mins</p>
             </div>
           ) : null}
@@ -98,7 +85,7 @@ export function QueuePage() {
               }}
               className="relative"
             >
-              <h2 className="font-sans font-semibold tracking-tight text-4xl text-slate-800 pb-2">
+              <h2 className="v2-title pb-2 text-4xl">
                 {currentlyServing || queue[0].name}
               </h2>
               <div className="absolute bottom-0 left-1/4 right-1/4 h-[1px] bg-emerald-500/50" />
@@ -119,11 +106,11 @@ export function QueuePage() {
               duration: 0.6,
               ease: 'easeOut',
             }}
-            className="flex flex-col items-center justify-center mb-8"
+            className="mb-8 flex flex-col items-center justify-center"
           >
-            <div className="w-28 h-28 rounded-full border border-teal-400/30 flex flex-col items-center justify-center relative bg-white">
-              <div className="absolute inset-2 rounded-full border border-teal-400/10" />
-              <span className="font-sans font-semibold tracking-tight text-4xl text-teal-700 mb-1">
+            <div className="relative flex h-28 w-28 flex-col items-center justify-center rounded-full border border-emerald-300/40 bg-white">
+              <div className="absolute inset-2 rounded-full border border-emerald-300/20" />
+              <span className="v2-title mb-1 text-4xl text-emerald-700">
                 {queue.length}
               </span>
             </div>
@@ -153,7 +140,7 @@ export function QueuePage() {
                     }}
                     className={`
                       flex items-center py-5 border-b border-teal-100/30
-                      ${isYou ? 'bg-teal-50 -mx-2 px-3 rounded-lg border-transparent' : ''}
+                      ${isYou ? 'bg-emerald-50 -mx-2 rounded-xl border-transparent px-3' : ''}
                     `}
                   >
                     <span

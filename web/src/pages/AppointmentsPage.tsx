@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import { cancelMyAppointment, getMyAppointments } from '../lib/api'
+import { pageMotionProps } from '../lib/motion'
 
 type AppointmentRow = {
   id: string
@@ -135,13 +136,13 @@ export function AppointmentsPage() {
 
   const Section = ({ title, items, canCancel }: { title: string; items: AppointmentRow[]; canCancel?: boolean }) => (
     <section className="mb-8">
-      <h2 className="font-sans font-semibold tracking-tight text-xl text-slate-800 mb-3">{title}</h2>
+      <h2 className="v2-title mb-3 text-xl font-bold">{title}</h2>
       {items.length === 0 ? (
         <p className="font-inter text-sm text-slate-400">No appointments</p>
       ) : (
         <div className="space-y-3">
           {items.map((item) => (
-            <div key={item.id} className="border border-teal-100/40 rounded-lg p-4 flex justify-between items-center">
+            <div key={item.id} className="v2-card flex items-center justify-between p-4">
               <div>
                 <p className="font-inter text-sm text-slate-800">{item.date}</p>
                 <p className="font-inter text-xs text-slate-400">{item.timeSlot}</p>
@@ -151,7 +152,7 @@ export function AppointmentsPage() {
                 {canCancel && (item.status === 'BOOKED' || item.status === 'IN_SERVICE') ? (
                   <button
                     onClick={() => void cancelAppointment(item.id)}
-                    className="mt-2 px-3 py-1 border border-red-400/50 rounded text-[10px] tracking-widest uppercase text-red-300"
+                    className="mt-2 rounded-xl border border-red-300 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-red-500"
                   >
                     Cancel
                   </button>
@@ -165,14 +166,8 @@ export function AppointmentsPage() {
   )
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.4 }}
-      className="px-6 pt-12 pb-32"
-    >
-      <h1 className="font-sans font-semibold tracking-tight text-3xl text-slate-800 mb-8 text-center">Appointments</h1>
+    <motion.div {...pageMotionProps} className="px-6 pt-12 pb-32">
+      <h1 className="v2-title mb-8 text-center text-3xl">Appointments</h1>
 
       {isLoading ? <p className="font-inter text-sm text-slate-400">Loading appointments...</p> : null}
       {message ? <p className="font-inter text-sm text-emerald-600">{message}</p> : null}

@@ -74,18 +74,18 @@ export function HamburgerMenu({ isOpen, onClose, onSelect, items, isLoggedIn, on
             animate={{ x: 0 }}
             exit={{ x: '-100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300, mass: 0.8 }}
-            className="fixed inset-y-0 left-0 z-50 w-[85%] max-w-[320px] bg-white shadow-2xl flex flex-col"
+            className="fixed inset-y-0 left-0 z-50 flex w-[85%] max-w-[320px] flex-col bg-white shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="h-28 px-6 flex items-end justify-between pb-6 bg-gradient-to-br from-blue-600 to-indigo-700">
+            <div className="flex h-28 items-end justify-between bg-gradient-to-br from-[#006c49] to-[#10b981] px-6 pb-6">
               <div>
-                <h2 className="font-sans text-2xl font-bold tracking-tight text-white mb-1">Menu</h2>
-                <p className="text-blue-100/90 text-sm font-medium">Manage your dashboard</p>
+                <h2 className="v2-title mb-1 text-2xl text-white">Menu</h2>
+                <p className="text-sm font-semibold text-emerald-50/90">Navigate your experience</p>
               </div>
               <button
                 onClick={onClose}
-                className="p-2 -mr-2 text-blue-100 hover:text-white rounded-xl transition-colors bg-white/10 hover:bg-white/20 backdrop-blur-sm"
+                className="-mr-2 rounded-xl bg-white/15 p-2 text-emerald-50 transition-colors hover:bg-white/25 hover:text-white"
                 aria-label="Close menu"
               >
                 <X className="w-5 h-5" />
@@ -93,7 +93,7 @@ export function HamburgerMenu({ isOpen, onClose, onSelect, items, isLoggedIn, on
             </div>
 
             {/* Items */}
-            <div className="flex-1 overflow-y-auto py-6 px-4 space-y-1">
+            <div className="flex-1 space-y-1 overflow-y-auto px-4 py-6">
               {items.map((item, i) => (
                 <motion.button
                   custom={i}
@@ -102,24 +102,24 @@ export function HamburgerMenu({ isOpen, onClose, onSelect, items, isLoggedIn, on
                   animate="open"
                   key={item.id}
                   onClick={() => handleSelect(item.id)}
-                  className="group w-full flex items-center gap-3 p-3.5 rounded-xl hover:bg-blue-50 active:bg-blue-100 transition-all duration-200"
+                  className="group flex w-full items-center gap-3 rounded-xl p-3.5 transition-all duration-200 hover:bg-emerald-50 active:bg-emerald-100"
                 >
-                  <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-blue-100 group-hover:text-blue-600 transition-colors">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-50 text-slate-400 transition-colors group-hover:bg-emerald-100 group-hover:text-emerald-700">
                     {item.icon ? <item.icon className="w-4 h-4" /> : <List className="w-4 h-4" />}
                   </div>
-                  <span className="font-sans font-medium text-slate-700 text-base flex-1 text-left group-hover:text-blue-900 transition-colors">
+                  <span className="flex-1 text-left text-base font-semibold text-slate-700 transition-colors group-hover:text-emerald-900">
                     {item.label}
                   </span>
-                  <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-blue-500 transition-all transform group-hover:translate-x-1" />
+                  <ChevronRight className="w-4 h-4 transform text-slate-300 transition-all group-hover:translate-x-1 group-hover:text-emerald-600" />
 </motion.button>
               ))}
             </div>
 
             {/* Footer */}
-            <div className="p-6 border-t border-slate-100 bg-slate-50/50">
+            <div className="border-t border-slate-100 bg-slate-50/60 p-6">
               <button 
                 onClick={handleAuthAction}
-                className="flex items-center space-x-2 text-slate-400 hover:text-red-500 transition-colors text-sm font-medium w-full px-2 py-2 rounded-lg hover:bg-red-50"
+                className="flex w-full items-center space-x-2 rounded-lg px-2 py-2 text-sm font-semibold text-slate-500 transition-colors hover:bg-red-50 hover:text-red-500"
               >
                 {isLoggedIn ? <LogOut className="w-4 h-4" /> : <LogIn className="w-4 h-4" />}
                 <span>{isLoggedIn ? 'Log Out' : 'Log In'}</span>

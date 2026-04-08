@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import { loginWithPhone, registerClient } from '../lib/api'
+import { pageMotionProps } from '../lib/motion'
 
 interface AuthPageProps {
   onAuthSuccess: () => void
@@ -72,27 +73,22 @@ export function AuthPage({ onAuthSuccess }: AuthPageProps) {
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="px-4 py-6"
-    >
-      <h1 className="font-sans font-semibold tracking-tight text-3xl text-slate-800 mb-6 text-center">
+    <motion.div {...pageMotionProps} className="px-4 py-6">
+      <h1 className="v2-title mb-6 text-center text-3xl">
         {mode === 'login' ? 'Login' : 'Sign Up'}
       </h1>
 
-      <div className="space-y-3 rounded-2xl border border-teal-100/60 bg-white p-4 shadow-sm">
+      <div className="v2-card space-y-3 p-4">
         {mode === 'signup' ? (
           <>
             <input
-              className="w-full bg-white border border-teal-100 rounded-xl p-3 text-sm text-slate-800"
+              className="v2-input"
               placeholder="First name"
               value={firstName}
               onChange={(event) => setFirstName(event.target.value)}
             />
             <input
-              className="w-full bg-white border border-teal-100 rounded-xl p-3 text-sm text-slate-800"
+              className="v2-input"
               placeholder="Last name"
               value={lastName}
               onChange={(event) => setLastName(event.target.value)}
@@ -101,14 +97,14 @@ export function AuthPage({ onAuthSuccess }: AuthPageProps) {
         ) : null}
 
         <input
-          className="w-full bg-white border border-teal-100 rounded-xl p-3 text-sm text-slate-800"
+          className="v2-input"
           placeholder="Phone number"
           value={phoneNumber}
           onChange={(event) => setPhoneNumber(event.target.value)}
         />
         <input
           type="password"
-          className="w-full bg-white border border-teal-100 rounded-xl p-3 text-sm text-slate-800"
+          className="v2-input"
           placeholder="Password"
           value={password}
           onChange={(event) => setPassword(event.target.value)}
@@ -117,14 +113,14 @@ export function AuthPage({ onAuthSuccess }: AuthPageProps) {
         <button
           onClick={() => void handleSubmit()}
           disabled={isSubmitting}
-          className="w-full py-3 bg-gradient-to-r from-teal-600 to-emerald-500 text-white rounded-xl text-xs tracking-wide uppercase font-semibold disabled:opacity-60"
+          className="v2-btn-primary"
         >
           {isSubmitting ? 'Please wait...' : mode === 'login' ? 'Login' : 'Create Account'}
         </button>
 
         <button
           onClick={() => setMode((prev) => (prev === 'login' ? 'signup' : 'login'))}
-          className="w-full py-2 text-teal-700 text-xs tracking-wide font-medium"
+          className="w-full py-2 text-xs font-semibold tracking-wide text-emerald-700"
         >
           {mode === 'login' ? 'Need an account? Sign Up' : 'Already have an account? Login'}
         </button>

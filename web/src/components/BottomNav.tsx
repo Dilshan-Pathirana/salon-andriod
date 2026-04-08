@@ -61,28 +61,28 @@ export function BottomNav({ activePage, onChange, role }: BottomNavProps) {
             },
           ]
   return (
-    <div className="w-full border-t border-orange-100 bg-white/90 backdrop-blur-xl shadow-[0_-6px_16px_rgba(146,64,14,0.08)]">
-      <div className="flex justify-around items-center h-16 px-2">
+    <div className="w-full rounded-t-3xl border-t border-emerald-100/70 bg-white/85 backdrop-blur-xl shadow-[0_-10px_30px_rgba(0,108,73,0.08)]">
+      <div className="flex h-16 items-center justify-around px-2 pb-1">
           {navItems.map(({ id, icon: Icon, label }) => {
             const isActive = activePage === id
             return (
               <button
                 key={id}
                 onClick={() => onChange(id as PageType)}
-                className="flex flex-col items-center justify-center min-w-[64px] h-full space-y-1 focus:outline-none relative group"
+                className="relative flex h-full min-w-[64px] flex-col items-center justify-center space-y-1 focus:outline-none group"
                 aria-label={label}
               >
                 {isActive && (
                   <motion.div 
                     layoutId="bottomNavIndicator"
-                    className="absolute top-0 w-8 h-[3px] bg-orange-500 rounded-b-full"
+                    className="absolute top-0 h-[3px] w-8 rounded-b-full bg-emerald-600"
                     transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                   />
                 )}
                 <motion.div
                   animate={{
                     scale: isActive ? 1.05 : 1,
-                    color: isActive ? '#f97316' : '#64748b',
+                    color: isActive ? '#006c49' : '#64748b',
                     y: isActive ? 2 : 0
                   }}
                   transition={{
@@ -92,7 +92,7 @@ export function BottomNav({ activePage, onChange, role }: BottomNavProps) {
                   <Icon strokeWidth={isActive ? 2.5 : 2} className="w-[22px] h-[22px]" />
                 </motion.div>
                 <div
-                  className={`text-[10px] font-sans tracking-wide font-semibold mt-1 transition-colors ${isActive ? 'text-orange-500' : 'text-slate-500'}`}
+                  className={`mt-1 text-[10px] font-extrabold tracking-[0.08em] transition-colors ${isActive ? 'text-emerald-700' : 'text-slate-500'}`}
                 >
                   {label}
                 </div>

@@ -8,8 +8,8 @@ interface TimeSlotsProps {
 }
 export function TimeSlots({ selectedTime, onSelectTime, slots }: TimeSlotsProps) {
   return (
-    <div className="w-full mb-12">
-      <h3 className="font-sans font-semibold tracking-tight text-xl text-slate-800 mb-6">
+    <div className="mb-12 w-full">
+      <h3 className="v2-title mb-6 text-xl font-bold">
         Select Your Time
       </h3>
       <div className="flex flex-wrap gap-3">
@@ -38,10 +38,7 @@ export function TimeSlots({ selectedTime, onSelectTime, slots }: TimeSlotsProps)
               }
               onClick={() => slot.available && onSelectTime(slot.time)}
               disabled={!slot.available}
-              className={`
-                px-5 py-3 rounded-full font-inter text-sm tracking-wide transition-all duration-300 border
-                ${!slot.available ? 'border-teal-100/30 text-slate-400/50 cursor-not-allowed bg-transparent' : isSelected ? 'border-emerald-500 bg-emerald-500 text-white font-medium shadow-[0_4px_14px_rgba(151,117,77,0.2)]' : 'border-emerald-600/50 text-emerald-600 bg-transparent hover:border-emerald-600'}
-              `}
+              className={`rounded-2xl border px-5 py-3 text-sm font-bold tracking-wide transition-all duration-300 ${!slot.available ? 'cursor-not-allowed border-emerald-100/60 bg-slate-50 text-slate-400/60 line-through' : isSelected ? 'border-emerald-700 bg-[#006c49] text-white shadow-[0_12px_24px_rgba(0,108,73,0.2)]' : 'border-emerald-200 text-emerald-700 hover:border-emerald-500 hover:bg-emerald-50'}`}
             >
               {slot.time}
             </motion.button>

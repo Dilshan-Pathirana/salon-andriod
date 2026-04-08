@@ -13,6 +13,7 @@ import {
   logoutCurrentSession,
   updateMyProfile,
 } from '../lib/api'
+import { pageMotionProps } from '../lib/motion'
 
 function parseDate(date: string): Date {
   const [year, month, day] = date.split('-').map(Number)
@@ -257,18 +258,7 @@ export function ProfilePage({ onSignedOut }: ProfilePageProps) {
 
   return (
     <motion.div
-      initial={{
-        opacity: 0,
-      }}
-      animate={{
-        opacity: 1,
-      }}
-      exit={{
-        opacity: 0,
-      }}
-      transition={{
-        duration: 0.5,
-      }}
+      {...pageMotionProps}
       className="px-6 pt-16 pb-32"
     >
       <div className="flex flex-col items-center mb-16">
@@ -285,14 +275,14 @@ export function ProfilePage({ onSignedOut }: ProfilePageProps) {
             duration: 0.6,
             ease: 'easeOut',
           }}
-          className="w-28 h-28 rounded-full p-[3px] bg-gradient-to-b from-emerald-500 to-teal-100 mb-6"
+          className="mb-6 h-28 w-28 rounded-full bg-gradient-to-b from-emerald-500 to-teal-100 p-[3px]"
         >
-          <div className="w-full h-full rounded-full bg-teal-50 flex items-center justify-center overflow-hidden relative">
+          <div className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-full bg-emerald-50">
             <div className="absolute inset-0 opacity-40 mix-blend-overlay bg-noise" />
             {profileImageUrl ? (
               <img src={profileImageUrl} alt="Profile" className="w-full h-full object-cover" />
             ) : (
-              <span className="font-sans font-semibold tracking-tight text-3xl text-emerald-600">
+              <span className="v2-title text-3xl text-emerald-700">
                 {initials}
               </span>
             )}
@@ -311,7 +301,7 @@ export function ProfilePage({ onSignedOut }: ProfilePageProps) {
           transition={{
             delay: 0.2,
           }}
-          className="font-sans font-semibold tracking-tight text-2xl text-slate-800 mb-2"
+          className="v2-title mb-2 text-2xl"
         >
           {profileName || 'Profile'}
         </motion.h2>
@@ -334,7 +324,7 @@ export function ProfilePage({ onSignedOut }: ProfilePageProps) {
       </div>
 
       {statusMessage ? (
-        <div className="mb-6 text-center font-inter text-xs text-emerald-600 tracking-wide">
+        <div className="mb-6 text-center font-inter text-xs text-emerald-600 dark:text-emerald-300 tracking-wide">
           {statusMessage}
         </div>
       ) : null}
@@ -359,14 +349,14 @@ export function ProfilePage({ onSignedOut }: ProfilePageProps) {
               backgroundColor: 'rgba(54, 68, 66, 0.3)',
             }}
             onClick={() => void handleMenuClick(item.action)}
-            className="w-full flex items-center justify-between py-5 border-b border-teal-100/30 group"
+            className="group v2-card flex w-full items-center justify-between rounded-2xl px-4 py-4"
           >
             <div className="flex items-center space-x-4">
               <item.icon
                 className="w-5 h-5 text-emerald-600 opacity-80 group-hover:opacity-100 transition-opacity"
                 strokeWidth={1.5}
               />
-              <span className="font-inter text-base text-slate-800 font-light tracking-wide">
+              <span className="font-inter text-base text-slate-800 dark:text-emerald-50 font-light tracking-wide">
                 {item.label}
               </span>
             </div>
@@ -381,20 +371,20 @@ export function ProfilePage({ onSignedOut }: ProfilePageProps) {
       {activeAction === 'appointments' ? (
         <div className="mt-8 space-y-3">
           {isLoading ? (
-            <p className="font-inter text-sm text-slate-400">Loading appointments...</p>
+            <p className="font-inter text-sm text-slate-400 dark:text-emerald-100/70">Loading appointments...</p>
           ) : appointments.length === 0 ? (
-            <p className="font-inter text-sm text-slate-400">No appointments found</p>
+            <p className="font-inter text-sm text-slate-400 dark:text-emerald-100/70">No appointments found</p>
           ) : (
             appointments.map((appointment) => (
               <div
                 key={appointment.id}
-                className="border border-teal-100/40 rounded-lg p-4 flex justify-between items-center"
+                className="v2-card flex items-center justify-between rounded-2xl p-4"
               >
                 <div>
-                  <p className="font-inter text-sm text-slate-800">{appointment.date}</p>
-                  <p className="font-inter text-xs text-slate-400">{appointment.timeSlot}</p>
+                  <p className="font-inter text-sm text-slate-800 dark:text-emerald-50">{appointment.date}</p>
+                  <p className="font-inter text-xs text-slate-400 dark:text-emerald-100/70">{appointment.timeSlot}</p>
                 </div>
-                <span className="font-inter text-xs text-emerald-600 tracking-wider">
+                <span className="font-inter text-xs text-emerald-600 dark:text-emerald-300 tracking-wider">
                   {appointment.status}
                 </span>
               </div>
@@ -406,33 +396,33 @@ export function ProfilePage({ onSignedOut }: ProfilePageProps) {
       {activeAction === 'edit' ? (
         <div className="mt-8 space-y-3">
           <input
-            className="w-full bg-white border border-teal-100/40 rounded-lg p-3 text-sm text-slate-800"
+            className="v2-input"
             placeholder="First name"
             value={editForm.firstName}
             onChange={(event) => setEditForm((prev) => ({ ...prev, firstName: event.target.value }))}
           />
           <input
-            className="w-full bg-white border border-teal-100/40 rounded-lg p-3 text-sm text-slate-800"
+            className="v2-input"
             placeholder="Last name"
             value={editForm.lastName}
             onChange={(event) => setEditForm((prev) => ({ ...prev, lastName: event.target.value }))}
           />
           <input
             type="password"
-            className="w-full bg-white border border-teal-100/40 rounded-lg p-3 text-sm text-slate-800"
+            className="v2-input"
             placeholder="Current password (required to change password)"
             value={editForm.currentPassword}
             onChange={(event) => setEditForm((prev) => ({ ...prev, currentPassword: event.target.value }))}
           />
           <input
             type="password"
-            className="w-full bg-white border border-teal-100/40 rounded-lg p-3 text-sm text-slate-800"
+            className="v2-input"
             placeholder="New password (optional)"
             value={editForm.password}
             onChange={(event) => setEditForm((prev) => ({ ...prev, password: event.target.value }))}
           />
           <input
-            className="w-full bg-white border border-teal-100/40 rounded-lg p-3 text-sm text-slate-800"
+            className="v2-input"
             placeholder="Profile image URL"
             value={editForm.profileImageUrl}
             onChange={(event) => setEditForm((prev) => ({ ...prev, profileImageUrl: event.target.value }))}
@@ -440,7 +430,7 @@ export function ProfilePage({ onSignedOut }: ProfilePageProps) {
           <button
             onClick={() => void handleSaveProfile()}
             disabled={isLoading}
-            className="w-full py-3 bg-emerald-500 text-white rounded-lg text-xs tracking-widest uppercase font-semibold disabled:opacity-60"
+            className="v2-btn-primary disabled:opacity-60"
           >
             Save Profile
           </button>
@@ -451,19 +441,19 @@ export function ProfilePage({ onSignedOut }: ProfilePageProps) {
         <div className="mt-8 space-y-3">
           <button
             onClick={() => handlePreferenceChange('queueAlerts')}
-            className="w-full border border-teal-100/40 rounded-lg p-4 flex justify-between items-center"
+            className="v2-card flex w-full items-center justify-between rounded-2xl p-4"
           >
-            <span className="font-inter text-sm text-slate-800">Queue Alerts</span>
-            <span className="font-inter text-xs text-emerald-600 tracking-wider">
+            <span className="font-inter text-sm text-slate-800 dark:text-emerald-50">Queue Alerts</span>
+            <span className="font-inter text-xs text-emerald-600 dark:text-emerald-300 tracking-wider">
               {preferences.queueAlerts ? 'ON' : 'OFF'}
             </span>
           </button>
           <button
             onClick={() => handlePreferenceChange('appointmentReminders')}
-            className="w-full border border-teal-100/40 rounded-lg p-4 flex justify-between items-center"
+            className="v2-card flex w-full items-center justify-between rounded-2xl p-4"
           >
-            <span className="font-inter text-sm text-slate-800">Appointment Reminders</span>
-            <span className="font-inter text-xs text-emerald-600 tracking-wider">
+            <span className="font-inter text-sm text-slate-800 dark:text-emerald-50">Appointment Reminders</span>
+            <span className="font-inter text-xs text-emerald-600 dark:text-emerald-300 tracking-wider">
               {preferences.appointmentReminders ? 'ON' : 'OFF'}
             </span>
           </button>

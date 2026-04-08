@@ -8,6 +8,7 @@ import {
   getLiveQueue,
   LiveQueueItem,
 } from '../lib/api'
+import { pageMotionProps } from '../lib/motion'
 
 function toDateKey(date: Date): string {
   const year = date.getFullYear()
@@ -110,45 +111,45 @@ export function AdminQueueManagementPage() {
   }
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.35 }} className="px-4 py-6">
-      <h1 className="font-sans font-semibold tracking-tight text-3xl text-slate-900 text-center mb-8">Queue Management</h1>
+    <motion.div {...pageMotionProps} className="v2-admin-shell">
+      <h1 className="v2-title mb-8 text-center text-3xl">Queue Management</h1>
 
       <div className="mb-6">
-        <label className="text-xs text-slate-500 block mb-2 tracking-widest uppercase">Queue date</label>
+        <label className="text-xs text-slate-500 dark:text-emerald-100/70 block mb-2 tracking-widest uppercase">Queue date</label>
         <input
           type="date"
           value={queueDate}
           onChange={(event) => setQueueDate(event.target.value)}
-          className="w-full bg-white border border-slate-200 rounded-lg p-3 text-sm text-slate-900"
+          className="v2-input"
         />
       </div>
 
-      {message ? <p className="text-xs text-blue-600 mb-4">{message}</p> : null}
-      {isLoading ? <p className="text-sm text-slate-500 mb-4">Loading queue...</p> : null}
-      {!isLoading && rows.length === 0 ? <p className="text-sm text-slate-500 mb-6">No appointments for this day</p> : null}
+      {message ? <p className="text-xs text-blue-600 dark:text-blue-300 mb-4">{message}</p> : null}
+      {isLoading ? <p className="text-sm text-slate-500 dark:text-emerald-100/70 mb-4">Loading queue...</p> : null}
+      {!isLoading && rows.length === 0 ? <p className="text-sm text-slate-500 dark:text-emerald-100/70 mb-6">No appointments for this day</p> : null}
 
-      <div className="space-y-3 mb-8">
+      <div className="v2-admin-stack mb-8">
         {rows.map((row, index) => (
-          <div key={row.id} className="border border-slate-200 rounded-lg p-3 bg-white shadow-sm">
+          <div key={row.id} className="v2-card rounded-2xl p-3">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <p className="text-sm text-slate-900">#{row.position} · {row.name}</p>
-                <p className="text-xs text-slate-500">{row.phoneNumber} · {row.timeSlot}</p>
+                <p className="text-sm text-slate-900 dark:text-emerald-50">#{row.position} · {row.name}</p>
+                <p className="text-xs text-slate-500 dark:text-emerald-100/70">{row.phoneNumber} · {row.timeSlot}</p>
               </div>
-              <span className="text-xs text-blue-600 tracking-wider">{row.status}</span>
+              <span className="text-xs tracking-wider text-emerald-700 dark:text-emerald-300">{row.status}</span>
             </div>
 
             <div className="grid grid-cols-4 gap-2 mt-3">
-              <button onClick={() => void move(index, -1)} disabled={index === 0} className="py-2 border border-slate-200 rounded text-xs text-slate-900 disabled:opacity-40">Up</button>
-              <button onClick={() => void move(index, 1)} disabled={index === rows.length - 1} className="py-2 border border-slate-200 rounded text-xs text-slate-900 disabled:opacity-40">Down</button>
-              <button onClick={() => void completeEntry(row.id)} className="py-2 border border-green-400/40 rounded text-xs text-green-300">Complete</button>
-              <button onClick={() => void removeEntry(row.id)} className="py-2 border border-red-400/40 rounded text-xs text-red-300">Delete</button>
+              <button onClick={() => void move(index, -1)} disabled={index === 0} className="rounded-xl border border-slate-200 dark:border-emerald-900/60 py-2 text-xs font-semibold text-slate-900 dark:text-emerald-50 disabled:opacity-40">Up</button>
+              <button onClick={() => void move(index, 1)} disabled={index === rows.length - 1} className="rounded-xl border border-slate-200 dark:border-emerald-900/60 py-2 text-xs font-semibold text-slate-900 dark:text-emerald-50 disabled:opacity-40">Down</button>
+              <button onClick={() => void completeEntry(row.id)} className="rounded-xl border border-emerald-300 py-2 text-xs font-semibold text-emerald-700">Complete</button>
+              <button onClick={() => void removeEntry(row.id)} className="rounded-xl border border-red-300 py-2 text-xs font-semibold text-red-500">Delete</button>
             </div>
           </div>
         ))}
       </div>
 
-      <button onClick={() => void concludeSession()} className="w-full py-3 border border-red-500/60 text-red-300 rounded-lg text-xs tracking-widest uppercase font-semibold bg-white/40">
+      <button onClick={() => void concludeSession()} className="w-full rounded-2xl border border-red-300 bg-white/70 py-3 text-xs font-bold uppercase tracking-widest text-red-500">
         Conclude Session
       </button>
     </motion.div>
