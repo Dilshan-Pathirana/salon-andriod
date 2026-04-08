@@ -32,7 +32,7 @@ export function AdminPage({ user, initialTab = 'services' }: { user: AuthUser; i
   }
 
   return (
-    <motion.div {...pageMotionProps} className="v2-admin-shell">
+    <motion.div {...pageMotionProps} className="px-6 pt-8 pb-24">
       <h1 className="font-sans font-semibold tracking-tight text-3xl text-center text-slate-900 mb-8">Admin Control</h1>
 
       <div className="grid grid-cols-2 gap-2 mb-8">

@@ -153,24 +153,24 @@ export function AdminAppointmentManagementPage() {
 
   const Section = ({ title, items }: { title: string; items: ManagedAppointment[] }) => (
     <section className="mb-8">
-      <h2 className="v2-title mb-3 text-xl">{title}</h2>
+      <p className="ds-overline text-on-surface-variant mb-3">{title}</p>
       {items.length === 0 ? (
-        <p className={`font-inter text-sm ${sectionMutedText}`}>No appointments</p>
+        <p className="text-sm text-on-surface-variant">No appointments</p>
       ) : (
-        <div className="v2-admin-stack">
+        <div className="space-y-3">
           {items.map((item) => (
-            <div key={item.id} className="v2-card rounded-2xl p-4">
+            <div key={item.id} className="bg-surface-container-lowest rounded-2xl p-4 shadow-sm">
               <div className="flex justify-between items-start gap-3">
                 <div>
-                  <p className={`text-sm ${sectionText}`}>{item.userName || 'Reserved'}</p>
-                  <p className={`text-xs ${sectionMutedText}`}>{item.phoneNumber || '-'}</p>
-                  <p className={`text-xs mt-1 ${sectionMutedText}`}>{item.date} · {item.timeSlot}</p>
+                  <p className="font-label font-bold text-on-surface text-sm">{item.userName || 'Reserved'}</p>
+                  <p className="text-on-surface-variant text-xs">{item.phoneNumber || '-'}</p>
+                  <p className="text-on-surface-variant text-xs mt-1">{item.date} · {item.timeSlot}</p>
                 </div>
-                <div className="text-right">
-                  <span className="block text-xs tracking-wider text-emerald-700 dark:text-emerald-300">{item.isReserved ? 'RESERVED' : item.status}</span>
+                <div className="text-right flex flex-col items-end gap-2">
+                  <span className="text-[10px] font-bold text-primary uppercase tracking-wider">{item.isReserved ? 'RESERVED' : item.status}</span>
                   <button
                     onClick={() => void deleteAppointment(item.id)}
-                    className="mt-2 rounded-xl border border-red-300 px-3 py-2 text-xs font-bold uppercase tracking-widest text-red-500"
+                    className="rounded-xl border border-red-200 px-3 py-1 text-xs font-bold uppercase tracking-widest text-red-400"
                   >
                     Delete
                   </button>
@@ -184,11 +184,14 @@ export function AdminAppointmentManagementPage() {
   )
 
   return (
-    <motion.div {...pageMotionProps} className="v2-admin-shell">
-      <h1 className="v2-title mb-8 text-center text-3xl">Appointment Management</h1>
+    <motion.div {...pageMotionProps} className="px-6 pt-8 pb-24">
+      <div className="mb-8">
+        <p className="ds-overline text-primary mb-1">Admin</p>
+        <h1 className="font-headline text-3xl font-extrabold text-on-surface">Appointments</h1>
+      </div>
 
-      <div className="v2-card mb-8 v2-admin-stack p-4">
-        <p className="v2-label">Add Reserved Appointment</p>
+      <div className="bg-surface-container-lowest rounded-2xl mb-8 space-y-3 p-5 shadow-sm">
+        <p className="ds-overline text-on-surface-variant">Add Reserved Appointment</p>
         <div className="v2-admin-grid">
           <input type="date" value={reservedDate} onChange={(event) => setReservedDate(event.target.value)} className="v2-input" />
           <input type="time" value={reservedTime} onChange={(event) => setReservedTime(event.target.value)} className="v2-input" />

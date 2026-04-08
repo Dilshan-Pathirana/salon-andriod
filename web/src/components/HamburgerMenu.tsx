@@ -1,5 +1,5 @@
 import React from 'react'
-import { X, ChevronRight, LogOut, LogIn, List } from 'lucide-react'
+import { X, LogOut, LogIn, List } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 export type MenuTab =
@@ -78,14 +78,14 @@ export function HamburgerMenu({ isOpen, onClose, onSelect, items, isLoggedIn, on
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="flex h-28 items-end justify-between bg-gradient-to-br from-[#006c49] to-[#10b981] px-6 pb-6">
+            <div className="flex h-28 items-end justify-between bg-gradient-to-br from-primary to-primary-container px-6 pb-6">
               <div>
-                <h2 className="v2-title mb-1 text-2xl text-white">Menu</h2>
-                <p className="text-sm font-semibold text-emerald-50/90">Navigate your experience</p>
+                <h2 className="font-headline text-2xl font-black text-on-primary tracking-widest uppercase">Lumina</h2>
+                <p className="text-sm font-label font-bold text-on-primary/70 mt-1">Navigate your experience</p>
               </div>
               <button
                 onClick={onClose}
-                className="-mr-2 rounded-xl bg-white/15 p-2 text-emerald-50 transition-colors hover:bg-white/25 hover:text-white"
+                className="-mr-2 rounded-xl bg-white/15 p-2 text-on-primary transition-colors hover:bg-white/25"
                 aria-label="Close menu"
               >
                 <X className="w-5 h-5" />
@@ -102,27 +102,27 @@ export function HamburgerMenu({ isOpen, onClose, onSelect, items, isLoggedIn, on
                   animate="open"
                   key={item.id}
                   onClick={() => handleSelect(item.id)}
-                  className="group flex w-full items-center gap-3 rounded-xl p-3.5 transition-all duration-200 hover:bg-emerald-50 active:bg-emerald-100"
+                  className="group flex w-full items-center gap-3 rounded-2xl p-3.5 transition-all hover:bg-surface-container-low active:bg-surface-container"
                 >
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-50 text-slate-400 transition-colors group-hover:bg-emerald-100 group-hover:text-emerald-700">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-surface-container-low text-on-surface-variant transition-colors group-hover:bg-primary/10 group-hover:text-primary">
                     {item.icon ? <item.icon className="w-4 h-4" /> : <List className="w-4 h-4" />}
                   </div>
-                  <span className="flex-1 text-left text-base font-semibold text-slate-700 transition-colors group-hover:text-emerald-900">
+                  <span className="flex-1 text-left font-label font-bold text-sm text-on-surface group-hover:text-primary transition-colors">
                     {item.label}
                   </span>
-                  <ChevronRight className="w-4 h-4 transform text-slate-300 transition-all group-hover:translate-x-1 group-hover:text-emerald-600" />
-</motion.button>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-outline-variant group-hover:text-primary transition-colors"><polyline points="9 18 15 12 9 6"/></svg>
+                </motion.button>
               ))}
             </div>
 
             {/* Footer */}
-            <div className="border-t border-slate-100 bg-slate-50/60 p-6">
+            <div className="border-t border-outline-variant/30 bg-surface-container-lowest p-6">
               <button 
                 onClick={handleAuthAction}
-                className="flex w-full items-center space-x-2 rounded-lg px-2 py-2 text-sm font-semibold text-slate-500 transition-colors hover:bg-red-50 hover:text-red-500"
+                className="flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-sm font-label font-bold text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-on-surface"
               >
                 {isLoggedIn ? <LogOut className="w-4 h-4" /> : <LogIn className="w-4 h-4" />}
-                <span>{isLoggedIn ? 'Log Out' : 'Log In'}</span>
+                <span>{isLoggedIn ? 'Sign Out' : 'Sign In'}</span>
               </button>
             </div>
           </motion.div>

@@ -73,22 +73,27 @@ export function AuthPage({ onAuthSuccess }: AuthPageProps) {
   }
 
   return (
-    <motion.div {...pageMotionProps} className="px-4 py-6">
-      <h1 className="v2-title mb-6 text-center text-3xl">
-        {mode === 'login' ? 'Login' : 'Sign Up'}
-      </h1>
+    <motion.div {...pageMotionProps} className="min-h-screen flex flex-col px-6 pt-16 pb-12">
+      {/* Brand */}
+      <div className="mb-10 text-center">
+        <h1 className="font-headline text-4xl font-black text-emerald-900 tracking-widest uppercase">Lumina</h1>
+        <p className="text-on-surface-variant text-sm mt-2 font-body">
+          {mode === 'login' ? 'Welcome back' : 'Create your account'}
+        </p>
+      </div>
 
-      <div className="v2-card space-y-3 p-4">
+      {/* Form card */}
+      <div className="bg-surface-container-lowest rounded-3xl p-6 shadow-[0_20px_40px_rgba(0,108,73,0.05)] space-y-4">
         {mode === 'signup' ? (
           <>
             <input
-              className="v2-input"
+              className="ds-input"
               placeholder="First name"
               value={firstName}
               onChange={(event) => setFirstName(event.target.value)}
             />
             <input
-              className="v2-input"
+              className="ds-input"
               placeholder="Last name"
               value={lastName}
               onChange={(event) => setLastName(event.target.value)}
@@ -97,14 +102,14 @@ export function AuthPage({ onAuthSuccess }: AuthPageProps) {
         ) : null}
 
         <input
-          className="v2-input"
+          className="ds-input"
           placeholder="Phone number"
           value={phoneNumber}
           onChange={(event) => setPhoneNumber(event.target.value)}
         />
         <input
           type="password"
-          className="v2-input"
+          className="ds-input"
           placeholder="Password"
           value={password}
           onChange={(event) => setPassword(event.target.value)}
@@ -113,20 +118,21 @@ export function AuthPage({ onAuthSuccess }: AuthPageProps) {
         <button
           onClick={() => void handleSubmit()}
           disabled={isSubmitting}
-          className="v2-btn-primary"
+          className="ds-btn-primary disabled:opacity-60 mt-2"
         >
-          {isSubmitting ? 'Please wait...' : mode === 'login' ? 'Login' : 'Create Account'}
+          {isSubmitting ? 'Please wait…' : mode === 'login' ? 'Sign In' : 'Create Account'}
         </button>
 
-        <button
-          onClick={() => setMode((prev) => (prev === 'login' ? 'signup' : 'login'))}
-          className="w-full py-2 text-xs font-semibold tracking-wide text-emerald-700"
-        >
-          {mode === 'login' ? 'Need an account? Sign Up' : 'Already have an account? Login'}
-        </button>
-
-        {message ? <p className="text-center text-xs text-rose-600">{message}</p> : null}
+        {message ? <p className="text-center text-xs text-red-500 font-body">{message}</p> : null}
       </div>
+
+      {/* Mode toggle */}
+      <button
+        onClick={() => setMode((prev) => (prev === 'login' ? 'signup' : 'login'))}
+        className="mt-6 w-full py-3 text-sm font-label font-bold text-primary tracking-wide"
+      >
+        {mode === 'login' ? "Don't have an account? Sign Up" : 'Already have an account? Sign In'}
+      </button>
     </motion.div>
   )
 }

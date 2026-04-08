@@ -49,12 +49,15 @@ export function AdminDashboardPage() {
   }, [stats])
 
   return (
-    <motion.div {...pageMotionProps} className="v2-admin-shell mx-auto max-w-5xl">
+    <motion.div {...pageMotionProps} className="px-6 pt-8 pb-24 mx-auto max-w-5xl">
       <div className="flex items-center justify-between mb-8">
-        <h1 className="v2-title text-3xl">Dashboard</h1>
+        <div>
+          <p className="ds-overline text-primary mb-1">Admin</p>
+          <h1 className="font-headline text-3xl font-extrabold text-on-surface">Dashboard</h1>
+        </div>
         {stats && (
-          <span className="flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700 shadow-sm">
-            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+          <span className="flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-label font-bold text-primary">
+            <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
             Live
           </span>
         )}
@@ -74,67 +77,55 @@ export function AdminDashboardPage() {
       ) : null}
 
       {stats ? (
-        <div className="v2-admin-stack">
+        <div className="space-y-5">
           <div className="grid grid-cols-2 gap-4">
-            <motion.div whileHover={{ y: -2 }} className="group v2-card relative overflow-hidden p-5">
-              <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                <Users className="w-12 h-12" />
-              </div>
-              <div className="flex items-center gap-3 mb-2">
-                <div className="rounded-lg bg-emerald-100 p-2 text-emerald-700">
+            <motion.div whileHover={{ y: -2 }} className="bg-surface-container-lowest rounded-2xl p-5 shadow-[0_10px_30px_rgba(0,108,73,0.04)]">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="rounded-xl bg-primary/10 p-2 text-primary">
                   <Users className="w-4 h-4" />
                 </div>
-                <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Users</p>
+                <p className="ds-overline text-on-surface-variant">Users</p>
               </div>
-              <p className="text-3xl font-bold tracking-tight text-slate-900">{stats.registeredUsers}</p>
+              <p className="font-headline text-3xl font-bold text-on-surface">{stats.registeredUsers}</p>
             </motion.div>
             
-            <motion.div whileHover={{ y: -2 }} className="group v2-card relative overflow-hidden p-5">
-              <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                <Scissors className="w-12 h-12" />
-              </div>
-              <div className="flex items-center gap-3 mb-2">
-                <div className="rounded-lg bg-emerald-100 p-2 text-emerald-700">
+            <motion.div whileHover={{ y: -2 }} className="bg-surface-container-lowest rounded-2xl p-5 shadow-[0_10px_30px_rgba(0,108,73,0.04)]">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="rounded-xl bg-primary/10 p-2 text-primary">
                   <Scissors className="w-4 h-4" />
                 </div>
-                <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Services</p>
+                <p className="ds-overline text-on-surface-variant">Services</p>
               </div>
-              <p className="text-3xl font-bold tracking-tight text-slate-900">{stats.activeServices}</p>
+              <p className="font-headline text-3xl font-bold text-on-surface">{stats.activeServices}</p>
             </motion.div>
             
-            <motion.div whileHover={{ y: -2 }} className="group v2-card relative overflow-hidden p-5">
-              <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                <CalendarDays className="w-12 h-12" />
-              </div>
-              <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 bg-emerald-50 text-emerald-600 rounded-lg">
+            <motion.div whileHover={{ y: -2 }} className="bg-surface-container-lowest rounded-2xl p-5 shadow-[0_10px_30px_rgba(0,108,73,0.04)]">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="rounded-xl bg-primary/10 p-2 text-primary">
                   <CalendarDays className="w-4 h-4" />
                 </div>
-                <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Today</p>
+                <p className="ds-overline text-on-surface-variant">Today</p>
               </div>
-              <p className="text-3xl font-bold tracking-tight text-slate-900">{stats.appointmentsToday}</p>
+              <p className="font-headline text-3xl font-bold text-on-surface">{stats.appointmentsToday}</p>
             </motion.div>
             
-            <motion.div whileHover={{ y: -2 }} className="group v2-card relative overflow-hidden p-5">
-              <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                <Clock className="w-12 h-12" />
-              </div>
-              <div className="flex items-center gap-3 mb-2">
-                <div className="rounded-lg bg-orange-100 p-2 text-orange-600">
+            <motion.div whileHover={{ y: -2 }} className="bg-surface-container-lowest rounded-2xl p-5 shadow-[0_10px_30px_rgba(0,108,73,0.04)]">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="rounded-xl bg-tertiary-container/20 p-2 text-tertiary-container">
                   <Clock className="w-4 h-4" />
                 </div>
-                <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Avg Time</p>
+                <p className="ds-overline text-on-surface-variant">Avg Time</p>
               </div>
-              <p className="text-3xl font-bold tracking-tight text-slate-900">{stats.averageAppointmentTime}<span className="text-lg font-medium text-slate-400 ml-1">m</span></p>
+              <p className="font-headline text-3xl font-bold text-on-surface">{stats.averageAppointmentTime}<span className="text-lg font-medium text-on-surface-variant ml-1">m</span></p>
             </motion.div>
           </div>
 
-          <div className="v2-card p-5">
+          <div className="bg-surface-container-lowest rounded-2xl p-5 shadow-[0_10px_30px_rgba(0,108,73,0.04)]">
             <div className="flex items-center justify-between mb-6">
-              <p className="font-semibold text-slate-900">User Growth Trend</p>
+              <p className="font-label font-bold text-on-surface">User Growth Trend</p>
               <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-emerald-600"></span>
-                <span className="text-xs text-slate-500 font-medium">New Registrations</span>
+                <span className="w-2 h-2 rounded-full bg-primary"></span>
+                <span className="text-xs text-on-surface-variant font-label">New Registrations</span>
               </div>
             </div>
             <div className="relative pt-4">
@@ -174,21 +165,21 @@ export function AdminDashboardPage() {
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="v2-card flex items-center justify-between rounded-2xl p-4">
+            <div className="bg-surface-container-lowest flex items-center justify-between rounded-2xl p-5 shadow-[0_10px_30px_rgba(0,108,73,0.04)]">
               <div>
-                <p className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-1">In Queue</p>
-                <p className="text-2xl font-bold text-slate-900">{stats.inQueue}</p>
+                <p className="ds-overline text-on-surface-variant mb-1">In Queue</p>
+                <p className="font-headline text-2xl font-bold text-on-surface">{stats.inQueue}</p>
               </div>
-              <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600">
+              <div className="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center text-on-surface-variant">
                 <Activity className="w-5 h-5" />
               </div>
             </div>
-            <div className="v2-card flex items-center justify-between rounded-2xl p-4">
+            <div className="bg-surface-container-lowest flex items-center justify-between rounded-2xl p-5 shadow-[0_10px_30px_rgba(0,108,73,0.04)]">
               <div>
-                <p className="text-xs font-medium text-emerald-600 uppercase tracking-wider mb-1">Completed</p>
-                <p className="text-2xl font-bold text-emerald-700">{stats.completed}</p>
+                <p className="ds-overline text-primary mb-1">Completed</p>
+                <p className="font-headline text-2xl font-bold text-primary">{stats.completed}</p>
               </div>
-              <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                 <CheckCircle2 className="w-5 h-5" />
               </div>
             </div>

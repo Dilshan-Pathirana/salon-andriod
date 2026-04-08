@@ -5,7 +5,6 @@ import {
   Edit,
   Settings,
   LogOut,
-  ChevronRight,
 } from 'lucide-react'
 import {
   getMyAppointments,
@@ -257,206 +256,107 @@ export function ProfilePage({ onSignedOut }: ProfilePageProps) {
   }
 
   return (
-    <motion.div
-      {...pageMotionProps}
-      className="px-6 pt-16 pb-32"
-    >
-      <div className="flex flex-col items-center mb-16">
+    <motion.div {...pageMotionProps} className="px-6 pt-12 pb-32">
+      {/* Avatar + name */}
+      <div className="flex flex-col items-center mb-10">
         <motion.div
-          initial={{
-            scale: 0.9,
-            opacity: 0,
-          }}
-          animate={{
-            scale: 1,
-            opacity: 1,
-          }}
-          transition={{
-            duration: 0.6,
-            ease: 'easeOut',
-          }}
-          className="mb-6 h-28 w-28 rounded-full bg-gradient-to-b from-emerald-500 to-teal-100 p-[3px]"
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          className="mb-5 h-24 w-24 rounded-full bg-gradient-to-b from-primary to-primary-container p-[3px] shadow-[0_10px_30px_rgba(0,108,73,0.18)]"
         >
-          <div className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-full bg-emerald-50">
-            <div className="absolute inset-0 opacity-40 mix-blend-overlay bg-noise" />
+          <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-full bg-emerald-50">
             {profileImageUrl ? (
               <img src={profileImageUrl} alt="Profile" className="w-full h-full object-cover" />
             ) : (
-              <span className="v2-title text-3xl text-emerald-700">
-                {initials}
-              </span>
+              <span className="font-headline text-2xl font-black text-primary">{initials}</span>
             )}
           </div>
         </motion.div>
-
-        <motion.h2
-          initial={{
-            opacity: 0,
-            y: 10,
-          }}
-          animate={{
-            opacity: 1,
-            y: 0,
-          }}
-          transition={{
-            delay: 0.2,
-          }}
-          className="v2-title mb-2 text-2xl"
-        >
-          {profileName || 'Profile'}
-        </motion.h2>
-        <motion.p
-          initial={{
-            opacity: 0,
-            y: 10,
-          }}
-          animate={{
-            opacity: 1,
-            y: 0,
-          }}
-          transition={{
-            delay: 0.3,
-          }}
-          className="font-inter text-sm text-slate-400"
-        >
-          {profilePhone || 'Member profile'}
-        </motion.p>
+        <h2 className="font-headline text-2xl font-bold text-on-surface">{profileName || 'Profile'}</h2>
+        <p className="text-on-surface-variant text-sm mt-1 font-body">{profilePhone || 'Member'}</p>
       </div>
 
       {statusMessage ? (
-        <div className="mb-6 text-center font-inter text-xs text-emerald-600 dark:text-emerald-300 tracking-wide">
-          {statusMessage}
-        </div>
+        <div className="mb-6 text-center text-xs text-primary font-label font-bold tracking-wide">{statusMessage}</div>
       ) : null}
 
+      {/* Menu items */}
       <div className="space-y-2">
         {menuItems.map((item, idx) => (
           <motion.button
             key={item.label}
-            initial={{
-              opacity: 0,
-              y: 10,
-            }}
-            animate={{
-              opacity: 1,
-              y: 0,
-            }}
-            transition={{
-              delay: 0.4 + idx * 0.1,
-            }}
-            whileTap={{
-              scale: 0.98,
-              backgroundColor: 'rgba(54, 68, 66, 0.3)',
-            }}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 + idx * 0.08 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => void handleMenuClick(item.action)}
-            className="group v2-card flex w-full items-center justify-between rounded-2xl px-4 py-4"
+            className="w-full bg-surface-container-lowest flex items-center justify-between rounded-2xl px-5 py-4 shadow-[0_4px_20px_rgba(0,108,73,0.03)]"
           >
-            <div className="flex items-center space-x-4">
-              <item.icon
-                className="w-5 h-5 text-emerald-600 opacity-80 group-hover:opacity-100 transition-opacity"
-                strokeWidth={1.5}
-              />
-              <span className="font-inter text-base text-slate-800 dark:text-emerald-50 font-light tracking-wide">
-                {item.label}
-              </span>
+            <div className="flex items-center gap-4">
+              <item.icon className="w-5 h-5 text-primary" strokeWidth={1.5} />
+              <span className="font-label font-bold text-on-surface text-sm">{item.label}</span>
             </div>
-            <ChevronRight
-              className="w-5 h-5 text-slate-400/50 group-hover:text-emerald-600 transition-colors"
-              strokeWidth={1}
-            />
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3c4a42" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
           </motion.button>
         ))}
       </div>
 
+      {/* Appointments panel */}
       {activeAction === 'appointments' ? (
         <div className="mt-8 space-y-3">
           {isLoading ? (
-            <p className="font-inter text-sm text-slate-400 dark:text-emerald-100/70">Loading appointments...</p>
+            <div className="flex items-center justify-center py-8">
+              <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+            </div>
           ) : appointments.length === 0 ? (
-            <p className="font-inter text-sm text-slate-400 dark:text-emerald-100/70">No appointments found</p>
+            <p className="text-sm text-on-surface-variant font-body">No appointments found</p>
           ) : (
             appointments.map((appointment) => (
               <div
                 key={appointment.id}
-                className="v2-card flex items-center justify-between rounded-2xl p-4"
+                className="bg-surface-container-lowest rounded-2xl flex items-center justify-between p-5 shadow-[0_4px_20px_rgba(0,108,73,0.04)]"
               >
                 <div>
-                  <p className="font-inter text-sm text-slate-800 dark:text-emerald-50">{appointment.date}</p>
-                  <p className="font-inter text-xs text-slate-400 dark:text-emerald-100/70">{appointment.timeSlot}</p>
+                  <p className="font-label font-bold text-on-surface text-sm">{appointment.date}</p>
+                  <p className="text-on-surface-variant text-xs mt-0.5">{appointment.timeSlot}</p>
                 </div>
-                <span className="font-inter text-xs text-emerald-600 dark:text-emerald-300 tracking-wider">
-                  {appointment.status}
-                </span>
+                <span className="font-label font-bold text-xs text-primary uppercase tracking-wider">{appointment.status}</span>
               </div>
             ))
           )}
         </div>
       ) : null}
 
+      {/* Edit profile panel */}
       {activeAction === 'edit' ? (
         <div className="mt-8 space-y-3">
-          <input
-            className="v2-input"
-            placeholder="First name"
-            value={editForm.firstName}
-            onChange={(event) => setEditForm((prev) => ({ ...prev, firstName: event.target.value }))}
-          />
-          <input
-            className="v2-input"
-            placeholder="Last name"
-            value={editForm.lastName}
-            onChange={(event) => setEditForm((prev) => ({ ...prev, lastName: event.target.value }))}
-          />
-          <input
-            type="password"
-            className="v2-input"
-            placeholder="Current password (required to change password)"
-            value={editForm.currentPassword}
-            onChange={(event) => setEditForm((prev) => ({ ...prev, currentPassword: event.target.value }))}
-          />
-          <input
-            type="password"
-            className="v2-input"
-            placeholder="New password (optional)"
-            value={editForm.password}
-            onChange={(event) => setEditForm((prev) => ({ ...prev, password: event.target.value }))}
-          />
-          <input
-            className="v2-input"
-            placeholder="Profile image URL"
-            value={editForm.profileImageUrl}
-            onChange={(event) => setEditForm((prev) => ({ ...prev, profileImageUrl: event.target.value }))}
-          />
-          <button
-            onClick={() => void handleSaveProfile()}
-            disabled={isLoading}
-            className="v2-btn-primary disabled:opacity-60"
-          >
+          <input className="ds-input" placeholder="First name" value={editForm.firstName} onChange={(e) => setEditForm((p) => ({ ...p, firstName: e.target.value }))} />
+          <input className="ds-input" placeholder="Last name" value={editForm.lastName} onChange={(e) => setEditForm((p) => ({ ...p, lastName: e.target.value }))} />
+          <input type="password" className="ds-input" placeholder="Current password (to change password)" value={editForm.currentPassword} onChange={(e) => setEditForm((p) => ({ ...p, currentPassword: e.target.value }))} />
+          <input type="password" className="ds-input" placeholder="New password (optional)" value={editForm.password} onChange={(e) => setEditForm((p) => ({ ...p, password: e.target.value }))} />
+          <input className="ds-input" placeholder="Profile image URL" value={editForm.profileImageUrl} onChange={(e) => setEditForm((p) => ({ ...p, profileImageUrl: e.target.value }))} />
+          <button onClick={() => void handleSaveProfile()} disabled={isLoading} className="ds-btn-primary disabled:opacity-60">
             Save Profile
           </button>
         </div>
       ) : null}
 
+      {/* Preferences panel */}
       {activeAction === 'preferences' ? (
         <div className="mt-8 space-y-3">
-          <button
-            onClick={() => handlePreferenceChange('queueAlerts')}
-            className="v2-card flex w-full items-center justify-between rounded-2xl p-4"
-          >
-            <span className="font-inter text-sm text-slate-800 dark:text-emerald-50">Queue Alerts</span>
-            <span className="font-inter text-xs text-emerald-600 dark:text-emerald-300 tracking-wider">
-              {preferences.queueAlerts ? 'ON' : 'OFF'}
-            </span>
-          </button>
-          <button
-            onClick={() => handlePreferenceChange('appointmentReminders')}
-            className="v2-card flex w-full items-center justify-between rounded-2xl p-4"
-          >
-            <span className="font-inter text-sm text-slate-800 dark:text-emerald-50">Appointment Reminders</span>
-            <span className="font-inter text-xs text-emerald-600 dark:text-emerald-300 tracking-wider">
-              {preferences.appointmentReminders ? 'ON' : 'OFF'}
-            </span>
-          </button>
+          {([['queueAlerts', 'Queue Alerts'], ['appointmentReminders', 'Appointment Reminders']] as const).map(([key, label]) => (
+            <button
+              key={key}
+              onClick={() => handlePreferenceChange(key)}
+              className="bg-surface-container-lowest flex w-full items-center justify-between rounded-2xl p-5 shadow-[0_4px_20px_rgba(0,108,73,0.03)]"
+            >
+              <span className="font-label font-bold text-on-surface text-sm">{label}</span>
+              <span className={`font-label font-bold text-xs px-3 py-1 rounded-full ${preferences[key] ? 'bg-primary/10 text-primary' : 'bg-surface-container text-outline'}`}>
+                {preferences[key] ? 'ON' : 'OFF'}
+              </span>
+            </button>
+          ))}
         </div>
       ) : null}
     </motion.div>

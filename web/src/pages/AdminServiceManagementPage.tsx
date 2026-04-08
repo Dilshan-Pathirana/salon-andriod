@@ -108,8 +108,11 @@ export function AdminServiceManagementPage() {
   }
 
   return (
-    <motion.div {...pageMotionProps} className="v2-admin-shell">
-      <h1 className="v2-title mb-8 text-center text-3xl">Service Management</h1>
+    <motion.div {...pageMotionProps} className="px-6 pt-8 pb-24">
+      <div className="mb-8">
+        <p className="ds-overline text-primary mb-1">Admin</p>
+        <h1 className="font-headline text-3xl font-extrabold text-on-surface">Services</h1>
+      </div>
 
       <div className="v2-card mb-8 v2-admin-stack p-4">
         <p className="v2-label">Add Service</p>

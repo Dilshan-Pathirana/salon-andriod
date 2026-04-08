@@ -136,23 +136,28 @@ export function AppointmentsPage() {
 
   const Section = ({ title, items, canCancel }: { title: string; items: AppointmentRow[]; canCancel?: boolean }) => (
     <section className="mb-8">
-      <h2 className="v2-title mb-3 text-xl font-bold">{title}</h2>
+      <p className="ds-overline text-on-surface-variant mb-3">{title}</p>
       {items.length === 0 ? (
-        <p className="font-inter text-sm text-slate-400">No appointments</p>
+        <p className="text-sm text-on-surface-variant font-body">No appointments</p>
       ) : (
         <div className="space-y-3">
           {items.map((item) => (
-            <div key={item.id} className="v2-card flex items-center justify-between p-4">
+            <div key={item.id} className="bg-surface-container-lowest rounded-2xl flex items-center justify-between p-5 shadow-[0_4px_20px_rgba(0,108,73,0.04)]">
               <div>
-                <p className="font-inter text-sm text-slate-800">{item.date}</p>
-                <p className="font-inter text-xs text-slate-400">{item.timeSlot}</p>
+                <p className="font-label font-bold text-on-surface text-sm">{item.date}</p>
+                <p className="text-on-surface-variant text-xs mt-0.5">{item.timeSlot}</p>
               </div>
-              <div className="text-right">
-                <span className="font-inter text-xs text-emerald-600 tracking-wider block">{item.status}</span>
+              <div className="text-right flex flex-col items-end gap-2">
+                <span className={`font-label font-bold text-xs uppercase tracking-wider px-3 py-1 rounded-full ${
+                  item.status === 'BOOKED' ? 'bg-primary/10 text-primary'
+                  : item.status === 'IN_SERVICE' ? 'bg-tertiary-container/20 text-tertiary-container'
+                  : item.status === 'DONE' ? 'bg-emerald-50 text-emerald-600'
+                  : 'bg-surface-container text-outline'
+                }`}>{item.status}</span>
                 {canCancel && (item.status === 'BOOKED' || item.status === 'IN_SERVICE') ? (
                   <button
                     onClick={() => void cancelAppointment(item.id)}
-                    className="mt-2 rounded-xl border border-red-300 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-red-500"
+                    className="text-[10px] font-bold uppercase tracking-widest text-red-400 border border-red-200 rounded-xl px-3 py-1"
                   >
                     Cancel
                   </button>
@@ -166,13 +171,20 @@ export function AppointmentsPage() {
   )
 
   return (
-    <motion.div {...pageMotionProps} className="px-6 pt-12 pb-32">
-      <h1 className="v2-title mb-8 text-center text-3xl">Appointments</h1>
+    <motion.div {...pageMotionProps} className="px-6 pt-8 pb-32">
+      <div className="mb-8">
+        <p className="ds-overline text-primary mb-2">My Schedule</p>
+        <h1 className="font-headline text-4xl font-extrabold tracking-tight text-on-surface">Appointments</h1>
+      </div>
 
-      {isLoading ? <p className="font-inter text-sm text-slate-400">Loading appointments...</p> : null}
-      {message ? <p className="font-inter text-sm text-emerald-600">{message}</p> : null}
+      {isLoading ? (
+        <div className="flex items-center justify-center py-16">
+          <div className="w-7 h-7 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+        </div>
+      ) : null}
+      {message ? <p className="text-sm text-emerald-600 font-body mb-4">{message}</p> : null}
 
-      {!isLoading && !message ? (
+      {!isLoading ? (
         <>
           <Section title="Today" items={grouped.today} canCancel />
           <Section title="Upcoming" items={grouped.upcoming} canCancel />

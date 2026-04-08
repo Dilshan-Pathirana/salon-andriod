@@ -111,8 +111,11 @@ export function AdminQueueManagementPage() {
   }
 
   return (
-    <motion.div {...pageMotionProps} className="v2-admin-shell">
-      <h1 className="v2-title mb-8 text-center text-3xl">Queue Management</h1>
+    <motion.div {...pageMotionProps} className="px-6 pt-8 pb-24">
+      <div className="mb-8">
+        <p className="ds-overline text-primary mb-1">Admin</p>
+        <h1 className="font-headline text-3xl font-extrabold text-on-surface">Queue Management</h1>
+      </div>
 
       <div className="mb-6">
         <label className="text-xs text-slate-500 dark:text-emerald-100/70 block mb-2 tracking-widest uppercase">Queue date</label>
