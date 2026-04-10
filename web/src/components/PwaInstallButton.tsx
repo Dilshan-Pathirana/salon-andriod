@@ -9,6 +9,15 @@ type InstallPromptEvent = Event & {
 export function PwaInstallButton() {
   const [deferredPrompt, setDeferredPrompt] = useState<InstallPromptEvent | null>(null)
   const [message, setMessage] = useState('')
+  const [isVisible, setIsVisible] = useState(true)
+
+  useEffect(() => {
+    const timerId = window.setTimeout(() => {
+      setIsVisible(false)
+    }, 60_000)
+
+    return () => window.clearTimeout(timerId)
+  }, [])
 
   useEffect(() => {
     const onBeforeInstallPrompt = (event: Event) => {
@@ -32,6 +41,8 @@ export function PwaInstallButton() {
 
     setMessage('Use browser menu: Install app or Add to home screen.')
   }
+
+  if (!isVisible) return null
 
   return (
     <>

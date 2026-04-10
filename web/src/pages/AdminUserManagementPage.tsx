@@ -162,37 +162,37 @@ export function AdminUserManagementPage() {
         <button onClick={() => void addUser()} className="v2-btn-primary">Add User</button>
       </div>
 
-      {message ? <p className="text-xs text-blue-600 dark:text-blue-300 mb-4">{message}</p> : null}
-      {isLoading ? <p className="text-sm text-slate-500 dark:text-emerald-100/70 mb-4">Loading users...</p> : null}
+      {message ? <p className="text-xs text-black mb-4">{message}</p> : null}
+      {isLoading ? <p className="text-sm text-black mb-4">Loading users...</p> : null}
 
       <div className="v2-admin-stack">
         {users.map((user) => (
           <div key={user.id} onClick={() => startEditUser(user)} className="v2-card cursor-pointer v2-admin-stack rounded-2xl p-4">
             <div>
-              <p className="text-slate-900 dark:text-emerald-50 text-sm">{user.firstName} {user.lastName}</p>
-              <p className="text-slate-500 dark:text-emerald-100/70 text-xs">{user.phoneNumber}</p>
+              <p className="text-black text-sm">{user.firstName} {user.lastName}</p>
+              <p className="text-black text-xs">{user.phoneNumber}</p>
             </div>
 
             <div className="flex items-center justify-between">
-              <span className="text-xs tracking-wider text-emerald-700 dark:text-emerald-300">{user.role}</span>
-              <span className="text-xs text-slate-500 dark:text-emerald-100/70">{user.isActive ? 'Active' : 'Inactive'}</span>
+              <span className="text-xs tracking-wider text-black">{user.role}</span>
+              <span className="text-xs text-black">{user.isActive ? 'Active' : 'Inactive'}</span>
             </div>
 
-            <p className="text-xs text-slate-500 dark:text-emerald-100/70">Active since: {formatDate(user.createdAt)}</p>
+            <p className="text-xs text-black">Active since: {formatDate(user.createdAt)}</p>
 
             <button
               onClick={(event) => {
                 event.stopPropagation()
                 void removeUser(user.id)
               }}
-              className="rounded-xl border border-red-300 px-3 py-2 text-xs font-bold uppercase tracking-widest text-red-500"
+              className="rounded-xl border border-slate-300 px-3 py-2 text-xs font-bold uppercase tracking-widest text-black"
             >
               Delete
             </button>
 
             {selectedUserId === user.id ? (
               <div className="v2-admin-stack border-t border-slate-200 dark:border-emerald-900/60 pt-3" onClick={(event) => event.stopPropagation()}>
-                <p className="text-xs tracking-widest uppercase text-slate-500 dark:text-emerald-100/70">Edit User</p>
+                <p className="text-xs tracking-widest uppercase text-black">Edit User</p>
                 <div className="v2-admin-grid">
                   <input
                     value={editForm.firstName}
@@ -219,7 +219,7 @@ export function AdminUserManagementPage() {
                   </select>
                 </div>
 
-                <label className="text-xs text-slate-500 dark:text-emerald-100/70 flex items-center gap-2">
+                <label className="text-xs text-black flex items-center gap-2">
                   <input
                     type="checkbox"
                     checked={editForm.isActive}
@@ -237,7 +237,7 @@ export function AdminUserManagementPage() {
                   </button>
                   <button
                     onClick={() => setSelectedUserId(null)}
-                    className="py-2 border border-slate-200 dark:border-emerald-900/60 rounded-lg text-xs tracking-widest uppercase text-slate-500 dark:text-emerald-100/70"
+                    className="py-2 border border-slate-200 rounded-lg text-xs tracking-widest uppercase text-black"
                   >
                     Cancel
                   </button>
