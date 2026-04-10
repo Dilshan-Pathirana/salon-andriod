@@ -118,7 +118,7 @@ export function AdminQueueManagementPage() {
       </div>
 
       <div className="mb-6">
-        <label className="text-xs text-slate-500 dark:text-emerald-100/70 block mb-2 tracking-widest uppercase">Queue date</label>
+        <label className="text-xs text-black block mb-2 tracking-widest uppercase">Queue date</label>
         <input
           type="date"
           value={queueDate}
@@ -127,32 +127,32 @@ export function AdminQueueManagementPage() {
         />
       </div>
 
-      {message ? <p className="text-xs text-blue-600 dark:text-blue-300 mb-4">{message}</p> : null}
-      {isLoading ? <p className="text-sm text-slate-500 dark:text-emerald-100/70 mb-4">Loading queue...</p> : null}
-      {!isLoading && rows.length === 0 ? <p className="text-sm text-slate-500 dark:text-emerald-100/70 mb-6">No appointments for this day</p> : null}
+      {message ? <p className="text-xs text-black mb-4">{message}</p> : null}
+      {isLoading ? <p className="text-sm text-black mb-4">Loading queue...</p> : null}
+      {!isLoading && rows.length === 0 ? <p className="text-sm text-black mb-6">No appointments for this day</p> : null}
 
       <div className="v2-admin-stack mb-8">
         {rows.map((row, index) => (
           <div key={row.id} className="v2-card rounded-2xl p-3">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <p className="text-sm text-slate-900 dark:text-emerald-50">#{row.position} · {row.name}</p>
-                <p className="text-xs text-slate-500 dark:text-emerald-100/70">{row.phoneNumber} · {row.timeSlot}</p>
+                <p className="text-sm text-black">#{row.position} · {row.name}</p>
+                <p className="text-xs text-black">{row.phoneNumber} · {row.timeSlot}</p>
               </div>
-              <span className="text-xs tracking-wider text-emerald-700 dark:text-emerald-300">{row.status}</span>
+              <span className="text-xs tracking-wider text-black">{row.status}</span>
             </div>
 
             <div className="grid grid-cols-4 gap-2 mt-3">
-              <button onClick={() => void move(index, -1)} disabled={index === 0} className="rounded-xl border border-slate-200 dark:border-emerald-900/60 py-2 text-xs font-semibold text-slate-900 dark:text-emerald-50 disabled:opacity-40">Up</button>
-              <button onClick={() => void move(index, 1)} disabled={index === rows.length - 1} className="rounded-xl border border-slate-200 dark:border-emerald-900/60 py-2 text-xs font-semibold text-slate-900 dark:text-emerald-50 disabled:opacity-40">Down</button>
-              <button onClick={() => void completeEntry(row.id)} className="rounded-xl border border-emerald-300 py-2 text-xs font-semibold text-emerald-700">Complete</button>
-              <button onClick={() => void removeEntry(row.id)} className="rounded-xl border border-red-300 py-2 text-xs font-semibold text-red-500">Delete</button>
+              <button onClick={() => void move(index, -1)} disabled={index === 0} className="rounded-xl border border-slate-200 py-2 text-xs font-semibold text-black disabled:opacity-40">Up</button>
+              <button onClick={() => void move(index, 1)} disabled={index === rows.length - 1} className="rounded-xl border border-slate-200 py-2 text-xs font-semibold text-black disabled:opacity-40">Down</button>
+              <button onClick={() => void completeEntry(row.id)} className="rounded-xl border border-slate-300 py-2 text-xs font-semibold text-black">Complete</button>
+              <button onClick={() => void removeEntry(row.id)} className="rounded-xl border border-slate-300 py-2 text-xs font-semibold text-black">Delete</button>
             </div>
           </div>
         ))}
       </div>
 
-      <button onClick={() => void concludeSession()} className="w-full rounded-2xl border border-red-300 bg-white/70 py-3 text-xs font-bold uppercase tracking-widest text-red-500">
+      <button onClick={() => void concludeSession()} className="w-full rounded-2xl border border-slate-300 bg-white/70 py-3 text-xs font-bold uppercase tracking-widest text-black">
         Conclude Session
       </button>
     </motion.div>

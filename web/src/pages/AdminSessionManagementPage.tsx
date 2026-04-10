@@ -128,12 +128,12 @@ export function AdminSessionManagementPage() {
 
       <div className="v2-card mb-8 p-4">
         <div className="flex items-center justify-between mb-4">
-          <button disabled={!canPrev} onClick={() => canPrev && setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1))} className="text-xs text-slate-500 dark:text-emerald-100/70 disabled:opacity-30">Prev</button>
+          <button disabled={!canPrev} onClick={() => canPrev && setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1))} className="text-xs text-black disabled:opacity-30">Prev</button>
           <p className="v2-title text-lg">{monthLabel}</p>
-          <button disabled={!canNext} onClick={() => canNext && setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1))} className="text-xs text-slate-500 dark:text-emerald-100/70 disabled:opacity-30">Next</button>
+          <button disabled={!canNext} onClick={() => canNext && setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1))} className="text-xs text-black disabled:opacity-30">Next</button>
         </div>
 
-        <div className="grid grid-cols-7 gap-2 text-center text-xs mb-3 text-slate-500 dark:text-emerald-100/70">
+        <div className="grid grid-cols-7 gap-2 text-center text-xs mb-3 text-black">
           {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, index) => (
             <span key={`weekday-${index}`}>{day}</span>
           ))}
@@ -151,17 +151,17 @@ export function AdminSessionManagementPage() {
             const isSelected = selectedDate === dateKey
 
             const statusClass = !schedule
-              ? 'bg-white/70 text-slate-500'
+              ? 'bg-white/70 text-black'
               : schedule.status === 'OPEN'
-                ? 'bg-emerald-600 text-white shadow-sm transition-colors hover:bg-emerald-700'
-                : 'bg-orange-100 text-slate-900'
+                ? 'bg-emerald-200 text-black shadow-sm transition-colors hover:bg-emerald-300'
+                : 'bg-orange-100 text-black'
 
             return (
               <button
                 key={dateKey}
                 disabled={!inRange}
                 onClick={() => inRange && setSelectedDate(dateKey)}
-                className={`h-9 rounded-lg border text-xs ${isSelected ? 'border-emerald-500' : 'border-transparent'} ${inRange ? statusClass : 'cursor-not-allowed bg-white/40 text-slate-500/50'}`}
+                className={`h-9 rounded-lg border text-xs ${isSelected ? 'border-emerald-500' : 'border-transparent'} ${inRange ? statusClass : 'cursor-not-allowed bg-white/40 text-black/50'}`}
               >
                 {day}
               </button>
@@ -171,7 +171,7 @@ export function AdminSessionManagementPage() {
       </div>
 
       <div className="v2-card v2-admin-stack p-4">
-        <p className="text-xs tracking-widest uppercase text-slate-500 dark:text-emerald-100/70">Selected day: {selectedDate}</p>
+        <p className="text-xs tracking-widest uppercase text-black">Selected day: {selectedDate}</p>
 
         <select value={status} onChange={(event) => setStatus(event.target.value as DayStatus)} className="v2-input">
           <option value="OPEN">OPEN</option>
@@ -184,16 +184,16 @@ export function AdminSessionManagementPage() {
         </div>
 
         <div className="v2-card rounded-2xl p-3">
-          <p className="text-xs text-slate-500 dark:text-emerald-100/70">Approximate appointments (auto)</p>
-          <p className="v2-title text-2xl text-emerald-700">{appointmentEstimate}</p>
-          <p className="text-xs text-slate-500 dark:text-emerald-100/70">Calculated as total range minutes ÷ 30</p>
+          <p className="text-xs text-black">Approximate appointments (auto)</p>
+          <p className="v2-title text-2xl text-black">{appointmentEstimate}</p>
+          <p className="text-xs text-black">Calculated as total range minutes ÷ 30</p>
         </div>
 
         <button onClick={() => void saveDay()} disabled={isSaving} className="v2-btn-primary disabled:opacity-60">
           {isSaving ? 'Saving...' : 'Save Day'}
         </button>
 
-        {message ? <p className="text-xs text-blue-600 dark:text-blue-300">{message}</p> : null}
+        {message ? <p className="text-xs text-black">{message}</p> : null}
       </div>
     </motion.div>
   )
