@@ -26,7 +26,7 @@ export function HeroSection({ isLoggedIn, onBookClick }: HeroSectionProps) {
           transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }}
         >
           <h1 className="font-headline text-5xl font-extrabold text-white leading-[1.1] tracking-tight">
-            Book Your <br />Perfect Look
+            Book Your <br />#Perfect_Look
           </h1>
           <p className="text-white/80 font-body text-lg mt-4 max-w-[280px]">
             Experience sensory minimalism at Salon Ru Zero One.

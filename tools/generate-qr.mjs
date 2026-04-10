@@ -42,7 +42,7 @@ async function main() {
   const { text, output, size } = parseArgs(process.argv.slice(2));
 
   if (!text) {
-    console.error('Usage: npm run qr -- --text "https://example.com" [--output qr-output/my-code.png] [--size 512]');
+    console.error('Usage: npm run qr -- --text "https://drive.google.com/file/d/1FVeiBIYia3WWKtvuv_Pnbl1_YjH_A2-O/view?usp=drivesdk" [--output qr-output/my-code.png] [--size 512]');
     process.exit(1);
   }
 

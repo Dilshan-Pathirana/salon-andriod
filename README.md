@@ -47,6 +47,7 @@ API health: `http://localhost:8080/api/health`
 Workflow: `.github/workflows/docker-ec2-deploy.yml`
 
 Pipeline actions:
+
 1. Build backend/frontend images
 2. Push images to GHCR
 3. SSH into EC2
@@ -68,4 +69,32 @@ Application secrets are stored only on EC2 in `.env`.
 
 - `SYSTEM_MAP.md`
 - `DEPLOYMENT_EC2.md`
+- `DEPLOYMENT_FIREBASE_CLOUDRUN.md`
 - `database/migrations/001_init_postgresql.sql` (target SQL schema blueprint)
+
+## Firebase Hosting + Cloud Run
+
+This repository is prepared for Firebase Hosting (frontend) + Cloud Run (backend):
+
+1. Backend deploy from `backend/`:
+
+```bash
+gcloud run deploy backend-service \
+  --source . \
+  --region asia-south1 \
+  --allow-unauthenticated
+```
+
+1. Frontend build from `web/`:
+
+```bash
+npm run build
+```
+
+1. Hosting deploy from project root:
+
+```bash
+firebase deploy --only hosting
+```
+
+Rewrites are configured in `firebase.json` to forward `/api/**` to Cloud Run.

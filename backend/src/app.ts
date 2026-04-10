@@ -62,6 +62,14 @@ app.get('/api/health', (_req, res) => {
   });
 });
 
+app.get('/api/test', (_req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'Salon API test route is reachable',
+    timestamp: new Date().toISOString(),
+  });
+});
+
 // ─── Route modules ────────────────────────────────────────────────────────
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
