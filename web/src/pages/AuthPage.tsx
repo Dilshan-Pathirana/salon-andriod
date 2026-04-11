@@ -76,7 +76,7 @@ export function AuthPage({ onAuthSuccess }: AuthPageProps) {
     <motion.div {...pageMotionProps} className="min-h-screen flex flex-col px-6 pt-16 pb-12">
       {/* Brand */}
       <div className="mb-10 text-center">
-        <h1 className="font-headline text-4xl font-black text-emerald-900 tracking-widest uppercase">Lumina</h1>
+        <h1 className="font-headline text-4xl font-black text-emerald-900 tracking-widest uppercase">RU ZERO</h1>
         <p className="text-on-surface-variant text-sm mt-2 font-body">
           {mode === 'login' ? 'Welcome back' : 'Create your account'}
         </p>

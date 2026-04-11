@@ -80,7 +80,7 @@ export function HamburgerMenu({ isOpen, onClose, onSelect, items, isLoggedIn, on
             {/* Header */}
             <div className="flex h-28 items-end justify-between bg-gradient-to-br from-primary to-primary-container px-6 pb-6">
               <div>
-                <h2 className="font-headline text-2xl font-black text-on-primary tracking-widest uppercase">Lumina</h2>
+                <h2 className="font-headline text-2xl font-black text-on-primary tracking-widest uppercase">RU ZERO</h2>
                 <p className="text-sm font-label font-bold text-on-primary/70 mt-1">Navigate your experience</p>
               </div>
               <button

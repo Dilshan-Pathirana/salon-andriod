@@ -39,7 +39,7 @@ const testimonials = [
     role: 'Fashion Editor',
   },
   {
-    text: '"Lumina transformed my look completely. The stylists are true artists who listen to your needs."',
+    text: '"RU ZERO transformed my look completely. The stylists are true artists who listen to your needs."',
     author: 'David Chen',
     role: 'Architect',
   },
